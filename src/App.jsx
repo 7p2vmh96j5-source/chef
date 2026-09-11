@@ -433,9 +433,9 @@ export default function App() {
       setSheet(null); setStack([]); setTab("feed");
       showToast("Publicerat");
       if (supabase && userId) {
-        supabase.from("cooks").insert({
+        supabase.from("cooks").upsert({
           id: c.id, user_id: userId, recipe_id: recipeId || null, data: c,
-        }).then(({ error }) => {
+        }, { onConflict: "id" }).then(({ error }) => {
           if (error) {
             console.error("Kunde inte publicera inlägg:", error);
             showToast(`Inlägget kunde inte synkas: ${error.message}`);
@@ -452,7 +452,7 @@ export default function App() {
       setStack((s) => [...s, { type: "recipe", id, k: Date.now() }]);
       showToast("Recept sparat");
       if (supabase && userId) {
-        supabase.from("recipes").insert({ id, author_id: userId, data: rec })
+        supabase.from("recipes").upsert({ id, author_id: userId, data: rec }, { onConflict: "id" })
           .then(({ error }) => {
             if (error) {
               console.error("Kunde inte publicera recept:", error);
