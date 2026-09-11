@@ -64,3 +64,42 @@ using (auth.uid() = sender_id or auth.uid() = receiver_id);
 create policy "Användare kan skicka meddelanden"
 on public.messages for insert to authenticated
 with check (auth.uid() = sender_id);
+
+create table if not exists public.recipes (
+  id text primary key,
+  author_id uuid not null references auth.users(id) on delete cascade,
+  data jsonb not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.recipes enable row level security;
+
+drop policy if exists "Inloggade kan läsa recept" on public.recipes;
+create policy "Inloggade kan läsa recept"
+on public.recipes for select to authenticated
+using (true);
+
+drop policy if exists "Användare kan skapa recept" on public.recipes;
+create policy "Användare kan skapa recept"
+on public.recipes for insert to authenticated
+with check (auth.uid() = author_id);
+
+create table if not exists public.cooks (
+  id text primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  recipe_id text,
+  data jsonb not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.cooks enable row level security;
+
+drop policy if exists "Inloggade kan läsa inlägg" on public.cooks;
+create policy "Inloggade kan läsa inlägg"
+on public.cooks for select to authenticated
+using (true);
+
+drop policy if exists "Användare kan skapa inlägg" on public.cooks;
+create policy "Användare kan skapa inlägg"
+on public.cooks for insert to authenticated
+with check (auth.uid() = user_id);

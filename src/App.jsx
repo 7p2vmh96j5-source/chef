@@ -38,6 +38,7 @@ export default function App() {
   const [photos, setPhotos] = useState({});
   const [photosLoaded, setPhotosLoaded] = useState(false);
   const [profilesLoaded, setProfilesLoaded] = useState(false);
+  const [sharedLoaded, setSharedLoaded] = useState(false);
   const [followRelations, setFollowRelations] = useState([]);
   const userId = session?.user?.id || "";
   const userStorageKey = userId ? `${STORAGE_KEY}:${userId}` : STORAGE_KEY;
@@ -84,6 +85,7 @@ export default function App() {
     }
     setLoaded(false);
     setPhotosLoaded(false);
+    setSharedLoaded(false);
     setData(defaultData());
     setPhotos({});
     setFollowRelations([]);
@@ -193,6 +195,55 @@ export default function App() {
     return () => { active = false; };
   }, [userId]);
 
+  useEffect(() => {
+    if (!userId || !supabase || !loaded || !sharedLoaded) return undefined;
+    const syncKey = `koket:cloud-sync:${userId}`;
+    if (localStorage.getItem(syncKey) === "true") return undefined;
+    let active = true;
+    (async () => {
+      const results = await Promise.all([
+        ...data.myRecipes.map((recipe) => supabase.from("recipes").insert({
+          id: recipe.id, author_id: userId, data: recipe,
+        })),
+        ...data.myCooks.map((cook) => supabase.from("cooks").insert({
+          id: cook.id, user_id: userId, recipe_id: cook.recipeId || null, data: cook,
+        })),
+      ]);
+      if (active && results.every(({ error }) => !error || error.code === "23505")) {
+        localStorage.setItem(syncKey, "true");
+      }
+    })();
+    return () => { active = false; };
+  }, [userId, loaded, sharedLoaded]);
+
+  useEffect(() => {
+    if (!userId || !supabase) {
+      setSharedLoaded(!userId);
+      return undefined;
+    }
+    let active = true;
+    (async () => {
+      const [recipesResult, cooksResult] = await Promise.all([
+        supabase.from("recipes").select("id,author_id,data,created_at").order("created_at", { ascending: false }),
+        supabase.from("cooks").select("id,user_id,recipe_id,data,created_at").order("created_at", { ascending: false }),
+      ]);
+      if (!active) return;
+      if (recipesResult.error) console.error("Kunde inte läsa gemensamma recept:", recipesResult.error);
+      if (cooksResult.error) console.error("Kunde inte läsa gemensamma inlägg:", cooksResult.error);
+      setData((current) => ({
+        ...current,
+        sharedRecipes: (recipesResult.data || []).map((row) => ({
+          ...row.data, id: row.id, author: row.author_id === userId ? "me" : row.author_id,
+        })),
+        sharedCooks: (cooksResult.data || []).filter((row) => row.user_id !== userId).map((row) => ({
+          ...row.data, id: row.id, userId: row.user_id, recipeId: row.recipe_id, date: row.created_at,
+        })),
+      }));
+      setSharedLoaded(true);
+    })();
+    return () => { active = false; };
+  }, [userId]);
+
   // Foton sparas separat så att huvuddatan förblir liten
   useEffect(() => {
     if (!photosLoaded) return;
@@ -232,7 +283,7 @@ export default function App() {
   }, [sheet, stack.length]);
 
   const friendCooks = useMemo(() => [], []);
-  const allCooks = useMemo(() => [...friendCooks, ...data.myCooks], [friendCooks, data.myCooks]);
+  const allCooks = useMemo(() => [...friendCooks, ...data.sharedCooks, ...data.myCooks], [friendCooks, data.sharedCooks, data.myCooks]);
   const byUser = useMemo(() => {
     const m = {};
     allCooks.forEach((c) => { (m[c.userId] = m[c.userId] || []).push(c); });
@@ -241,9 +292,10 @@ export default function App() {
   const recipes = useMemo(() => {
     const m = {};
     SEED_RECIPES.filter((r) => r.author === null).forEach((r) => { m[r.id] = r; });
+    data.sharedRecipes.forEach((r) => { m[r.id] = r; });
     data.myRecipes.forEach((r) => { m[r.id] = r; });
     return m;
-  }, [data.myRecipes]);
+  }, [data.myRecipes, data.sharedRecipes]);
 
   const notifs = useMemo(() => buildNotifs(data.myCooks, data), [data.myCooks, data.seededAt]);
   const unread = notifs.filter((n) => n.date > data.notifSeen).length;
@@ -372,6 +424,13 @@ export default function App() {
       setData((d) => ({ ...d, myCooks: [c, ...d.myCooks] }));
       setSheet(null); setStack([]); setTab("feed");
       showToast("Publicerat");
+      if (supabase && userId) {
+        supabase.from("cooks").insert({
+          id: c.id, user_id: userId, recipe_id: recipeId || null, data: c,
+        }).then(({ error }) => {
+          if (error) console.error("Kunde inte publicera inlägg:", error);
+        });
+      }
       const friend = data.following[0];
       if (friend) {
         setTimeout(() => {
@@ -392,6 +451,12 @@ export default function App() {
       setSheet(null);
       setStack((s) => [...s, { type: "recipe", id, k: Date.now() }]);
       showToast("Recept sparat");
+      if (supabase && userId) {
+        supabase.from("recipes").insert({ id, author_id: userId, data: rec })
+          .then(({ error }) => {
+            if (error) console.error("Kunde inte publicera recept:", error);
+          });
+      }
     },
     removeRecipe: (id) => {
       const relatedCookIds = data.myCooks.filter((cook) => cook.recipeId === id).map((cook) => cook.id);
@@ -487,7 +552,7 @@ export default function App() {
     ["profile", "Profil", User],
   ];
 
-  if (!authLoaded || (session && (!loaded || !profilesLoaded))) {
+  if (!authLoaded || (session && (!loaded || !profilesLoaded || !sharedLoaded))) {
     return <div className="k-root"><main className="k-auth-loading">Laddar Köket...</main></div>;
   }
   if (recovery) return <AuthScreen recovery onRecoveryComplete={async () => {

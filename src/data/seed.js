@@ -45,6 +45,8 @@ export function defaultData() {
     notifSeen: new Date(now - DAY_MS).toISOString(),
     myRecipes: [],
     myCooks: [],
+    sharedRecipes: [],
+    sharedCooks: [],
     saved: [],
     recipeSaves: {},
     following: [],
