@@ -75,7 +75,7 @@ export function RecipeView({ id, app }) {
               <span>{who.length} vänner har lagat detta</span>
             </div>
           )}
-          <button className="k-primary" onClick={() => app.setSheet({ type: "log", recipeId: id })}><ChefHat size={20} />Jag lagade den</button>
+          <button className="k-primary" onClick={() => app.setSheet({ type: "log", recipeId: id })}><ChefHat size={20} />Jag lagade detta</button>
 
           <div className="k-block">
             <h2 className="k-h3">Ingredienser</h2>

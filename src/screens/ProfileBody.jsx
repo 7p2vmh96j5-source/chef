@@ -20,6 +20,12 @@ export function ProfileBody({ uid, app }) {
         ...Object.values(app.recipes).filter((r) => r.author === "me"),
         ...app.data.saved.map((id) => app.recipes[id]).filter(Boolean),
       ].map((recipe) => [recipe.id, recipe])).values()]
+      .sort((a, b) => {
+        const savedAt = app.data.recipeSavedAt || {};
+        const aTime = savedAt[a.id] || a.created_at || "";
+        const bTime = savedAt[b.id] || b.created_at || "";
+        return bTime.localeCompare(aTime) || String(b.id).localeCompare(String(a.id));
+      })
     : [];
   const top = topRecipes(cooks);
   const recent = [...cooks].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);

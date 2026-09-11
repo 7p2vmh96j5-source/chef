@@ -407,6 +407,9 @@ export default function App() {
       setData((d) => ({
         ...d,
         saved: on ? d.saved.filter((x) => x !== id) : [id, ...d.saved],
+        recipeSavedAt: on
+          ? d.recipeSavedAt
+          : { ...(d.recipeSavedAt || {}), [id]: new Date().toISOString() },
         recipeSaves: { ...d.recipeSaves, [id]: Math.max(0, (d.recipeSaves[id] || 0) + (on ? -1 : 1)) },
       }));
       showToast(on ? "Borttaget från Sparade" : "Sparat");
@@ -451,6 +454,7 @@ export default function App() {
         ...d,
         myRecipes: [rec, ...d.myRecipes],
         saved: [id, ...d.saved.filter((savedId) => savedId !== id)],
+        recipeSavedAt: { ...(d.recipeSavedAt || {}), [id]: new Date().toISOString() },
         recipeSaves: { ...d.recipeSaves, [id]: 1 },
       }));
       setSheet(null);
@@ -537,6 +541,7 @@ export default function App() {
         ...d,
         myRecipes: [rec, ...d.myRecipes],
         saved: [id, ...d.saved.filter((savedId) => savedId !== id)],
+        recipeSavedAt: { ...(d.recipeSavedAt || {}), [id]: new Date().toISOString() },
         recipeSaves: { ...d.recipeSaves, [id]: 1 },
       }));
       showToast("Eget recept sparat");

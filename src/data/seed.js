@@ -48,6 +48,7 @@ export function defaultData() {
     sharedRecipes: [],
     sharedCooks: [],
     saved: [],
+    recipeSavedAt: {},
     recipeSaves: {},
     following: [],
     mums: {},
