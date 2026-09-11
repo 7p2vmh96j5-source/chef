@@ -436,7 +436,10 @@ export default function App() {
         supabase.from("cooks").insert({
           id: c.id, user_id: userId, recipe_id: recipeId || null, data: c,
         }).then(({ error }) => {
-          if (error) console.error("Kunde inte publicera inlägg:", error);
+          if (error) {
+            console.error("Kunde inte publicera inlägg:", error);
+            showToast(`Inlägget kunde inte synkas: ${error.message}`);
+          }
         });
       }
     },
@@ -451,7 +454,10 @@ export default function App() {
       if (supabase && userId) {
         supabase.from("recipes").insert({ id, author_id: userId, data: rec })
           .then(({ error }) => {
-            if (error) console.error("Kunde inte publicera recept:", error);
+            if (error) {
+              console.error("Kunde inte publicera recept:", error);
+              showToast(`Receptet kunde inte synkas: ${error.message}`);
+            }
           });
       }
     },
