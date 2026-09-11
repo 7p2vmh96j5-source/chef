@@ -14,6 +14,13 @@ export function ProfileBody({ uid, app }) {
   const age = birthDate ? Math.max(0, Math.floor((Date.now() - new Date(`${birthDate}T00:00:00`).getTime()) / 31557600000)) : "";
   const cooks = app.cooksOf(uid);
   const authored = Object.values(app.recipes).filter((r) => r.author === uid);
+  const myProfileRecipes = isMe
+    ? [...new Map([
+        ...app.data.myRecipes,
+        ...Object.values(app.recipes).filter((r) => r.author === "me"),
+        ...app.data.saved.map((id) => app.recipes[id]).filter(Boolean),
+      ].map((recipe) => [recipe.id, recipe])).values()]
+    : [];
   const top = topRecipes(cooks);
   const recent = [...cooks].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   const followingIds = app.followingOf(uid);
@@ -86,7 +93,7 @@ export function ProfileBody({ uid, app }) {
           <button onClick={() => app.open("follows", uid, { tab: "following" })}><span>Följer</span><b>{followingIds.length}</b></button>
           <button onClick={() => app.open("follows", uid, { tab: "followers" })}><span>Följare</span><b>{followerIds.length}</b></button>
           <div><span>Antal rätter</span><b>{cooks.length}</b></div>
-          <div><span>Sparade recept</span><b>{app.data.saved.length}</b></div>
+          <div><span>Mina recept</span><b>{myProfileRecipes.length}</b></div>
         </div>
       </div>
 
@@ -96,8 +103,8 @@ export function ProfileBody({ uid, app }) {
           {seg === "activity" && activity}
           {seg === "gallery" && <Gallery cooks={cooks} app={app} empty="Inga matlagningar än. Logga din första så hamnar den här." />}
           {seg === "saved" && recipeList(
-            app.data.saved.map((id) => app.recipes[id]).filter(Boolean),
-            "Tryck på bokmärket på ett recept för att spara det här."
+            myProfileRecipes,
+            "Du har inga recept sparade ännu."
           )}
         </>
       ) : (
