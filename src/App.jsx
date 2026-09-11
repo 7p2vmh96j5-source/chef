@@ -256,18 +256,30 @@ export default function App() {
       (savesResult.data || []).filter((row) => row.user_id !== userId).forEach((row) => {
         (sharedSaves[row.recipe_id] ||= []).push({ userId: row.user_id, date: row.created_at });
       });
-      setData((current) => ({
-        ...current,
-        sharedRecipes: (recipesResult.data || []).map((row) => ({
-          ...row.data, id: row.id, author: row.author_id === userId ? "me" : row.author_id,
-        })),
-        sharedCooks: (cooksResult.data || []).filter((row) => row.user_id !== userId).map((row) => ({
-          ...row.data, id: row.id, userId: row.user_id, recipeId: row.recipe_id, date: row.created_at,
-        })),
-        sharedComments,
-        sharedMums,
-        sharedSaves,
-      }));
+      setData((current) => {
+        const myCooksById = new Map(current.myCooks.map((c) => [c.id, c]));
+        (cooksResult.data || []).filter((row) => row.user_id === userId).forEach((row) => {
+          if (!myCooksById.has(row.id)) myCooksById.set(row.id, { ...row.data, id: row.id });
+        });
+        const myRecipesById = new Map(current.myRecipes.map((r) => [r.id, r]));
+        (recipesResult.data || []).filter((row) => row.author_id === userId).forEach((row) => {
+          if (!myRecipesById.has(row.id)) myRecipesById.set(row.id, { ...row.data, id: row.id, author: "me" });
+        });
+        return {
+          ...current,
+          myCooks: [...myCooksById.values()].sort((a, b) => b.date.localeCompare(a.date)),
+          myRecipes: [...myRecipesById.values()],
+          sharedRecipes: (recipesResult.data || []).map((row) => ({
+            ...row.data, id: row.id, author: row.author_id === userId ? "me" : row.author_id,
+          })),
+          sharedCooks: (cooksResult.data || []).filter((row) => row.user_id !== userId).map((row) => ({
+            ...row.data, id: row.id, userId: row.user_id, recipeId: row.recipe_id, date: row.created_at,
+          })),
+          sharedComments,
+          sharedMums,
+          sharedSaves,
+        };
+      });
       setSharedLoaded(true);
     };
     loadShared();
@@ -558,6 +570,10 @@ export default function App() {
       });
       setStack((s) => s.slice(0, -1));
       showToast("Borttaget från Mina recept");
+      if (supabase && userId) {
+        supabase.from("recipes").delete().eq("id", id).eq("author_id", userId)
+          .then(({ error }) => { if (error) console.error("Kunde inte ta bort recept:", error); });
+      }
     },
     deleteCook: (cookId) => {
       setData((d) => {
@@ -581,6 +597,10 @@ export default function App() {
       });
       setStack((s) => s.slice(0, -1));
       showToast("Loggen är borttagen");
+      if (supabase && userId) {
+        supabase.from("cooks").delete().eq("id", cookId).eq("user_id", userId)
+          .then(({ error }) => { if (error) console.error("Kunde inte ta bort inlägg:", error); });
+      }
     },
     saveCookAsRecipe: (cook) => {
       const recipe = app.recipeOf(cook);
