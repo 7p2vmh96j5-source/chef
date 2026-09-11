@@ -63,7 +63,6 @@
 .k-feed-item{background:#fff;margin-bottom:8px;border-radius:12px;overflow:hidden}
 .k-post{background:#fff;margin-bottom:0;padding-top:14px}
 .k-post-h{display:flex;gap:10px;align-items:center;padding:0 16px}
-.k-post-detail .k-post-h{gap:16px}
 .k-save-recipe{display:flex;align-items:center;gap:4px;border:0;background:none;font-size:13px!important;font-weight:600!important;padding:7px 0 7px 6px}
 .k-save-recipe.saved{color:#8A6500}
 .k-name{display:block;font-size:15px;font-weight:600}
@@ -80,6 +79,7 @@
 .k-stats.big>*+*{padding-left:10px}
 .k-mutual{display:flex;align-items:center;gap:10px;margin-top:12px;background:none;border:0;padding:0;text-align:left;font-size:14px!important;color:#3C3C43!important}
 .k-media{display:block;width:100%}
+.k-post-h+.k-media{margin-top:14px}
 .k-photo{display:grid;place-items:center;width:100%;aspect-ratio:16/10;font-size:72px;line-height:1}
 .k-photo-img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#F2F2F7}
 .k-social{display:flex;justify-content:space-between;width:100%;padding:10px 16px 0;font-size:13px;color:#8E8E93;min-height:28px;background:#fff}
