@@ -197,24 +197,24 @@ export default function App() {
 
   useEffect(() => {
     if (!userId || !supabase || !loaded || !sharedLoaded) return undefined;
-    const syncKey = `koket:cloud-sync:${userId}`;
-    if (localStorage.getItem(syncKey) === "true") return undefined;
     let active = true;
     (async () => {
       const results = await Promise.all([
-        ...data.myRecipes.map((recipe) => supabase.from("recipes").insert({
+        ...data.myRecipes.map((recipe) => supabase.from("recipes").upsert({
           id: recipe.id, author_id: userId, data: recipe,
-        })),
-        ...data.myCooks.map((cook) => supabase.from("cooks").insert({
+        }, { onConflict: "id" })),
+        ...data.myCooks.map((cook) => supabase.from("cooks").upsert({
           id: cook.id, user_id: userId, recipe_id: cook.recipeId || null, data: cook,
-        })),
+        }, { onConflict: "id" })),
       ]);
-      if (active && results.every(({ error }) => !error || error.code === "23505")) {
-        localStorage.setItem(syncKey, "true");
+      if (active && results.some(({ error }) => error)) {
+        console.error("Kunde inte synkronisera lokala recept eller inlägg:", results
+          .filter(({ error }) => error)
+          .map(({ error }) => error));
       }
     })();
     return () => { active = false; };
-  }, [userId, loaded, sharedLoaded]);
+  }, [userId, loaded, sharedLoaded, data.myRecipes, data.myCooks]);
 
   useEffect(() => {
     if (!userId || !supabase) {
@@ -527,6 +527,12 @@ export default function App() {
       if (photos[cook.id]) setPhotos((p) => ({ ...p, [id]: p[cook.id] }));
       setData((d) => ({ ...d, myRecipes: [rec, ...d.myRecipes], recipeSaves: { ...d.recipeSaves, [id]: 1 } }));
       showToast("Eget recept sparat");
+      if (supabase && userId) {
+        supabase.from("recipes").upsert({ id, author_id: userId, data: rec }, { onConflict: "id" })
+          .then(({ error }) => {
+            if (error) console.error("Kunde inte publicera sparat recept:", error);
+          });
+      }
     },
     share: (recipeId, ids) => {
       setData((d) => {
