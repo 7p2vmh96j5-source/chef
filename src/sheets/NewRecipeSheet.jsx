@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { CATS, EMOJIS } from "../data/constants.js";
+import { EMOJIS } from "../data/constants.js";
 import { INGREDIENTS, COMMON_INGREDIENTS } from "../data/recipes.js";
 import { PhotoPicker } from "../components/PhotoPicker.jsx";
 import { Sheet } from "./Sheet.jsx";
 import { Search, Plus, X } from "lucide-react";
 
 export function NewRecipeSheet({ app, onClose }) {
-  const [f, setF] = useState({ title: "", category: "Middag", emoji: "🍲" });
+  const [f, setF] = useState({ title: "", emoji: "🍲" });
   const [err, setErr] = useState("");
   const [photo, setPhoto] = useState(null);
   const [sel, setSel] = useState([]);
@@ -41,7 +41,7 @@ export function NewRecipeSheet({ app, onClose }) {
     if (!ingredients.length) return setErr("Lägg till minst en ingrediens.");
     app.addRecipe({
       title: f.title.trim(),
-      category: f.category,
+      category: "Middag",
       time: 30,
       makes: "4 portioner",
       emoji: f.emoji,
@@ -59,13 +59,6 @@ export function NewRecipeSheet({ app, onClose }) {
       <div className="k-emojis">
         {EMOJIS.map((e) => (
           <button key={e} className={"k-emo" + (f.emoji === e ? " on" : "")} onClick={() => set("emoji", e)} aria-pressed={f.emoji === e}>{e}</button>
-        ))}
-      </div>
-
-      <label className="k-label">Kategori</label>
-      <div className="k-chips" style={{ padding: 0, flexWrap: "wrap" }}>
-        {CATS.slice(1).map((c) => (
-          <button key={c} className={"k-chip" + (f.category === c ? " on" : "")} onClick={() => set("category", c)}>{c}</button>
         ))}
       </div>
 

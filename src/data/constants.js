@@ -12,8 +12,6 @@ export const WEEKDAY = ["Söndag", "Måndag", "Tisdag", "Onsdag", "Torsdag", "Fr
 
 export const MONTHS = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
 
-export const CATS = ["Alla", "Middag", "Bakning", "Snabbt"];
-
 export const TILES = ["#FDEBD3", "#E6F0E1", "#EDE7F6", "#FFF1C2", "#FBE2DC", "#E0EEF6"];
 
 export const EMOJIS = ["🍲", "🥘", "🍝", "🥗", "🍰", "🍪", "🥧", "🍕", "🥞", "🍣", "🌯", "🥙"];

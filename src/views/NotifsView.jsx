@@ -14,6 +14,8 @@ export function NotifsView({ app, seenBefore }) {
     let text, go;
     if (n.type === "mums") { text = <>{name} tyckte mums om {r ? r.title : "din matlagning"}</>; go = () => app.open("cook", n.cookId); }
     else if (n.type === "comment") { text = <>{name} kommenterade {r ? r.title : "din matlagning"}: ”{n.text}”</>; go = () => app.open("cook", n.cookId); }
+    else if (n.type === "save") { text = <>{name} sparade {r ? r.title : "ditt recept"}</>; go = () => app.open("recipe", n.recipeId); }
+    else if (n.type === "cooked") { text = <>{name} lagade {r ? r.title : "din rätt"}</>; go = () => app.open("cook", n.cookId); }
     else if (n.type === "share") { text = <>{name} delade {r ? r.title : "ett recept"} med dig</>; go = () => app.open("recipe", n.recipeId); }
     else { text = <>{name} började följa dig</>; go = () => app.open("user", n.userId); }
 

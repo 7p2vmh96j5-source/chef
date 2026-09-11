@@ -231,13 +231,31 @@ export default function App() {
     }
     let active = true;
     (async () => {
-      const [recipesResult, cooksResult] = await Promise.all([
+      const [recipesResult, cooksResult, commentsResult, mumsResult, savesResult] = await Promise.all([
         supabase.from("recipes").select("id,author_id,data,created_at").order("created_at", { ascending: false }),
         supabase.from("cooks").select("id,user_id,recipe_id,data,created_at").order("created_at", { ascending: false }),
+        supabase.from("comments").select("id,cook_id,user_id,text,created_at").order("created_at", { ascending: true }),
+        supabase.from("mums").select("cook_id,user_id,created_at"),
+        supabase.from("saves").select("recipe_id,user_id,created_at"),
       ]);
       if (!active) return;
       if (recipesResult.error) console.error("Kunde inte läsa gemensamma recept:", recipesResult.error);
       if (cooksResult.error) console.error("Kunde inte läsa gemensamma inlägg:", cooksResult.error);
+      if (commentsResult.error) console.error("Kunde inte läsa kommentarer:", commentsResult.error);
+      if (mumsResult.error) console.error("Kunde inte läsa mums:", mumsResult.error);
+      if (savesResult.error) console.error("Kunde inte läsa sparade recept:", savesResult.error);
+      const sharedComments = {};
+      (commentsResult.data || []).filter((row) => row.user_id !== userId).forEach((row) => {
+        (sharedComments[row.cook_id] ||= []).push({ id: row.id, userId: row.user_id, text: row.text, date: row.created_at });
+      });
+      const sharedMums = {};
+      (mumsResult.data || []).filter((row) => row.user_id !== userId).forEach((row) => {
+        (sharedMums[row.cook_id] ||= []).push({ userId: row.user_id, date: row.created_at });
+      });
+      const sharedSaves = {};
+      (savesResult.data || []).filter((row) => row.user_id !== userId).forEach((row) => {
+        (sharedSaves[row.recipe_id] ||= []).push({ userId: row.user_id, date: row.created_at });
+      });
       setData((current) => ({
         ...current,
         sharedRecipes: (recipesResult.data || []).map((row) => ({
@@ -246,6 +264,9 @@ export default function App() {
         sharedCooks: (cooksResult.data || []).filter((row) => row.user_id !== userId).map((row) => ({
           ...row.data, id: row.id, userId: row.user_id, recipeId: row.recipe_id, date: row.created_at,
         })),
+        sharedComments,
+        sharedMums,
+        sharedSaves,
       }));
       setSharedLoaded(true);
     })();
@@ -305,7 +326,9 @@ export default function App() {
     return m;
   }, [data.myRecipes, data.sharedRecipes]);
 
-  const notifs = useMemo(() => buildNotifs(data.myCooks, data), [data.myCooks, data.seededAt]);
+  const notifs = useMemo(() => buildNotifs(data.myCooks, data), [
+    data.myCooks, data.myRecipes, data.sharedCooks, data.sharedMums, data.sharedComments, data.sharedSaves, data.seededAt,
+  ]);
   const unread = notifs.filter((n) => n.date > data.notifSeen).length;
 
   const showToast = (text) => setToast({ text, k: Date.now() });
@@ -369,11 +392,16 @@ export default function App() {
       const recipe = recipes[cook.recipeId] || null;
       return recipe && cook.steps ? { ...recipe, steps: cook.steps } : recipe;
     },
-    mumsOf: (cook) => [...cook.mums, ...(data.mums[cook.id] ? ["me"] : [])],
+    mumsOf: (cook) => [
+      ...cook.mums,
+      ...(data.mums[cook.id] ? ["me"] : []),
+      ...(data.sharedMums[cook.id] || []).map((m) => m.userId),
+    ],
     commentsOf: (cook) => [
       ...cook.comments.map((c, i) => ({ ...c, key: `${cook.id}-seed-${i}`, date: c.date || evDate(cook, 40 * (i + 1)) })),
       ...(data.comments[cook.id] || []).map((c, i) => ({ ...c, key: `${cook.id}-comment-${c.id || i}`, date: c.date || cook.date })),
-    ],
+      ...(data.sharedComments[cook.id] || []).map((c) => ({ ...c, key: `${cook.id}-shared-${c.id}` })),
+    ].sort((a, b) => a.date.localeCompare(b.date)),
     open: (type, id, extra) => {
       if (type === "user" && id === "me") { setStack([]); setTab("profile"); return; }
       setStack((s) => [...s, { ...extra, type, id, k: Date.now() }]);
@@ -383,14 +411,23 @@ export default function App() {
       setData((d) => ({ ...d, notifSeen: new Date().toISOString() }));
     },
     back: () => setStack((s) => s.slice(0, -1)),
-    toggleMums: (cookId) => setData((d) => (
-      d.mums[cookId]
-        ? d
-        : { ...d, mums: { ...d.mums, [cookId]: true } }
-    )),
-    addComment: (cookId, text) => setData((d) => ({
-      ...d, comments: { ...d.comments, [cookId]: [...(d.comments[cookId] || []), { id: "comment-" + Date.now(), userId: "me", text, date: new Date().toISOString() }] },
-    })),
+    toggleMums: (cookId) => {
+      if (data.mums[cookId]) return;
+      setData((d) => ({ ...d, mums: { ...d.mums, [cookId]: true } }));
+      if (supabase && userId) {
+        supabase.from("mums").upsert({ cook_id: cookId, user_id: userId }, { onConflict: "cook_id,user_id" })
+          .then(({ error }) => { if (error) console.error("Kunde inte spara mums:", error); });
+      }
+    },
+    addComment: (cookId, text) => {
+      setData((d) => ({
+        ...d, comments: { ...d.comments, [cookId]: [...(d.comments[cookId] || []), { id: "comment-" + Date.now(), userId: "me", text, date: new Date().toISOString() }] },
+      }));
+      if (supabase && userId) {
+        supabase.from("comments").insert({ cook_id: cookId, user_id: userId, text })
+          .then(({ error }) => { if (error) console.error("Kunde inte spara kommentar:", error); });
+      }
+    },
     toggleCommentLike: (commentKey) => setData((d) => {
       const current = d.commentLikes?.[commentKey] || [];
       const liked = current.includes("me");
@@ -413,6 +450,12 @@ export default function App() {
         recipeSaves: { ...d.recipeSaves, [id]: Math.max(0, (d.recipeSaves[id] || 0) + (on ? -1 : 1)) },
       }));
       showToast(on ? "Borttaget från Sparade" : "Sparat");
+      if (supabase && userId) {
+        const request = on
+          ? supabase.from("saves").delete().eq("recipe_id", id).eq("user_id", userId)
+          : supabase.from("saves").upsert({ recipe_id: id, user_id: userId }, { onConflict: "recipe_id,user_id" });
+        request.then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
+      }
     },
     toggleFollow: (id) => {
       if (id === "me" || id === userId) return;

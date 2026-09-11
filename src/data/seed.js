@@ -54,6 +54,9 @@ export function defaultData() {
     mums: {},
     comments: {},
     commentLikes: {},
+    sharedMums: {},
+    sharedComments: {},
+    sharedSaves: {},
     profile: { name: USERS.me.name, birthDate: "", location: "", bio: USERS.me.bio },
     messages: {},
   };

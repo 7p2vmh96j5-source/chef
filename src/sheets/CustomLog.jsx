@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Search, Plus, ChevronLeft, X } from "lucide-react";
-import { CATS, EMOJIS } from "../data/constants.js";
+import { EMOJIS } from "../data/constants.js";
 import { INGREDIENTS, COMMON_INGREDIENTS } from "../data/recipes.js";
 import { PhotoPicker } from "../components/PhotoPicker.jsx";
 import { Sheet } from "./Sheet.jsx";
 
 export function CustomLog({ app, onClose, onBack, initialTitle }) {
-  const [f, setF] = useState({ title: initialTitle || "", category: "Middag", emoji: "🍲" });
+  const [f, setF] = useState({ title: initialTitle || "", emoji: "🍲" });
   const [note, setNote] = useState("");
   const [photo, setPhoto] = useState(null);
   const [sel, setSel] = useState([]);
@@ -41,7 +41,7 @@ export function CustomLog({ app, onClose, onBack, initialTitle }) {
     const ingredients = sel.map((s) => (s.amount.trim() ? `${s.amount.trim()} ${s.name.charAt(0).toLowerCase() + s.name.slice(1)}` : s.name));
     app.logCook(null, note.trim(), photo, null, {
       title: f.title.trim(),
-      category: f.category,
+      category: "Middag",
       time: 30,
       makes: "4 portioner",
       emoji: f.emoji,
@@ -66,13 +66,6 @@ export function CustomLog({ app, onClose, onBack, initialTitle }) {
       <div className="k-emojis">
         {EMOJIS.map((e) => (
           <button key={e} className={"k-emo" + (f.emoji === e ? " on" : "")} onClick={() => set("emoji", e)} aria-pressed={f.emoji === e}>{e}</button>
-        ))}
-      </div>
-
-      <label className="k-label">Kategori</label>
-      <div className="k-chips" style={{ padding: 0, flexWrap: "wrap" }}>
-        {CATS.slice(1).map((c) => (
-          <button key={c} className={"k-chip" + (f.category === c ? " on" : "")} onClick={() => set("category", c)}>{c}</button>
         ))}
       </div>
 

@@ -33,6 +33,7 @@ export function mumsText(ids) {
 
 export function buildNotifs(myCooks, data) {
   const out = [];
+  const myRecipeIds = new Set((data.myRecipes || []).map((r) => r.id));
   myCooks.forEach((c) => {
     c.mums.forEach((uid, i) => out.push({
       key: `m-${c.id}-${uid}`, type: "mums", userId: uid, cookId: c.id, recipeId: c.recipeId,
@@ -42,6 +43,23 @@ export function buildNotifs(myCooks, data) {
       key: `c-${c.id}-${i}`, type: "comment", userId: cm.userId, cookId: c.id, recipeId: c.recipeId,
       text: cm.text, date: cm.date || evDate(c, 40 * (i + 1)),
     }));
+    (data.sharedMums?.[c.id] || []).forEach((m) => out.push({
+      key: `sm-${c.id}-${m.userId}`, type: "mums", userId: m.userId, cookId: c.id, recipeId: c.recipeId, date: m.date,
+    }));
+    (data.sharedComments?.[c.id] || []).forEach((cm) => out.push({
+      key: `sc-${c.id}-${cm.id}`, type: "comment", userId: cm.userId, cookId: c.id, recipeId: c.recipeId,
+      text: cm.text, date: cm.date,
+    }));
+  });
+  myRecipeIds.forEach((rid) => {
+    (data.sharedSaves?.[rid] || []).forEach((s) => out.push({
+      key: `sv-${rid}-${s.userId}`, type: "save", userId: s.userId, recipeId: rid, date: s.date,
+    }));
+  });
+  (data.sharedCooks || []).forEach((c) => {
+    if (c.recipeId && myRecipeIds.has(c.recipeId)) out.push({
+      key: `ck-${c.id}`, type: "cooked", userId: c.userId, cookId: c.id, recipeId: c.recipeId, date: c.date,
+    });
   });
   SHARED.forEach((s) => out.push({
     key: `s-${s.recipeId}`, type: "share", userId: s.from, recipeId: s.recipeId,

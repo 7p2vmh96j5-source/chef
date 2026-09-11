@@ -68,7 +68,7 @@ export function ProfileBody({ uid, app }) {
             : r.author && USERS[r.author]
               ? `Från ${first(USERS[r.author].name)}`
               : "Från Köket";
-          return <RecipeRow key={r.id} r={r} sub={`${source}, ${r.category}`} onClick={() => app.open("recipe", r.id)} />;
+          return <RecipeRow key={r.id} r={r} sub={source} onClick={() => app.open("recipe", r.id)} />;
         })}
       </div>
     );

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Search, RefreshCw } from "lucide-react";
-import { DAY_MS, CATS } from "../data/constants.js";
+import { DAY_MS } from "../data/constants.js";
 import { USERS } from "../data/users.js";
 import { first, times } from "../lib/format.js";
 import { Tile } from "../components/ui.jsx";
@@ -35,7 +35,7 @@ export function DiscoverScreen({ app }) {
   };
   const list = Object.values(app.recipes).filter((r) =>
     r.author !== "me" &&
-    (cat === "Alla" || (cat === "Vänner" ? friendIds.has(r.author) : r.category === cat)) &&
+    (cat === "Alla" || friendIds.has(r.author)) &&
     (!ql || r.title.toLowerCase().includes(ql) ||
       r.ingredients.some((i) => i.toLowerCase().includes(ql)) ||
       (r.author && USERS[r.author] && USERS[r.author].name.toLowerCase().includes(ql)))
@@ -67,7 +67,7 @@ export function DiscoverScreen({ app }) {
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Recept, ingrediens eller person" aria-label="Sök recept och personer" />
       </label>
       <div className="k-chips">
-        {["Alla", "Vänner", ...CATS.filter((c) => c !== "Alla")].map((c) => (
+        {["Alla", "Vänner"].map((c) => (
           <button key={c} className={"k-chip" + (cat === c ? " on" : "")} onClick={() => setCat(c)}>{c}</button>
         ))}
       </div>
@@ -89,7 +89,7 @@ export function DiscoverScreen({ app }) {
               </div>
             </>
           )}
-          <h2 className="k-sh">{ql ? `Resultat för ”${q.trim()}”` : cat === "Alla" ? "Alla recept" : cat === "Vänner" ? "Vänners recept" : cat}</h2>
+          <h2 className="k-sh">{ql ? `Resultat för ”${q.trim()}”` : cat === "Alla" ? "Alla recept" : "Vänners recept"}</h2>
           {list.length === 0 ? (
             <p className="k-empty">
               Inga recept matchar. Prova ett annat ord eller en annan kategori.
@@ -100,7 +100,7 @@ export function DiscoverScreen({ app }) {
                 <button key={r.id} className="k-gi" onClick={() => app.open("recipe", r.id)}>
                   <Tile r={r} size="100%" radius={16} font={64} />
                   <b>{r.title}</b>
-                  <span>{r.category}{r.author === "me" ? ", ditt recept" : r.author ? `, ${first(USERS[r.author].name)}` : ""}</span>
+                  <span>{r.author === "me" ? "Ditt recept" : r.author ? first(USERS[r.author].name) : ""}</span>
                 </button>
               ))}
             </div>

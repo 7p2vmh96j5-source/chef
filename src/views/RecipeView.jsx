@@ -61,7 +61,6 @@ export function RecipeView({ id, app }) {
           ? <img className="k-hero-img" src={app.photos[r.id]} alt={r.title} />
           : <div className="k-hero" style={{ background: r.tile }} aria-hidden="true">{r.emoji}</div>}
         <div className="k-rv">
-          <div className="k-cat">{r.category}</div>
           <h1>{r.title}</h1>
           {author ? (
             <button className="k-plain k-by" onClick={() => app.open("user", r.author)}>

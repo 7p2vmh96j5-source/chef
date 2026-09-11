@@ -97,7 +97,6 @@ export function LogSheet({ app, initial, onClose }) {
         <Tile r={r} size={56} />
         <span className="k-row-body">
           <span className="k-row-t">{r.title}</span>
-          <span className="k-row-s">{r.category}</span>
         </span>
         <button className="k-link-sm" onClick={() => setRid(null)}>Byt recept</button>
       </div>
