@@ -88,10 +88,6 @@
 .k-recipe-source{color:#8E8E93}
 .k-actions-wrap{position:relative;background:#fff}
 .k-mums-count{border:0;background:none;color:#8E8E93;padding:0;font-size:13px}
-.k-mums-act .k-pinch-hand{width:24px;height:24px;fill:#fff;stroke:#B9783C;stroke-width:1.3;stroke-linejoin:round}
-.k-mums-act .k-pinch-line{fill:none;stroke:#B9783C;stroke-width:1.1;stroke-linecap:round}
-.k-mums-act.on .k-pinch-hand{fill:#AEB9C1;stroke:#718291}
-.k-mums-act.on .k-pinch-line{stroke:#718291}
 .k-mums-page-head{display:flex;align-items:center;gap:8px;padding:18px 16px 10px;color:#8E8E93;font-size:15px}
 .k-more{display:block;font-size:14px;color:#8E8E93!important;padding:4px 0}
 .k-mums-from{display:flex;align-items:center;gap:12px;font-size:15px}
@@ -260,7 +256,6 @@
 .k-push-glass .k-row{background:rgba(255,255,255,.58)}
 .k-hero{display:grid;place-items:center;aspect-ratio:4/3;font-size:120px;line-height:1}
 .k-rv{padding:16px 16px 44px}
-.k-cat{font-size:14px;color:#8E8E93;font-weight:500}
 .k-rv h1{font-size:30px;font-weight:700;letter-spacing:-.6px;margin:2px 0 12px;line-height:1.1}
 .k-by{display:flex;align-items:center;gap:8px;font-size:15px}
 .k-rv .k-stats{padding:18px 0}
@@ -323,7 +318,7 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-root :focus-visible{outline-color:#66859E}
 .k-phone,.k-status,.k-panel,.k-feed-item,.k-post,.k-social,.k-actions-wrap,.k-compose,.k-nav,.k-confirm,.k-push,.k-sheet,.k-as-g,.k-as-cancel,.k-actions,.k-act,.k-message-view,.k-message-compose{background:#F9FBFC}
 .k-scroll.grey{background:#EEF3F7}
-.k-meta,.k-empty,.k-end,.k-recipe-credit,.k-recipe-source,.k-mums-count,.k-more,.k-cat,.k-tab,.k-label,.k-message-time,.k-message>small,.k-message-recipe small,.k-message-empty,.k-kitchen-note{color:#718291}
+.k-meta,.k-empty,.k-end,.k-recipe-credit,.k-recipe-source,.k-mums-count,.k-more,.k-tab,.k-label,.k-message-time,.k-message>small,.k-message-recipe small,.k-message-empty,.k-kitchen-note{color:#718291}
 .k-note,.k-cmt,.k-cm p,.k-mutual,.k-act,.k-search,.k-recipe-credit b,.k-mod,.k-tag,.k-shared,.k-message-recipe,.k-field,.k-input,.k-date-selects select,.k-message p{color:#344856}
 .k-stats span,.k-comment-like,.k-ed-btn,.k-save-count,.k-messages small{color:#718291}
 .k-stats>*+*,.k-compose,.k-nav,.k-sheet-f,.k-as-b+.k-as-b,.k-message-compose,.k-actions,.k-ed,.k-var li,.k-custom-steps li,.k-ing{border-color:#D5E0E8}
