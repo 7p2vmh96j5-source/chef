@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { USERS } from "../data/users.js";
-import { first, times, fmtTime, relDate } from "../lib/format.js";
+import { first, times, relDate } from "../lib/format.js";
 import { topRecipes, mutualText } from "../lib/social.js";
 import { Avatar, Seg } from "../components/ui.jsx";
 import { RecipeRow, FollowButton } from "../components/rows.jsx";
@@ -68,7 +68,7 @@ export function ProfileBody({ uid, app }) {
             : r.author && USERS[r.author]
               ? `Från ${first(USERS[r.author].name)}`
               : "Från Köket";
-          return <RecipeRow key={r.id} r={r} sub={`${source}, ${r.category}, ${fmtTime(r.time)}`} onClick={() => app.open("recipe", r.id)} />;
+          return <RecipeRow key={r.id} r={r} sub={`${source}, ${r.category}`} onClick={() => app.open("recipe", r.id)} />;
         })}
       </div>
     );

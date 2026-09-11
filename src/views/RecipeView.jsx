@@ -68,7 +68,7 @@ export function RecipeView({ id, app }) {
               <Avatar user={author} size={26} />{r.author === "me" ? "Ditt recept" : `Av ${author.name}`}
             </button>
           ) : <div className="k-by">Från Köket</div>}
-          <Stats r={r} approximate cookedCount={cookedCount} />
+          <Stats cookedCount={cookedCount} />
           {who.length > 0 && (
             <div className="k-proof">
               <div className="k-av-stack">{who.slice(0, 4).map((uid) => <Avatar key={uid} user={USERS[uid]} size={26} ring="#FFF4D6" />)}</div>

@@ -4,12 +4,6 @@ import { DAY_MS, WEEKDAY, MONTHS } from "../data/constants.js";
 
 export const first = (name) => name.split(" ")[0];
 
-export function fmtTime(m) {
-  if (m < 60) return `${m} min`;
-  const h = Math.floor(m / 60), r = m % 60;
-  return r ? `${h} h ${r} min` : `${h} h`;
-}
-
 export function relDate(iso) {
   const d = new Date(iso);
   const t = `kl. ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;

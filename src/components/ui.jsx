@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import { ChevronLeft, ChefHat } from "lucide-react";
-import { fmtTime } from "../lib/format.js";
 import { PhotoCtx } from "../lib/photoContext.js";
 
 export function Avatar({ user, size = 40, ring }) {
@@ -31,12 +30,11 @@ export function Tile({ r, size = 56, radius = 12, font, src }) {
   );
 }
 
-export function Stats({ r, approximate = false, cookedCount }) {
+export function Stats({ cookedCount }) {
+  if (cookedCount === undefined) return null;
   return (
     <div className="k-stats">
-      <div><span>Tid</span><b>{approximate ? "Ca " : ""}{fmtTime(r.time)}</b></div>
-      <div><span>Ger</span><b>{r.makes}</b></div>
-      {cookedCount !== undefined && <div><span><ChefHat size={14} /> Lagat</span><b>{cookedCount}</b></div>}
+      <div><span><ChefHat size={14} /> Lagat</span><b>{cookedCount}</b></div>
     </div>
   );
 }

@@ -95,6 +95,12 @@ create policy "Användare kan skapa recept"
 on public.recipes for insert to authenticated
 with check (auth.uid() = author_id);
 
+drop policy if exists "Användare kan uppdatera sina recept" on public.recipes;
+create policy "Användare kan uppdatera sina recept"
+on public.recipes for update to authenticated
+using (auth.uid() = author_id)
+with check (auth.uid() = author_id);
+
 create table if not exists public.cooks (
   id text primary key,
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -113,4 +119,10 @@ using (true);
 drop policy if exists "Användare kan skapa inlägg" on public.cooks;
 create policy "Användare kan skapa inlägg"
 on public.cooks for insert to authenticated
+with check (auth.uid() = user_id);
+
+drop policy if exists "Användare kan uppdatera sina inlägg" on public.cooks;
+create policy "Användare kan uppdatera sina inlägg"
+on public.cooks for update to authenticated
+using (auth.uid() = user_id)
 with check (auth.uid() = user_id);

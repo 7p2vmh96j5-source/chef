@@ -6,7 +6,7 @@ import { PhotoPicker } from "../components/PhotoPicker.jsx";
 import { Sheet } from "./Sheet.jsx";
 
 export function CustomLog({ app, onClose, onBack, initialTitle }) {
-  const [f, setF] = useState({ title: initialTitle || "", category: "Middag", time: "30", servings: "4", emoji: "🍲" });
+  const [f, setF] = useState({ title: initialTitle || "", category: "Middag", emoji: "🍲" });
   const [note, setNote] = useState("");
   const [photo, setPhoto] = useState(null);
   const [sel, setSel] = useState([]);
@@ -42,8 +42,8 @@ export function CustomLog({ app, onClose, onBack, initialTitle }) {
     app.logCook(null, note.trim(), photo, null, {
       title: f.title.trim(),
       category: f.category,
-      time: Math.max(1, parseInt(f.time, 10) || 30),
-      makes: `${Math.max(1, parseInt(f.servings, 10) || 4)} portioner`,
+      time: 30,
+      makes: "4 portioner",
       emoji: f.emoji,
       ingredients,
       steps: steps.map((step) => step.trim()).filter(Boolean),
@@ -74,17 +74,6 @@ export function CustomLog({ app, onClose, onBack, initialTitle }) {
         {CATS.slice(1).map((c) => (
           <button key={c} className={"k-chip" + (f.category === c ? " on" : "")} onClick={() => set("category", c)}>{c}</button>
         ))}
-      </div>
-
-      <div className="k-two">
-        <div>
-          <label className="k-label" htmlFor="k-ctime">Tid (minuter)</label>
-          <input id="k-ctime" className="k-input" inputMode="numeric" value={f.time} onChange={(e) => set("time", e.target.value.replace(/\D/g, ""))} />
-        </div>
-        <div>
-          <label className="k-label" htmlFor="k-cserv">Antal</label>
-          <input id="k-cserv" className="k-input" inputMode="numeric" value={f.servings} onChange={(e) => set("servings", e.target.value.replace(/\D/g, ""))} />
-        </div>
       </div>
 
       <label className="k-label">Foto (valfritt)</label>

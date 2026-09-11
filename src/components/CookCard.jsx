@@ -107,7 +107,7 @@ export function CookCard({ cook, app, detail, onComment }) {
               <div><span>Typ</span><b>Egen rätt</b></div>
               <div><span>Ingredienser</span><b>{r.ingredients.length}</b></div>
             </div>
-          ) : <Stats r={r} />}
+          ) : <Stats />}
           <div className="k-media">{media}</div>
           <button className="k-plain k-post-title" onClick={() => (custom ? openCook(false) : app.open("recipe", r.id))}>{r.title}</button>
           {!custom && <RecipeCredit recipe={r} cook={cook} app={app} />}

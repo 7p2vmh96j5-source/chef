@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Search, RefreshCw } from "lucide-react";
 import { DAY_MS, CATS } from "../data/constants.js";
 import { USERS } from "../data/users.js";
-import { first, times, fmtTime } from "../lib/format.js";
+import { first, times } from "../lib/format.js";
 import { Tile } from "../components/ui.jsx";
 import { RecipeRow, UserRow, FollowButton } from "../components/rows.jsx";
 
@@ -100,7 +100,7 @@ export function DiscoverScreen({ app }) {
                 <button key={r.id} className="k-gi" onClick={() => app.open("recipe", r.id)}>
                   <Tile r={r} size="100%" radius={16} font={64} />
                   <b>{r.title}</b>
-                  <span>{fmtTime(r.time)}{r.author === "me" ? ", ditt recept" : r.author ? `, ${first(USERS[r.author].name)}` : ""}</span>
+                  <span>{r.category}{r.author === "me" ? ", ditt recept" : r.author ? `, ${first(USERS[r.author].name)}` : ""}</span>
                 </button>
               ))}
             </div>

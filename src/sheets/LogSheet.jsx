@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Search, Plus, ChevronRight, X, MinusCircle, ChevronDown } from "lucide-react";
-import { fmtTime } from "../lib/format.js";
 import { toItems, itemsToMods } from "../lib/variants.js";
 import { Tile } from "../components/ui.jsx";
 import { PhotoPicker } from "../components/PhotoPicker.jsx";
@@ -98,7 +97,7 @@ export function LogSheet({ app, initial, onClose }) {
         <Tile r={r} size={56} />
         <span className="k-row-body">
           <span className="k-row-t">{r.title}</span>
-          <span className="k-row-s">{fmtTime(r.time)}, {r.makes}</span>
+          <span className="k-row-s">{r.category}</span>
         </span>
         <button className="k-link-sm" onClick={() => setRid(null)}>Byt recept</button>
       </div>
