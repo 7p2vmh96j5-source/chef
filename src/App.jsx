@@ -439,17 +439,6 @@ export default function App() {
           if (error) console.error("Kunde inte publicera inlägg:", error);
         });
       }
-      const friend = data.following[0];
-      if (friend) {
-        setTimeout(() => {
-          const at = new Date().toISOString();
-          setData((d) => ({
-            ...d,
-            myCooks: d.myCooks.map((x) => (x.id === c.id ? { ...x, mums: [...x.mums, friend], mumsAt: { ...x.mumsAt, [friend]: at } } : x)),
-          }));
-          showToast(`😋 ${first(USERS[friend].name)} tyckte mums`);
-        }, 4000);
-      }
     },
     addRecipe: (r, photo) => {
       const id = "u" + Date.now();

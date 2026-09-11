@@ -9,6 +9,10 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+drop policy if exists "Inloggade kan läsa profiler" on public.profiles;
+drop policy if exists "Användare kan skapa sin egen profil" on public.profiles;
+drop policy if exists "Användare kan ändra sin egen profil" on public.profiles;
+
 create policy "Inloggade kan läsa profiler"
 on public.profiles for select to authenticated
 using (true);
@@ -31,6 +35,10 @@ create table if not exists public.follows (
 );
 
 alter table public.follows enable row level security;
+
+drop policy if exists "Inloggade kan läsa följningar" on public.follows;
+drop policy if exists "Användare kan följa" on public.follows;
+drop policy if exists "Användare kan sluta följa" on public.follows;
 
 create policy "Inloggade kan läsa följningar"
 on public.follows for select to authenticated
@@ -56,6 +64,9 @@ create table if not exists public.messages (
 );
 
 alter table public.messages enable row level security;
+
+drop policy if exists "Användare kan läsa sina meddelanden" on public.messages;
+drop policy if exists "Användare kan skicka meddelanden" on public.messages;
 
 create policy "Användare kan läsa sina meddelanden"
 on public.messages for select to authenticated
