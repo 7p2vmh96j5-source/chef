@@ -1,4 +1,4 @@
-import { Bookmark, BookmarkPlus, MessageCircle, ChefHat, Share } from "lucide-react";
+import { Bookmark, BookmarkPlus, MessageCircle, ChefHat, Share, Hand } from "lucide-react";
 import { USERS } from "../data/users.js";
 import { first, relDate } from "../lib/format.js";
 import { modList } from "../lib/variants.js";
@@ -39,8 +39,8 @@ export function CookActions({ cook, app, onComment, detail }) {
     <div className="k-actions-wrap">
       {!detail && <div className="k-social">{socialInner}</div>}
       <div className="k-actions">
-        <button className={"k-act" + (mine ? " on" : "")} disabled={cook.userId === "me" || mine} aria-pressed={mine} onClick={() => app.toggleMums(cook.id)}>
-          Mums
+        <button className={"k-act k-mums-act" + (mine ? " on" : "")} disabled={cook.userId === "me" || mine} aria-label="Ge mums" aria-pressed={mine} onClick={() => app.toggleMums(cook.id)}>
+          <Hand size={21} strokeWidth={2.2} aria-hidden="true" />
         </button>
         <button className="k-act" onClick={() => (detail ? onComment && onComment() : app.open("cook", cook.id, { focus: true }))}><MessageCircle size={19} />Kommentera</button>
         {!custom && <button className="k-act" onClick={() => app.open("recipe", r.id)}><ChefHat size={19} />Recept</button>}
