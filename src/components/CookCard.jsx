@@ -80,7 +80,7 @@ export function CookCard({ cook, app, detail, onComment }) {
         <button className="k-plain" onClick={() => app.open("user", u.id)} aria-label={u.name}><Avatar user={u} size={40} /></button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <button className="k-plain k-name" onClick={() => app.open("user", u.id)}>{isMe ? "Du" : u.name}</button>
-          <div className="k-meta">{relDate(cook.date)}, {r.category.toLowerCase()}</div>
+          <div className="k-meta">{relDate(cook.date)}</div>
         </div>
         {!detail && !custom && (
           <button className="k-feed-share" onClick={() => app.setSheet({ type: "share", recipeId: r.id })} aria-label={`Dela ${r.title}`}>
