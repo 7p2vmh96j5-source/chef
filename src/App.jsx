@@ -230,7 +230,7 @@ export default function App() {
       return undefined;
     }
     let active = true;
-    (async () => {
+    const loadShared = async () => {
       const [recipesResult, cooksResult, commentsResult, mumsResult, savesResult] = await Promise.all([
         supabase.from("recipes").select("id,author_id,data,created_at").order("created_at", { ascending: false }),
         supabase.from("cooks").select("id,user_id,recipe_id,data,created_at").order("created_at", { ascending: false }),
@@ -269,8 +269,16 @@ export default function App() {
         sharedSaves,
       }));
       setSharedLoaded(true);
-    })();
-    return () => { active = false; };
+    };
+    loadShared();
+    const onVisible = () => { if (document.visibilityState === "visible") loadShared(); };
+    document.addEventListener("visibilitychange", onVisible);
+    const interval = window.setInterval(loadShared, 20000);
+    return () => {
+      active = false;
+      document.removeEventListener("visibilitychange", onVisible);
+      window.clearInterval(interval);
+    };
   }, [userId]);
 
   // Foton sparas separat så att huvuddatan förblir liten
