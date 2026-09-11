@@ -1,6 +1,6 @@
 # Köket
 
-Social app för matlagning och bakning. Prototypen från Claude, uppsatt som ett riktigt webbprojekt (React + Vite).
+Social app för matlagning och bakning.(React + Vite).
 
 ## Kom igång
 
@@ -21,7 +21,7 @@ npm run dev     # startar appen
 
 | Fil | Vad den gör |
 | --- | --- |
-| `src/App.jsx` | Hela appen (samma kod som i Claude) |
+| `src/App.jsx` | Hela appen|
 | `src/storage.js` | Sparar data i webbläsaren. Byts mot Supabase senare |
 | `src/main.jsx` | Startar appen |
 | `index.html` | Sidan appen laddas i |
