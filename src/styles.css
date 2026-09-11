@@ -30,6 +30,12 @@
 .k-profile-photo-button:active{opacity:.75}
 .k-settings-photo{position:relative;width:88px;height:88px;margin:4px auto 20px}
 .k-settings-photo-edit{position:absolute;right:-2px;bottom:-2px;width:30px;height:30px;border:2px solid #fff;border-radius:50%;background:#FFB800;display:grid;place-items:center}
+.k-ph-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.k-ph-add,.k-ph-more,.k-ph-prev{aspect-ratio:1/1;border-radius:14px}
+.k-ph-add,.k-ph-more{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1.5px dashed #C7C7CC;background:#EEF3F7;color:#3C3C43!important;font-size:14px;font-weight:600!important}
+.k-ph-more{color:#8E8E93!important;font-weight:500!important;background:#F2F2F7}
+.k-ph-prev{position:relative;overflow:hidden;background:#EEF3F7}
+.k-ph-prev img{display:block;width:100%;height:100%;object-fit:cover}
 .k-settings-photo-picker{position:absolute;width:1px;height:1px;overflow:hidden;opacity:0}
 .k-date-selects{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:8px}
 .k-date-selects select{min-width:0;border:0;border-radius:10px;background:#F2F2F7;padding:11px 10px;font:inherit;font-size:16px;color:#000}
@@ -100,9 +106,6 @@
 .k-notif.new{background:#FFF9E8}
 .k-notif-t{font-size:15px;line-height:1.3}
 .k-notif-t b{font-weight:600}
-.k-ph-add{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:120px;border:1.5px dashed #C7C7CC;border-radius:14px;background:#F9F9FB;color:#3C3C43!important;font-size:16px!important;font-weight:600!important}
-.k-ph-prev{position:relative}
-.k-ph-prev img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:14px}
 .k-ph-x{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:16px;border:0;background:rgba(0,0,0,.6);color:#fff!important;display:grid;place-items:center}
 .k-hero-img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
 .k-mods{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px 0}
@@ -325,7 +328,7 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-note,.k-cmt,.k-cm p,.k-mutual,.k-act,.k-search,.k-recipe-credit b,.k-mod,.k-tag,.k-shared,.k-message-recipe,.k-field,.k-input,.k-date-selects select,.k-message p{color:#344856}
 .k-stats span,.k-comment-like,.k-ed-btn,.k-save-count,.k-messages small{color:#718291}
 .k-stats>*+*,.k-compose,.k-nav,.k-sheet-f,.k-as-b+.k-as-b,.k-message-compose,.k-actions,.k-ed,.k-var li,.k-custom-steps li,.k-ing{border-color:#D5E0E8}
-.k-search,.k-field,.k-input,.k-date-selects select,.k-mod,.k-tag,.k-step-dot,.k-add-i,.k-mums,.k-message p,.k-message-recipe,.k-message-compose select,.k-feed-share,.k-ph-add{background:#EEF3F7}
+.k-search,.k-field,.k-input,.k-date-selects select,.k-mod,.k-tag,.k-step-dot,.k-add-i,.k-mums,.k-message p,.k-message-recipe,.k-message-compose select,.k-feed-share{background:#EEF3F7}
 .k-search{color:#718291}
 .k-refresh:active,.k-confirm-close,.k-recipe-menu button:active,.k-feed-share:active{background:#E3EBF1}
 .k-settings-photo-edit,.k-kitchen-note,.k-send,.k-plus,.k-primary,.k-steps li::before,.k-create-i,.k-as-i,.k-tag.added,.k-act.on .k-mums{background:#6D8CA5}
