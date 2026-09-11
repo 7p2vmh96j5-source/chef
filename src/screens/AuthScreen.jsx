@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { ChefHat, Eye, EyeOff } from "lucide-react";
-import { supabase, supabaseConfigError } from "../lib/supabase.js";
+import { REMEMBER_LOGIN_KEY, supabase, supabaseConfigError } from "../lib/supabase.js";
 
 export function AuthScreen({ recovery = false, onRecoveryComplete }) {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberLogin, setRememberLogin] = useState(() => localStorage.getItem(REMEMBER_LOGIN_KEY) === "true");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -47,6 +48,7 @@ export function AuthScreen({ recovery = false, onRecoveryComplete }) {
     }
 
     setBusy(true);
+    localStorage.setItem(REMEMBER_LOGIN_KEY, String(rememberLogin));
     const result = mode === "login"
       ? await supabase.auth.signInWithPassword({ email: email.trim(), password })
       : await supabase.auth.signUp({ email: email.trim(), password });
@@ -89,6 +91,10 @@ export function AuthScreen({ recovery = false, onRecoveryComplete }) {
             <input id="auth-confirm-password" className="k-input" type={showPassword ? "text" : "password"} autoComplete="new-password"
               value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="Skriv lösenordet igen" />
           </>}
+          {!recovery && mode === "login" && <label className="k-auth-remember">
+            <input type="checkbox" checked={rememberLogin} onChange={(event) => setRememberLogin(event.target.checked)} />
+            <span>Kom ihåg mig på den här enheten</span>
+          </label>}
           {error && <p className="k-auth-error" role="alert">{error}</p>}
           {message && <p className="k-auth-message" role="status">{message}</p>}
           <button className="k-primary k-auth-submit" type="submit" disabled={busy}>

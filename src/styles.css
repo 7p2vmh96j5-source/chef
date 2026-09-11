@@ -343,6 +343,8 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-auth-password{position:relative}
 .k-auth-password .k-input{padding-right:44px}
 .k-auth-password-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;background:none;color:#718291;display:grid;place-items:center}
+.k-auth-remember{display:flex;align-items:center;gap:9px;margin-top:14px;color:#718291;font-size:14px;cursor:pointer}
+.k-auth-remember input{width:17px;height:17px;margin:0;accent-color:#6D8CA5}
 .k-auth-submit{margin-top:22px}
 .k-auth-switch{display:block;margin:20px auto 0;border:0;background:none;color:#607E96;font-size:14px;font-weight:600}
 .k-auth-error,.k-auth-message{margin:12px 0 0;font-size:14px}
