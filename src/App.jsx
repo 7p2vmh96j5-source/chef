@@ -444,7 +444,6 @@ export default function App() {
       setSheet(null);
       showToast(`Delat med ${ids.length === 1 ? first(USERS[ids[0]].name) : `${ids.length} vänner`}`);
     },
-    reset: () => { setData(defaultData()); setPhotos({}); setStack([]); showToast("Demodata återställd"); },
   };
 
   const TABS = [

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, RotateCcw } from "lucide-react";
+import { Plus } from "lucide-react";
 import { USERS } from "../data/users.js";
 import { first, times, fmtTime, relDate } from "../lib/format.js";
 import { topRecipes, mutualText } from "../lib/social.js";
@@ -99,7 +99,6 @@ export function ProfileBody({ uid, app }) {
             app.data.saved.map((id) => app.recipes[id]).filter(Boolean),
             "Tryck på bokmärket på ett recept för att spara det här."
           )}
-          <button className="k-reset" onClick={app.reset}><RotateCcw size={14} />Återställ demodata</button>
         </>
       ) : (
         <>
