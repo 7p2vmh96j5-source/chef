@@ -447,7 +447,12 @@ export default function App() {
       const id = "u" + Date.now();
       const rec = { ...r, id, author: "me", tile: TILES[data.myRecipes.length % TILES.length] };
       if (photo) setPhotos((p) => ({ ...p, [id]: photo }));
-      setData((d) => ({ ...d, myRecipes: [rec, ...d.myRecipes], recipeSaves: { ...d.recipeSaves, [id]: 1 } }));
+      setData((d) => ({
+        ...d,
+        myRecipes: [rec, ...d.myRecipes],
+        saved: [id, ...d.saved.filter((savedId) => savedId !== id)],
+        recipeSaves: { ...d.recipeSaves, [id]: 1 },
+      }));
       setSheet(null);
       setStack((s) => [...s, { type: "recipe", id, k: Date.now() }]);
       showToast("Recept sparat");
@@ -528,7 +533,12 @@ export default function App() {
         steps: recipe.steps,
       };
       if (photos[cook.id]) setPhotos((p) => ({ ...p, [id]: p[cook.id] }));
-      setData((d) => ({ ...d, myRecipes: [rec, ...d.myRecipes], recipeSaves: { ...d.recipeSaves, [id]: 1 } }));
+      setData((d) => ({
+        ...d,
+        myRecipes: [rec, ...d.myRecipes],
+        saved: [id, ...d.saved.filter((savedId) => savedId !== id)],
+        recipeSaves: { ...d.recipeSaves, [id]: 1 },
+      }));
       showToast("Eget recept sparat");
       if (supabase && userId) {
         supabase.from("recipes").upsert({ id, author_id: userId, data: rec }, { onConflict: "id" })

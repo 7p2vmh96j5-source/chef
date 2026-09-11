@@ -120,12 +120,6 @@ export function CookCard({ cook, app, detail, onComment }) {
           {!custom && <RecipeCredit recipe={r} cook={cook} app={app} />}
           {cook.note && <p className="k-note">{cook.note}</p>}
           {cook.mods && <Mods mods={cook.mods} limit={3} onMore={() => openCook(false)} />}
-          {custom ? (
-            <div className="k-stats">
-              <div><span>Typ</span><b>Egen rätt</b></div>
-              <div><span>Ingredienser</span><b>{r.ingredients.length}</b></div>
-            </div>
-          ) : <Stats r={r} />}
           <button className="k-plain k-media" onClick={() => openCook(false)} aria-label={`Visa inlägget om ${r.title}`}>{media}</button>
         </>
       )}
