@@ -164,6 +164,35 @@ export default function App() {
     return () => { active = false; };
   }, [userId, session]);
 
+  useEffect(() => {
+    if (!userId || !supabase) return undefined;
+    let active = true;
+    supabase.from("messages")
+      .select("id,sender_id,receiver_id,text,recipe_id,created_at")
+      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+      .order("created_at", { ascending: true })
+      .then(({ data: rows, error }) => {
+        if (!active) return;
+        if (error) {
+          console.error("Kunde inte läsa meddelanden:", error);
+          return;
+        }
+        const messages = {};
+        rows.forEach((row) => {
+          const otherId = row.sender_id === userId ? row.receiver_id : row.sender_id;
+          (messages[otherId] ||= []).push({
+            id: row.id,
+            userId: row.sender_id === userId ? "me" : row.sender_id,
+            text: row.text || "",
+            recipeId: row.recipe_id,
+            date: row.created_at,
+          });
+        });
+        setData((current) => ({ ...current, messages }));
+      });
+    return () => { active = false; };
+  }, [userId]);
+
   // Foton sparas separat så att huvuddatan förblir liten
   useEffect(() => {
     if (!photosLoaded) return;
@@ -227,16 +256,20 @@ export default function App() {
       const { error } = await supabase.auth.signOut();
       if (error) showToast("Det gick inte att logga ut");
     },
-    sendMessage: (userId, text, sharedRecipeId) => setData((d) => ({
-      ...d,
-      messages: {
-        ...d.messages,
-        [userId]: [
-          ...(d.messages[userId] || []),
-          { id: "msg-" + Date.now(), userId: "me", text, recipeId: sharedRecipeId, date: new Date().toISOString() },
-        ],
-      },
-    })),
+    sendMessage: (receiverId, text, sharedRecipeId) => {
+      const localMessage = { id: "local-" + Date.now(), userId: "me", text, recipeId: sharedRecipeId, date: new Date().toISOString() };
+      setData((d) => ({
+        ...d,
+        messages: { ...d.messages, [receiverId]: [...(d.messages[receiverId] || []), localMessage] },
+      }));
+      if (supabase && userId) {
+        supabase.from("messages").insert({
+          sender_id: userId, receiver_id: receiverId, text, recipe_id: sharedRecipeId || null,
+        }).then(({ error }) => {
+          if (error) console.error("Kunde inte skicka meddelande:", error);
+        });
+      }
+    },
     updateProfile: (profile, photo) => {
       setData((d) => ({ ...d, profile: { ...(d.profile || {}), ...profile } }));
       USERS.me = { ...USERS.me, ...profile };
