@@ -75,7 +75,7 @@ export function CookCard({ cook, app, detail, onComment }) {
     : <span className="k-photo" style={{ background: r.tile }}><span aria-hidden="true">{r.emoji}</span></span>;
 
   return (
-    <article className="k-post">
+    <article className={"k-post" + (detail ? " k-post-detail" : "")}>
       <header className="k-post-h">
         <button className="k-plain" onClick={() => app.open("user", u.id)} aria-label={u.name}><Avatar user={u} size={40} /></button>
         <div style={{ flex: 1, minWidth: 0 }}>

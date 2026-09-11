@@ -63,6 +63,7 @@
 .k-feed-item{background:#fff;margin-bottom:8px;border-radius:12px;overflow:hidden}
 .k-post{background:#fff;margin-bottom:0;padding-top:14px}
 .k-post-h{display:flex;gap:10px;align-items:center;padding:0 16px}
+.k-post-detail .k-post-h{gap:16px}
 .k-save-recipe{display:flex;align-items:center;gap:4px;border:0;background:none;font-size:13px!important;font-weight:600!important;padding:7px 0 7px 6px}
 .k-save-recipe.saved{color:#8A6500}
 .k-name{display:block;font-size:15px;font-weight:600}
