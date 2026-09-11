@@ -4,8 +4,11 @@ create table if not exists public.profiles (
   bio text not null default '',
   location text not null default '',
   photo_url text,
+  birth_date date,
   created_at timestamptz not null default now()
 );
+
+alter table public.profiles add column if not exists birth_date date;
 
 alter table public.profiles enable row level security;
 
@@ -80,9 +83,11 @@ create table if not exists public.recipes (
   id text primary key,
   author_id uuid not null references auth.users(id) on delete cascade,
   data jsonb not null,
+  photo text,
   created_at timestamptz not null default now()
 );
 
+alter table public.recipes add column if not exists photo text;
 alter table public.recipes enable row level security;
 
 drop policy if exists "Inloggade kan läsa recept" on public.recipes;
@@ -111,9 +116,11 @@ create table if not exists public.cooks (
   user_id uuid not null references auth.users(id) on delete cascade,
   recipe_id text,
   data jsonb not null,
+  photo text,
   created_at timestamptz not null default now()
 );
 
+alter table public.cooks add column if not exists photo text;
 alter table public.cooks enable row level security;
 
 drop policy if exists "Inloggade kan läsa inlägg" on public.cooks;

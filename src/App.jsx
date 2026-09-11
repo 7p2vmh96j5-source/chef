@@ -130,7 +130,7 @@ export default function App() {
     }
     let active = true;
     (async () => {
-      const { data: profileRows, error } = await supabase.from("profiles").select("id,name,bio,location,photo_url");
+      const { data: profileRows, error } = await supabase.from("profiles").select("id,name,bio,location,photo_url,birth_date");
       if (!active) return;
       if (error) {
         console.error("Kunde inte läsa profiler:", error);
@@ -144,7 +144,7 @@ export default function App() {
       });
       const currentProfile = profileRows.find((profile) => profile.id === userId);
       const fallbackName = session.user.user_metadata?.full_name || session.user.email?.split("@")[0]?.replace(/[._-]+/g, " ").trim() || USERS.me.name;
-      const ownProfile = currentProfile || { id: userId, name: fallbackName, bio: "", location: "", photo_url: null };
+      const ownProfile = currentProfile || { id: userId, name: fallbackName, bio: "", location: "", photo_url: null, birth_date: null };
       USERS.me = { ...USERS.me, name: ownProfile.name || fallbackName, bio: ownProfile.bio || "" };
       setData((current) => ({
         ...current,
@@ -153,6 +153,7 @@ export default function App() {
           name: ownProfile.name || fallbackName,
           bio: ownProfile.bio || "",
           location: ownProfile.location || "",
+          birthDate: ownProfile.birth_date || "",
         },
       }));
       if (ownProfile.photo_url) {
@@ -209,10 +210,10 @@ export default function App() {
     (async () => {
       const results = await Promise.all([
         ...data.myRecipes.map((recipe) => supabase.from("recipes").upsert({
-          id: recipe.id, author_id: userId, data: recipe,
+          id: recipe.id, author_id: userId, data: recipe, photo: photos[recipe.id] || null,
         }, { onConflict: "id" })),
         ...data.myCooks.map((cook) => supabase.from("cooks").upsert({
-          id: cook.id, user_id: userId, recipe_id: cook.recipeId || null, data: cook,
+          id: cook.id, user_id: userId, recipe_id: cook.recipeId || null, data: cook, photo: photos[cook.id] || null,
         }, { onConflict: "id" })),
       ]);
       if (active && results.some(({ error }) => error)) {
@@ -232,8 +233,8 @@ export default function App() {
     let active = true;
     const loadShared = async () => {
       const [recipesResult, cooksResult, commentsResult, mumsResult, savesResult] = await Promise.all([
-        supabase.from("recipes").select("id,author_id,data,created_at").order("created_at", { ascending: false }),
-        supabase.from("cooks").select("id,user_id,recipe_id,data,created_at").order("created_at", { ascending: false }),
+        supabase.from("recipes").select("id,author_id,data,photo,created_at").order("created_at", { ascending: false }),
+        supabase.from("cooks").select("id,user_id,recipe_id,data,photo,created_at").order("created_at", { ascending: false }),
         supabase.from("comments").select("id,cook_id,user_id,text,created_at").order("created_at", { ascending: true }),
         supabase.from("mums").select("cook_id,user_id,created_at"),
         supabase.from("saves").select("recipe_id,user_id,created_at"),
@@ -280,6 +281,17 @@ export default function App() {
           sharedSaves,
         };
       });
+      setPhotos((current) => {
+        const next = { ...current };
+        (recipesResult.data || []).forEach((row) => { if (row.photo) next[row.id] = row.photo; });
+        (cooksResult.data || []).forEach((row) => {
+          if (row.photo) {
+            next[row.id] = row.photo;
+            if (row.recipe_id) next[row.recipe_id] = row.photo;
+          }
+        });
+        return next;
+      });
       setSharedLoaded(true);
     };
     loadShared();
@@ -293,17 +305,21 @@ export default function App() {
     };
   }, [userId]);
 
-  // Foton sparas separat så att huvuddatan förblir liten
+  // Foton sparas separat så att huvuddatan förblir liten.
+  // Bara egna foton cachas lokalt - allas foton hämtas ändå på nytt från Supabase, som är källan till sanning.
   useEffect(() => {
     if (!photosLoaded) return;
     const t = setTimeout(async () => {
-      const json = JSON.stringify(photos);
+      const ownIds = new Set(["profile:me", ...data.myRecipes.map((r) => r.id), ...data.myCooks.map((c) => c.id)]);
+      const ownPhotos = {};
+      ownIds.forEach((id) => { if (photos[id]) ownPhotos[id] = photos[id]; });
+      const json = JSON.stringify(ownPhotos);
       if (json.length > PHOTO_MAX_CHARS) { showToast("Lagringen för foton är full"); return; }
       try { await window.storage.set(userPhotoKey, json, false); }
       catch (e) { showToast("Fotot kunde inte sparas"); }
     }, 300);
     return () => clearTimeout(t);
-  }, [photos, photosLoaded, userPhotoKey, userId]);
+  }, [photos, photosLoaded, userPhotoKey, userId, data.myRecipes, data.myCooks]);
 
   // Spara vid ändring
   useEffect(() => {
@@ -378,19 +394,21 @@ export default function App() {
       }
     },
     updateProfile: (profile, photo) => {
+      const merged = { ...(data.profile || {}), ...profile };
       setData((d) => ({ ...d, profile: { ...(d.profile || {}), ...profile } }));
       USERS.me = { ...USERS.me, ...profile };
-      if (supabase && userId) {
-        supabase.from("profiles").upsert({
-          id: userId, name: profile.name, bio: profile.bio || "", location: profile.location || "",
-        }).then(({ error }) => { if (error) console.error("Kunde inte uppdatera profil:", error); });
-      }
       setPhotos((p) => {
         const next = { ...p };
         if (photo) next["profile:me"] = photo;
         else delete next["profile:me"];
         return next;
       });
+      if (supabase && userId) {
+        supabase.from("profiles").upsert({
+          id: userId, name: merged.name, bio: merged.bio || "", location: merged.location || "",
+          birth_date: merged.birthDate || null, photo_url: photo || null,
+        }).then(({ error }) => { if (error) console.error("Kunde inte uppdatera profil:", error); });
+      }
     },
     cooksOf: (id) => byUser[id] || [],
     cookedCount: (recipeId) => allCooks.filter((cook) => cook.recipeId === recipeId).length,
@@ -516,7 +534,7 @@ export default function App() {
       showToast("Publicerat");
       if (supabase && userId) {
         supabase.from("cooks").upsert({
-          id: c.id, user_id: userId, recipe_id: recipeId || null, data: c,
+          id: c.id, user_id: userId, recipe_id: recipeId || null, data: c, photo: photo || null,
         }, { onConflict: "id" }).then(({ error }) => {
           if (error) {
             console.error("Kunde inte publicera inlägg:", error);
@@ -540,7 +558,7 @@ export default function App() {
       setStack((s) => [...s, { type: "recipe", id, k: Date.now() }]);
       showToast("Recept sparat");
       if (supabase && userId) {
-        supabase.from("recipes").upsert({ id, author_id: userId, data: rec }, { onConflict: "id" })
+        supabase.from("recipes").upsert({ id, author_id: userId, data: rec, photo: photo || null }, { onConflict: "id" })
           .then(({ error }) => {
             if (error) {
               console.error("Kunde inte publicera recept:", error);
@@ -633,7 +651,7 @@ export default function App() {
       }));
       showToast("Eget recept sparat");
       if (supabase && userId) {
-        supabase.from("recipes").upsert({ id, author_id: userId, data: rec }, { onConflict: "id" })
+        supabase.from("recipes").upsert({ id, author_id: userId, data: rec, photo: photos[cook.id] || null }, { onConflict: "id" })
           .then(({ error }) => {
             if (error) console.error("Kunde inte publicera sparat recept:", error);
           });
