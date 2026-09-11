@@ -18,15 +18,6 @@ export function Mods({ mods, items, limit, onMore, label = "Ändringar jämfört
   );
 }
 
-function PinchHandIcon() {
-  return (
-    <svg className="k-pinch-hand" viewBox="0 0 42 42" aria-hidden="true">
-      <path d="M8.5 35.5c3.8 2.1 8.1 1.9 11.7-.4l13.1-8.5c2.6-1.7 3.1-5.2 1.5-7.8l-7.9-12.3c-.8-1.3-2.6-1.7-3.9-.8-1.1.7-1.5 2.1-1.1 3.3l3.1 7.3-6.9-10.7c-.8-1.3-2.5-1.7-3.8-.9-1.2.8-1.6 2.4-.9 3.7l5.8 10.2-7.1-8.3c-1-1.1-2.6-1.2-3.7-.3-1 .9-1.1 2.5-.3 3.5l6.2 8-6.1-4.6c-1.2-.9-2.8-.6-3.6.5-.8 1.1-.6 2.6.5 3.5l5.6 4.6-3.2 5.1c-1.4 2.2-1.2 4.7.1 5.6Z" />
-      <path className="k-pinch-line" d="M20.1 18.8c2.6-1.5 5.2-1.7 7.5-.9M16.8 21.1c2.5-1.2 4.8-1.2 6.8-.3" />
-    </svg>
-  );
-}
-
 export function CookActions({ cook, app, onComment, detail }) {
   const r = app.recipeOf(cook);
   const custom = !!cook.custom;
@@ -48,8 +39,8 @@ export function CookActions({ cook, app, onComment, detail }) {
     <div className="k-actions-wrap">
       {!detail && <div className="k-social">{socialInner}</div>}
       <div className="k-actions">
-        <button className={"k-act k-mums-act" + (mine ? " on" : "")} disabled={cook.userId === "me"} aria-label="Ge mums" aria-pressed={mine} onClick={() => app.toggleMums(cook.id)}>
-          <PinchHandIcon />
+        <button className={"k-act" + (mine ? " on" : "")} disabled={cook.userId === "me" || mine} aria-pressed={mine} onClick={() => app.toggleMums(cook.id)}>
+          Mums
         </button>
         <button className="k-act" onClick={() => (detail ? onComment && onComment() : app.open("cook", cook.id, { focus: true }))}><MessageCircle size={19} />Kommentera</button>
         {!custom && <button className="k-act" onClick={() => app.open("recipe", r.id)}><ChefHat size={19} />Recept</button>}
