@@ -40,7 +40,7 @@ export function CookActions({ cook, app, onComment, detail }) {
       {!detail && <div className="k-social">{socialInner}</div>}
       <div className="k-actions">
         <button className={"k-act" + (mine ? " on" : "")} disabled={cook.userId === "me" || mine} aria-pressed={mine} onClick={() => app.toggleMums(cook.id)}>
-          Mums
+          mums
         </button>
         <button className="k-act" onClick={() => (detail ? onComment && onComment() : app.open("cook", cook.id, { focus: true }))}><MessageCircle size={19} />Kommentera</button>
         {!custom && <button className="k-act" onClick={() => app.open("recipe", r.id)}><ChefHat size={19} />Recept</button>}

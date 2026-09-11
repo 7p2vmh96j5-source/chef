@@ -98,7 +98,7 @@
 .k-compose{display:flex;gap:8px;align-items:center;padding:8px 12px calc(10px + env(safe-area-inset-bottom));border-top:.5px solid #E5E5EA;background:#fff;flex-shrink:0}
 .k-lt-row{display:flex;justify-content:space-between;align-items:flex-end;background:#fff}
 .k-bell{position:relative;width:40px;height:40px;border:0;background:none;display:grid;place-items:center;margin-bottom:-2px}
-.k-badge{position:absolute;top:2px;right:0;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#FFB800;color:#000;font-size:11px;font-weight:700;display:grid;place-items:center;box-shadow:0 0 0 2px #fff}
+.k-badge{position:absolute;top:2px;right:0;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#FF3B30;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;box-shadow:0 0 0 2px #fff}
 .k-notif{display:flex;align-items:center;gap:12px;padding:10px 16px}
 .k-notif.new{background:#FFF9E8}
 .k-notif-t{font-size:15px;line-height:1.3}
