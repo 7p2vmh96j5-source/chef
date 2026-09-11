@@ -67,7 +67,7 @@ export function RecipeView({ id, app }) {
             <button className="k-plain k-by" onClick={() => app.open("user", r.author)}>
               <Avatar user={author} size={26} />{r.author === "me" ? "Ditt recept" : `Av ${author.name}`}
             </button>
-          ) : null}
+          ) : <div className="k-by">Från Köket</div>}
           <Stats r={r} approximate cookedCount={cookedCount} />
           {who.length > 0 && (
             <div className="k-proof">

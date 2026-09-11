@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
 import { USERS } from "../data/users.js";
 import { first, times, fmtTime, relDate } from "../lib/format.js";
 import { topRecipes, mutualText } from "../lib/social.js";
@@ -50,7 +49,14 @@ export function ProfileBody({ uid, app }) {
   const recipeList = (list, empty) =>
     list.length === 0 ? <p className="k-empty" style={{ marginTop: 14 }}>{empty}</p> : (
       <div className="k-list" style={{ marginTop: 6 }}>
-        {list.map((r) => <RecipeRow key={r.id} r={r} sub={`${r.category}, ${fmtTime(r.time)}`} onClick={() => app.open("recipe", r.id)} />)}
+        {list.map((r) => {
+          const source = r.author === "me"
+            ? "Ditt recept"
+            : r.author && USERS[r.author]
+              ? `Från ${first(USERS[r.author].name)}`
+              : "Från Köket";
+          return <RecipeRow key={r.id} r={r} sub={`${source}, ${r.category}, ${fmtTime(r.time)}`} onClick={() => app.open("recipe", r.id)} />;
+        })}
       </div>
     );
 
@@ -80,21 +86,15 @@ export function ProfileBody({ uid, app }) {
           <button onClick={() => app.open("follows", uid, { tab: "following" })}><span>Följer</span><b>{followingIds.length}</b></button>
           <button onClick={() => app.open("follows", uid, { tab: "followers" })}><span>Följare</span><b>{followerIds.length}</b></button>
           <div><span>Antal rätter</span><b>{cooks.length}</b></div>
-          <div><span>Egna recept</span><b>{authored.length}</b></div>
+          <div><span>Sparade recept</span><b>{app.data.saved.length}</b></div>
         </div>
       </div>
 
       {isMe ? (
         <>
-          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["mine", "Mina recept"], ["saved", "Sparade"]]} />
+          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Mina sparade recept"]]} />
           {seg === "activity" && activity}
           {seg === "gallery" && <Gallery cooks={cooks} app={app} empty="Inga matlagningar än. Logga din första så hamnar den här." />}
-          {seg === "mine" && (
-            <>
-              <button className="k-wide" onClick={() => app.setSheet({ type: "new" })}><Plus size={18} />Nytt recept</button>
-              {recipeList(authored, "Du har inga egna recept än. Skapa ditt första ovan.")}
-            </>
-          )}
           {seg === "saved" && recipeList(
             app.data.saved.map((id) => app.recipes[id]).filter(Boolean),
             "Tryck på bokmärket på ett recept för att spara det här."
