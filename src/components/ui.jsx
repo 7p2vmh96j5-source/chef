@@ -1,0 +1,62 @@
+import { useContext } from "react";
+import { ChevronLeft, ChefHat } from "lucide-react";
+import { fmtTime } from "../lib/format.js";
+import { PhotoCtx } from "../lib/photoContext.js";
+
+export function Avatar({ user, size = 40, ring }) {
+  const ini = user.name.split(" ").map((s) => s[0]).slice(0, 2).join("");
+  if (user.photo) {
+    return <img className="k-av" src={user.photo} alt="" style={{ width: size, height: size, objectFit: "cover", background: user.color, boxShadow: ring ? `0 0 0 2px ${ring}` : undefined }} />;
+  }
+  return (
+    <span className="k-av" aria-hidden="true"
+      style={{ width: size, height: size, background: user.color, color: user.fg || "#fff", fontSize: size * 0.38, boxShadow: ring ? `0 0 0 2px ${ring}` : undefined }}>
+      {ini}
+    </span>
+  );
+}
+
+export function Tile({ r, size = 56, radius = 12, font, src }) {
+  const photos = useContext(PhotoCtx);
+  const dim = typeof size === "number" ? { width: size, height: size } : { width: "100%", aspectRatio: "1" };
+  const image = src || photos[r.id];
+  if (image) {
+    return <img className="k-tile" src={image} alt="" style={{ ...dim, borderRadius: radius, objectFit: "cover", display: "block" }} />;
+  }
+  return (
+    <span className="k-tile" aria-hidden="true"
+      style={{ ...dim, background: r.tile, borderRadius: radius, fontSize: font || (typeof size === "number" ? size * 0.52 : 64) }}>
+      {r.emoji}
+    </span>
+  );
+}
+
+export function Stats({ r, approximate = false, cookedCount }) {
+  return (
+    <div className="k-stats">
+      <div><span>Tid</span><b>{approximate ? "Ca " : ""}{fmtTime(r.time)}</b></div>
+      <div><span>Ger</span><b>{r.makes}</b></div>
+      {cookedCount !== undefined && <div><span><ChefHat size={14} /> Lagat</span><b>{cookedCount}</b></div>}
+    </div>
+  );
+}
+
+export function Seg({ value, onChange, options }) {
+  return (
+    <div className="k-seg" role="tablist">
+      {options.map(([v, l]) => (
+        <button key={v} role="tab" aria-selected={value === v} className={value === v ? "on" : ""} onClick={() => onChange(v)}>{l}</button>
+      ))}
+    </div>
+  );
+}
+
+export function NavBar({ onBack, title, right }) {
+  return (
+    <div className="k-nav">
+      <button className="k-back" onClick={onBack}><ChevronLeft size={28} strokeWidth={2.2} />Tillbaka</button>
+      <div className="k-nav-t">{title}</div>
+      <div className="k-nav-r">{right}</div>
+    </div>
+  );
+}
