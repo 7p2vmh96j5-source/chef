@@ -92,7 +92,7 @@ export function ProfileBody({ uid, app }) {
 
       {isMe ? (
         <>
-          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Mina sparade recept"]]} />
+          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Mina recept"]]} />
           {seg === "activity" && activity}
           {seg === "gallery" && <Gallery cooks={cooks} app={app} empty="Inga matlagningar än. Logga din första så hamnar den här." />}
           {seg === "saved" && recipeList(
