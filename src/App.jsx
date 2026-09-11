@@ -92,7 +92,15 @@ export default function App() {
     (async () => {
       try {
         const res = await window.storage.get(userStorageKey, false);
-        if (res && res.value) setData({ ...defaultData(), ...JSON.parse(res.value) });
+        if (res && res.value) {
+          const localData = JSON.parse(res.value);
+          setData((current) => ({
+            ...defaultData(),
+            ...localData,
+            sharedRecipes: current.sharedRecipes,
+            sharedCooks: current.sharedCooks,
+          }));
+        }
         else {
           const emailName = session.user.email?.split("@")[0]?.replace(/[._-]+/g, " ").trim();
           const displayName = session.user.user_metadata?.full_name || emailName || USERS.me.name;
