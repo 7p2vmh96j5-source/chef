@@ -27,6 +27,7 @@ export function ProfileBody({ uid, app }) {
         return bTime.localeCompare(aTime) || String(b.id).localeCompare(String(a.id));
       })
     : [];
+  const savedByUser = isMe ? [] : app.savedOf(uid);
   const top = topRecipes(cooks);
   const recent = [...cooks].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   const followingIds = app.followingOf(uid);
@@ -115,7 +116,7 @@ export function ProfileBody({ uid, app }) {
         </>
       ) : (
         <>
-          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"]]} />
+          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Sparat"]]} />
           {seg === "activity" && (
             <>
               {activity}
@@ -124,6 +125,7 @@ export function ProfileBody({ uid, app }) {
             </>
           )}
           {seg === "gallery" && <Gallery cooks={cooks} app={app} empty={`${first(u.name)} har inte loggat något än.`} />}
+          {seg === "saved" && recipeList(savedByUser, `${first(u.name)} har inga sparade recept än.`)}
           <div style={{ height: 36 }} />
         </>
       )}

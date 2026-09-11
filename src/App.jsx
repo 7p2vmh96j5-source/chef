@@ -338,11 +338,15 @@ export default function App() {
     data.myCooks, data.myRecipes, data.sharedCooks, data.sharedMums, data.sharedComments, data.sharedSaves, data.seededAt,
   ]);
   const unread = notifs.filter((n) => n.date > data.notifSeen).length;
+  const unreadMessages = useMemo(() => Object.values(data.messages)
+    .flat()
+    .filter((m) => m.userId !== "me" && m.date > data.messagesSeen).length,
+  [data.messages, data.messagesSeen]);
 
   const showToast = (text) => setToast({ text, k: Date.now() });
 
   const app = {
-    data, recipes, allCooks, setSheet, photos, notifs, unread, profilesLoaded, currentUserId: userId,
+    data, recipes, allCooks, setSheet, photos, notifs, unread, unreadMessages, profilesLoaded, currentUserId: userId,
     logout: async () => {
       const { error } = await supabase.auth.signOut();
       if (error) showToast("Det gick inte att logga ut");
@@ -378,6 +382,18 @@ export default function App() {
     },
     cooksOf: (id) => byUser[id] || [],
     cookedCount: (recipeId) => allCooks.filter((cook) => cook.recipeId === recipeId).length,
+    savedOf: (id) => {
+      if (id === "me") return data.saved.map((rid) => recipes[rid]).filter(Boolean);
+      const savedAt = {};
+      Object.entries(data.sharedSaves).forEach(([rid, savers]) => {
+        const entry = savers.find((s) => s.userId === id);
+        if (entry) savedAt[rid] = entry.date;
+      });
+      return Object.keys(savedAt)
+        .map((rid) => recipes[rid])
+        .filter(Boolean)
+        .sort((a, b) => savedAt[b.id].localeCompare(savedAt[a.id]));
+    },
     followingOf: (id) => {
       const actualId = id === "me" ? userId : id;
       return followRelations.filter((row) => row.follower_id === actualId).map((row) => row.following_id);
@@ -662,8 +678,17 @@ export default function App() {
                 </button>
               ) : (
                 <button key={id} className={"k-tab" + (tab === id ? " on" : "")} aria-current={tab === id ? "page" : undefined}
-                  onClick={() => { setTab(id); setStack([]); }}>
-                  <Icon size={25} strokeWidth={tab === id ? 2.3 : 1.8} />{label}
+                  onClick={() => {
+                    setTab(id); setStack([]);
+                    if (id === "messages") setData((d) => ({ ...d, messagesSeen: new Date().toISOString() }));
+                  }}>
+                  <span className="k-tab-icon">
+                    <Icon size={25} strokeWidth={tab === id ? 2.3 : 1.8} />
+                    {id === "messages" && unreadMessages > 0 && (
+                      <span className="k-badge k-tab-badge">{unreadMessages > 9 ? "9+" : unreadMessages}</span>
+                    )}
+                  </span>
+                  {label}
                 </button>
               )
             )}

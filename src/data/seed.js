@@ -43,6 +43,7 @@ export function defaultData() {
   return {
     seededAt: now,
     notifSeen: new Date(now - DAY_MS).toISOString(),
+    messagesSeen: new Date(now - DAY_MS).toISOString(),
     myRecipes: [],
     myCooks: [],
     sharedRecipes: [],
