@@ -81,9 +81,9 @@
 .k-media{display:block;width:100%}
 .k-post-h+.k-media{margin-top:14px}
 .k-photo{display:grid;place-items:center;width:100%;aspect-ratio:16/10;font-size:72px;line-height:1}
-.k-photo-img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#F2F2F7}
+.k-photo-img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#F2F2F7}
 .k-media-wrap{position:relative}
-.k-photo-count{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px}
+.k-photo-count{position:absolute;right:10px;bottom:10px;display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px}
 .k-media-gallery{display:flex;gap:2px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
 .k-media-gallery::-webkit-scrollbar{display:none}
 .k-media-gallery .k-photo-img,.k-media-gallery .k-hero-img{flex:0 0 100%;scroll-snap-align:start}
@@ -230,9 +230,13 @@
 .k-prof .k-stats>*{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;min-height:48px}
 .k-prof .k-stats span{min-height:17px;line-height:1.2;white-space:nowrap}
 .k-prof .k-stats b{line-height:1.1;margin-top:2px}
-.k-gal{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:14px}
-.k-gal button{border:0;padding:0;aspect-ratio:1;display:grid;place-items:center;font-size:40px;line-height:1;overflow:hidden}
+.k-gal{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;margin-top:14px}
+.k-gal button{position:relative;border:0;padding:0;aspect-ratio:4/5;display:grid;place-items:center;font-size:40px;line-height:1;overflow:hidden}
 .k-gal img{width:100%;height:100%;object-fit:cover;display:block}
+.k-gal-gallery{display:flex;width:100%;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.k-gal-gallery::-webkit-scrollbar{display:none}
+.k-gal-gallery img{flex:0 0 100%;scroll-snap-align:start}
+.k-gal .k-photo-count{position:absolute;right:6px;bottom:6px}
 .k-seg{display:flex;background:#EEEEF0;border-radius:9px;padding:2px;margin:24px 16px 0}
 .k-seg button{flex:1;border:0;background:none;padding:6px 4px;font-size:13px!important;font-weight:500!important;border-radius:7px}
 .k-seg button.on{background:#fff;font-weight:600!important;box-shadow:0 1px 3px rgba(0,0,0,.12)}

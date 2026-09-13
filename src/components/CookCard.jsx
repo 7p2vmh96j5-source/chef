@@ -1,4 +1,4 @@
-import { Bookmark, BookmarkPlus, MessageCircle, ChefHat, Share } from "lucide-react";
+import { Bookmark, BookmarkPlus, MessageCircle, ChefHat, Share, Images } from "lucide-react";
 import { USERS } from "../data/users.js";
 import { first, relDate } from "../lib/format.js";
 import { modList } from "../lib/variants.js";
@@ -65,15 +65,15 @@ export function CookCard({ cook, app, detail, onComment }) {
 
   const media = photos.length === 0
     ? <span className="k-photo" style={{ background: r.tile }}><span aria-hidden="true">{r.emoji}</span></span>
-    : detail && photos.length > 1 ? (
-      <div className="k-media-gallery">
-        {photos.map((src, i) => <img key={i} className="k-photo-img" src={src} alt={`${r.title}, bild ${i + 1} av ${photos.length}`} />)}
+    : photos.length > 1 ? (
+      <div className="k-media-wrap">
+        <div className="k-media-gallery">
+          {photos.map((src, i) => <img key={i} className="k-photo-img" src={src} alt={`${r.title}, bild ${i + 1} av ${photos.length}`} />)}
+        </div>
+        {!detail && <span className="k-photo-count"><Images size={13} />{photos.length}</span>}
       </div>
     ) : (
-      <div className="k-media-wrap">
-        <img className="k-photo-img" src={photos[0]} alt={`${r.title}, lagad av ${isMe ? "dig" : first(u.name)}`} />
-        {!detail && photos.length > 1 && <span className="k-photo-count">1/{photos.length}</span>}
-      </div>
+      <img className="k-photo-img" src={photos[0]} alt={`${r.title}, lagad av ${isMe ? "dig" : first(u.name)}`} />
     );
 
   return (

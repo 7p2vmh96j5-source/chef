@@ -1,3 +1,4 @@
+import { Images } from "lucide-react";
 import { relDate } from "../lib/format.js";
 import { photoList } from "../lib/photos.js";
 
@@ -10,11 +11,18 @@ export function Gallery({ cooks, app, empty }) {
         const r = app.recipeOf(c);
         if (!r) return null;
         const ownPhotos = photoList(app.photos[c.id]);
-        const src = (ownPhotos.length ? ownPhotos : photoList(app.photos[r.id]))[0];
+        const photos = ownPhotos.length ? ownPhotos : photoList(app.photos[r.id]);
         return (
           <button key={c.id} onClick={() => app.open("cook", c.id)} aria-label={`${r.title}, ${relDate(c.date).toLowerCase()}`}
-            style={{ background: src ? "#F2F2F7" : r.tile }}>
-            {src ? <img src={src} alt="" /> : <span aria-hidden="true">{r.emoji}</span>}
+            style={{ background: photos.length ? "#F2F2F7" : r.tile }}>
+            {photos.length > 1 ? (
+              <>
+                <div className="k-gal-gallery">
+                  {photos.map((src, i) => <img key={i} src={src} alt="" />)}
+                </div>
+                <span className="k-photo-count"><Images size={12} />{photos.length}</span>
+              </>
+            ) : photos.length === 1 ? <img src={photos[0]} alt="" /> : <span aria-hidden="true">{r.emoji}</span>}
           </button>
         );
       })}
