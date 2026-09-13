@@ -1,4 +1,4 @@
-export function Sheet({ title, onClose, children, footer, tall, bodyKey }) {
+export function Sheet({ title, onClose, children, footer, tall, bodyKey, right }) {
   return (
     <>
       <div className="k-backdrop" onClick={onClose} />
@@ -7,7 +7,7 @@ export function Sheet({ title, onClose, children, footer, tall, bodyKey }) {
         <div className="k-sheet-h">
           <button className="k-link" onClick={onClose}>Avbryt</button>
           <b style={{ fontSize: 17 }}>{title}</b>
-          <span />
+          {right || <span />}
         </div>
         <div className="k-sheet-b" key={bodyKey}>{children}</div>
         {footer && <div className="k-sheet-f">{footer}</div>}

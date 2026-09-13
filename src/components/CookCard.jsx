@@ -95,7 +95,7 @@ export function CookCard({ cook, app, detail, onComment }) {
             <span>Spara recept</span>
           </button>
         )}
-        {detail && custom && (
+        {detail && custom && !cook.custom?.simple && (
           <button className={"k-save-recipe" + (savedAsRecipe ? " saved" : "")} onClick={() => app.saveCookAsRecipe(cook)} aria-label={savedAsRecipe ? "Sparat i mina recept" : "Spara i mina recept"} aria-pressed={savedAsRecipe}>
             <BookmarkPlus size={18} fill={savedAsRecipe ? "#FFB800" : "none"} />
             <span>{savedAsRecipe ? "Sparat i mina recept" : "Spara i mina recept"}</span>
@@ -105,10 +105,12 @@ export function CookCard({ cook, app, detail, onComment }) {
       {detail ? (
         <>
           {custom ? (
-            <div className="k-stats">
-              <div><span>Typ</span><b>Egen rätt</b></div>
-              <div><span>Ingredienser</span><b>{r.ingredients.length}</b></div>
-            </div>
+            cook.custom?.simple ? null : (
+              <div className="k-stats">
+                <div><span>Typ</span><b>Egen rätt</b></div>
+                <div><span>Ingredienser</span><b>{r.ingredients.length}</b></div>
+              </div>
+            )
           ) : <Stats />}
           <div className="k-media">{media}</div>
           <button className="k-plain k-post-title" onClick={() => (custom ? openCook(false) : app.open("recipe", r.id))}>{r.title}</button>

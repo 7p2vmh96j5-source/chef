@@ -15,6 +15,7 @@ export function ProfileBody({ uid, app }) {
   const birthDate = isMe ? app.data.profile?.birthDate : null;
   const age = birthDate ? Math.max(0, Math.floor((Date.now() - new Date(`${birthDate}T00:00:00`).getTime()) / 31557600000)) : "";
   const cooks = app.cooksOf(uid);
+  const dishCooks = cooks.filter((c) => !c.custom?.simple);
   const authored = Object.values(app.recipes).filter((r) => r.author === uid);
   const myProfileRecipes = isMe ? app.myRecipesList : [];
   const folders = isMe ? (app.data.recipeFolders || []) : [];
@@ -92,7 +93,7 @@ export function ProfileBody({ uid, app }) {
         <div className="k-stats big">
           <button onClick={() => app.open("follows", uid, { tab: "following" })}><span>Följer</span><b>{followingIds.length}</b></button>
           <button onClick={() => app.open("follows", uid, { tab: "followers" })}><span>Följare</span><b>{followerIds.length}</b></button>
-          <div><span>Antal rätter</span><b>{cooks.length}</b></div>
+          <div><span>Antal rätter</span><b>{dishCooks.length}</b></div>
           <div><span>Mina recept</span><b>{myProfileRecipes.length}</b></div>
         </div>
       </div>

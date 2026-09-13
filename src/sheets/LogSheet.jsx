@@ -6,6 +6,7 @@ import { Tile } from "../components/ui.jsx";
 import { PhotoPicker } from "../components/PhotoPicker.jsx";
 import { Sheet } from "./Sheet.jsx";
 import { CustomLog } from "./CustomLog.jsx";
+import { SimplePostSheet } from "./SimplePostSheet.jsx";
 
 export function LogSheet({ app, initial, editCook, onClose }) {
   const editing = !!editCook;
@@ -29,9 +30,11 @@ export function LogSheet({ app, initial, editCook, onClose }) {
   const [custom, setCustom] = useState(false);
   const r = rid ? app.recipes[rid] : null;
 
-  // Redigera en tidigare loggad egen rätt: hoppa direkt till CustomLog i redigeringsläge.
+  // Redigera en tidigare loggad egen rätt eller ett enkelt inlägg: hoppa direkt till rätt formulär.
   if (editing && editCook.custom) {
-    return <CustomLog app={app} onClose={onClose} editCook={editCook} />;
+    return editCook.custom.simple
+      ? <SimplePostSheet app={app} onClose={onClose} editCook={editCook} />
+      : <CustomLog app={app} onClose={onClose} editCook={editCook} />;
   }
 
   const choose = (id) => {

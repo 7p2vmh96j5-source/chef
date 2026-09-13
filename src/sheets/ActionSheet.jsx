@@ -1,4 +1,4 @@
-import { Plus, ChefHat } from "lucide-react";
+import { Plus, ChefHat, Camera } from "lucide-react";
 
 export function ActionSheet({ app, onClose }) {
   return (
@@ -13,6 +13,10 @@ export function ActionSheet({ app, onClose }) {
           <button className="k-as-b" onClick={() => app.setSheet({ type: "new" })}>
             <span className="k-as-i"><Plus size={22} /></span>
             <span><b>Nytt recept</b><small>Spara ett eget recept</small></span>
+          </button>
+          <button className="k-as-b" onClick={() => app.setSheet({ type: "simple-post" })}>
+            <span className="k-as-i"><Camera size={22} /></span>
+            <span><b>Lägg till inlägg</b><small>Dela en bild, till exempel om du ätit ute</small></span>
           </button>
         </div>
         <button className="k-as-cancel" onClick={onClose}>Avbryt</button>

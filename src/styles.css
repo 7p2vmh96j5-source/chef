@@ -258,6 +258,7 @@
 .k-confirm p{margin:0 0 18px;color:#6F6F74;font-size:15px}
 .k-confirm-close{position:absolute;top:8px;right:8px;width:30px;height:30px;border:0;border-radius:15px;background:#F2F2F7;display:grid;place-items:center}
 .k-confirm-actions{display:flex;gap:8px}
+.k-confirm-actions.stack{flex-direction:column}
 .k-confirm-actions button{flex:1;border:0;border-radius:10px;padding:10px;font-size:16px;font-weight:600}
 .k-confirm-no{background:#F2F2F7}
 .k-confirm-yes{background:#D70015;color:#fff}

@@ -27,6 +27,7 @@ export function CookView({ id, app, focus }) {
   if (!cook) return (<><NavBar onBack={app.back} title="Matlagning" /><p className="k-empty" style={{ marginTop: 20 }}>Inlägget finns inte längre.</p></>);
 
   const recipe = app.recipeOf(cook);
+  const derivedRecipe = app.data.myRecipes.find((r) => r.sourceCookId === cook.id);
   const toggleStep = (index) => setDoneSteps((done) => done.includes(index) ? done.filter((x) => x !== index) : [...done, index]);
   const send = () => {
     if (!text.trim()) return;
@@ -63,7 +64,7 @@ export function CookView({ id, app, focus }) {
             )}
           </section>
         )}
-        {cook.custom && (
+        {cook.custom && !cook.custom.simple && (
           <section className="k-panel">
             <h2 className="k-h3">Ingredienser</h2>
             <ul className="k-var">
@@ -131,11 +132,24 @@ export function CookView({ id, app, focus }) {
           <div className="k-confirm" role="dialog" aria-modal="true" aria-labelledby="delete-cook-title">
             <button className="k-confirm-close" aria-label="Stäng" onClick={() => setConfirmDelete(false)}><X size={18} /></button>
             <h2 id="delete-cook-title">Ta bort logg?</h2>
-            <p>Matlagningsloggen försvinner från appen.</p>
-            <div className="k-confirm-actions">
-              <button className="k-confirm-yes" onClick={() => app.deleteCook(cook.id)}>Ja, ta bort</button>
-              <button className="k-confirm-no" onClick={() => setConfirmDelete(false)}>Nej</button>
-            </div>
+            {derivedRecipe ? (
+              <>
+                <p>Du har sparat ett eget recept från den här matlagningen. Vill du ta bort receptet också?</p>
+                <div className="k-confirm-actions stack">
+                  <button className="k-confirm-yes" onClick={() => { app.deleteCook(cook.id, { keepRecipe: false }); setConfirmDelete(false); }}>Ja, ta bort båda</button>
+                  <button className="k-confirm-no" onClick={() => { app.deleteCook(cook.id, { keepRecipe: true }); setConfirmDelete(false); }}>Ja, men spara receptet</button>
+                  <button className="k-confirm-no" onClick={() => setConfirmDelete(false)}>Ångra</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p>Matlagningsloggen försvinner från appen.</p>
+                <div className="k-confirm-actions">
+                  <button className="k-confirm-yes" onClick={() => app.deleteCook(cook.id)}>Ja, ta bort</button>
+                  <button className="k-confirm-no" onClick={() => setConfirmDelete(false)}>Nej</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -26,6 +26,7 @@ import { ShareSheet } from "./sheets/ShareSheet.jsx";
 import { ProfileSettingsSheet } from "./sheets/ProfileSettingsSheet.jsx";
 import { SaveRecipeSheet } from "./sheets/SaveRecipeSheet.jsx";
 import { MyFoldersSheet } from "./sheets/MyFoldersSheet.jsx";
+import { SimplePostSheet } from "./sheets/SimplePostSheet.jsx";
 import { AuthScreen } from "./screens/AuthScreen.jsx";
 import { supabase } from "./lib/supabase.js";
 
@@ -615,6 +616,13 @@ export default function App() {
           .then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
       }
     },
+    createFolder: (name) => {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      const folderId = "f" + Date.now();
+      setData((d) => ({ ...d, recipeFolders: [...(d.recipeFolders || []), { id: folderId, name: trimmed }] }));
+      showToast(`Mappen "${trimmed}" skapad`);
+    },
     renameFolder: (folderId, name) => {
       const trimmed = name.trim();
       if (!trimmed) return;
@@ -761,16 +769,17 @@ export default function App() {
         });
       }
     },
-    deleteCook: (cookId) => {
+    deleteCook: (cookId, options = {}) => {
+      const keepRecipe = !!options.keepRecipe;
+      const derived = data.myRecipes.find((recipe) => recipe.sourceCookId === cookId);
       setData((d) => {
-        const derived = d.myRecipes.find((recipe) => recipe.sourceCookId === cookId);
         const recipeSaves = { ...d.recipeSaves };
-        if (derived) delete recipeSaves[derived.id];
+        if (derived && !keepRecipe) delete recipeSaves[derived.id];
         return {
           ...d,
           myCooks: d.myCooks.filter((cook) => cook.id !== cookId),
-          myRecipes: d.myRecipes.filter((recipe) => recipe.sourceCookId !== cookId),
-          saved: derived ? d.saved.filter((savedId) => savedId !== derived.id) : d.saved,
+          myRecipes: keepRecipe ? d.myRecipes : d.myRecipes.filter((recipe) => recipe.sourceCookId !== cookId),
+          saved: derived && !keepRecipe ? d.saved.filter((savedId) => savedId !== derived.id) : d.saved,
           recipeSaves,
         };
       });
@@ -782,7 +791,7 @@ export default function App() {
         return next;
       });
       setStack((s) => s.slice(0, -1));
-      showToast("Loggen är borttagen");
+      showToast(derived && keepRecipe ? "Loggen är borttagen, receptet finns kvar" : "Loggen är borttagen");
       if (supabase && userId) {
         deletedCookIds.current.add(cookId);
         supabase.from("cooks").delete().eq("id", cookId).eq("user_id", userId)
@@ -790,6 +799,14 @@ export default function App() {
             if (error) console.error("Kunde inte ta bort inlägg:", error);
             deletedCookIds.current.delete(cookId);
           });
+        if (derived && !keepRecipe) {
+          deletedRecipeIds.current.add(derived.id);
+          supabase.from("recipes").delete().eq("id", derived.id).eq("author_id", userId)
+            .then(({ error }) => {
+              if (error) console.error("Kunde inte ta bort receptet:", error);
+              deletedRecipeIds.current.delete(derived.id);
+            });
+        }
       }
     },
     saveCookAsRecipe: (cook) => {
@@ -924,6 +941,7 @@ export default function App() {
           {sheet?.type === "profile-settings" && <ProfileSettingsSheet app={app} onClose={() => setSheet(null)} />}
           {sheet?.type === "saveTo" && <SaveRecipeSheet app={app} recipeId={sheet.recipeId} onClose={() => setSheet(null)} />}
           {sheet?.type === "my-folders" && <MyFoldersSheet app={app} onClose={() => setSheet(null)} />}
+          {sheet?.type === "simple-post" && <SimplePostSheet app={app} onClose={() => setSheet(null)} />}
 
           {toast && <div key={toast.k} className="k-toast" role="status"><Check size={16} strokeWidth={3} />{toast.text}</div>}
         </div>
