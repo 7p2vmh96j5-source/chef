@@ -318,8 +318,11 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 /* Blue-gray app theme */
 .k-root{background:#DCE4EB;color:#243442}
 .k-root :focus-visible{outline-color:#66859E}
-.k-phone,.k-status,.k-panel,.k-feed-item,.k-post,.k-social,.k-actions-wrap,.k-compose,.k-nav,.k-confirm,.k-push,.k-sheet,.k-as-g,.k-as-cancel,.k-actions,.k-act,.k-message-view,.k-message-compose{background:#FAF6EF}
-.k-scroll.grey{background:#F1EAE0}
+.k-phone,.k-status,.k-panel,.k-feed-item,.k-post,.k-social,.k-actions-wrap,.k-compose,.k-nav,.k-confirm,.k-push,.k-sheet,.k-as-g,.k-as-cancel,.k-actions,.k-act,.k-message-view,.k-message-compose,.k-lt-row{background:#fff}
+.k-tabs{background:rgba(255,255,255,.94)}
+.k-push-glass{background:rgba(255,255,255,.72)}
+.k-push-glass .k-nav{background:rgba(255,255,255,.72)}
+.k-scroll.grey{background:#F2F2F7}
 .k-meta,.k-empty,.k-end,.k-recipe-credit,.k-recipe-source,.k-mums-count,.k-more,.k-tab,.k-label,.k-message-time,.k-message>small,.k-message-recipe small,.k-message-empty,.k-kitchen-note{color:#718291}
 .k-note,.k-cmt,.k-cm p,.k-mutual,.k-act,.k-search,.k-recipe-credit b,.k-mod,.k-tag,.k-shared,.k-message-recipe,.k-field,.k-input,.k-date-selects select,.k-message p{color:#344856}
 .k-stats span,.k-comment-like,.k-ed-btn,.k-save-count,.k-messages small{color:#718291}
@@ -329,7 +332,7 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-refresh:active,.k-confirm-close,.k-recipe-menu button:active,.k-feed-share:active{background:#E3EBF1}
 .k-settings-photo-edit,.k-kitchen-note,.k-send,.k-plus,.k-primary,.k-steps li::before,.k-create-i,.k-as-i,.k-tag.added,.k-act.on .k-mums{background:#000000}
 .k-settings-photo-edit,.k-send,.k-plus,.k-primary,.k-steps li::before,.k-create-i,.k-as-i,.k-tag.added,.k-act.on .k-mums{color:#fff}
-.k-settings-photo-edit{border-color:#FAF6EF}
+.k-settings-photo-edit{border-color:#fff}
 .k-kitchen-note,.k-primary{color:#fff!important}
 .k-message.mine p{background:#000000;color:#fff}
 .k-message.mine .k-message-recipe{background:#DCE8F0}
@@ -338,10 +341,10 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-recipe-menu button,.k-err{color:#B33A4A}
 .k-confirm-yes{background:#B33A4A}
 .k-kitchen-note{border-color:#C7D6E1}
-.k-logout{display:flex;align-items:center;justify-content:center;gap:7px;width:calc(100% - 32px);margin:0 16px 28px;padding:12px;border:1px solid #C7D6E1;border-radius:12px;background:#FAF6EF;color:#B33A4A;font-size:15px;font-weight:600}
+.k-logout{display:flex;align-items:center;justify-content:center;gap:7px;width:calc(100% - 32px);margin:0 16px 28px;padding:12px;border:1px solid #C7D6E1;border-radius:12px;background:#fff;color:#B33A4A;font-size:15px;font-weight:600}
 .k-logout:active{background:#F3E8EA}
 .k-settings-logout{width:100%;margin:24px 0 8px}
-.k-auth{width:min(390px,calc(100% - 32px));padding:32px 24px 28px;border-radius:24px;background:#FAF6EF;box-shadow:0 20px 50px rgba(55,79,96,.14)}
+.k-auth{width:min(390px,calc(100% - 32px));padding:32px 24px 28px;border-radius:24px;background:#fff;box-shadow:0 20px 50px rgba(55,79,96,.14)}
 .k-auth-brand{text-align:center}
 .k-auth-brand h1{margin:10px 0 2px;font-size:32px;letter-spacing:-.6px}
 .k-auth-brand p{margin:0;color:#718291;font-size:15px}
