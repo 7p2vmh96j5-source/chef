@@ -109,7 +109,7 @@ export default async function handler(req, res) {
       redirect: "follow",
       signal: controller.signal,
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; FodthoRecipeImport/1.0; +personal recipe import)",
+        "User-Agent": "Mozilla/5.0 (compatible; FoodthoRecipeImport/1.0; +personal recipe import)",
         "Accept": "text/html,application/xhtml+xml",
       },
     });

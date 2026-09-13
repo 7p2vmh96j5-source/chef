@@ -68,7 +68,7 @@ export function AuthScreen({ recovery = false, onRecoveryComplete }) {
       <main className="k-auth">
         <div className="k-auth-brand">
           <span className="k-auth-icon"><ChefHat size={30} /></span>
-          <h1>Fodtho</h1>
+          <h1>Foodtho</h1>
           <p>{recovery ? "Välj ett nytt lösenord" : "Logga in för att fortsätta"}</p>
         </div>
         <form className="k-auth-form" onSubmit={submit}>
