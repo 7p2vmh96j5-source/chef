@@ -63,7 +63,7 @@ export function MessagesScreen({ app }) {
           <span className="k-message-more">
             <span aria-hidden="true">•••</span>
             <select value={recipeId} onChange={(e) => setRecipeId(e.target.value)} aria-label="Dela ett recept">
-              <option value="">Dela recept</option>
+              <option value="" disabled hidden></option>
               {Object.values(app.recipes).map((r) => <option key={r.id} value={r.id}>{r.title}</option>)}
             </select>
           </span>
