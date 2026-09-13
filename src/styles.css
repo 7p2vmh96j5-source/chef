@@ -271,6 +271,7 @@
 .k-rv{padding:16px 16px 44px}
 .k-rv h1{font-size:30px;font-weight:700;letter-spacing:-.6px;margin:2px 0 12px;line-height:1.1}
 .k-by{display:flex;align-items:center;gap:8px;font-size:15px}
+.k-recipe-source-link{display:inline-block;margin-top:6px;font-size:13px;color:#8E8E93}
 .k-rv .k-stats{padding:18px 0}
 .k-proof{display:flex;align-items:center;gap:12px;background:#FFF4D6;border-radius:12px;padding:10px 12px;font-size:14px;margin:0 0 14px;color:#3D2A00}
 .k-av-stack{display:flex;flex:0 0 auto}
@@ -334,7 +335,7 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-push-glass{background:rgba(255,255,255,.72)}
 .k-push-glass .k-nav{background:rgba(255,255,255,.72)}
 .k-scroll.grey{background:#F2F2F7}
-.k-meta,.k-empty,.k-end,.k-recipe-credit,.k-recipe-source,.k-mums-count,.k-more,.k-tab,.k-label,.k-message-time,.k-message>small,.k-message-recipe small,.k-message-empty,.k-kitchen-note{color:#718291}
+.k-meta,.k-empty,.k-end,.k-recipe-credit,.k-recipe-source,.k-recipe-source-link,.k-mums-count,.k-more,.k-tab,.k-label,.k-message-time,.k-message>small,.k-message-recipe small,.k-message-empty,.k-kitchen-note{color:#718291}
 .k-note,.k-cmt,.k-cm p,.k-mutual,.k-act,.k-search,.k-recipe-credit b,.k-mod,.k-tag,.k-shared,.k-message-recipe,.k-field,.k-input,.k-date-selects select,.k-message p{color:#344856}
 .k-stats span,.k-comment-like,.k-ed-btn,.k-save-count,.k-messages small{color:#718291}
 .k-stats>*+*,.k-compose,.k-nav,.k-sheet-f,.k-as-b+.k-as-b,.k-message-compose,.k-actions,.k-ed,.k-var li,.k-custom-steps li,.k-ing{border-color:#D5E0E8}

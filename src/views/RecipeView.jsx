@@ -75,6 +75,11 @@ export function RecipeView({ id, app }) {
               <Avatar user={author} size={26} />{r.author === "me" ? "Ditt recept" : `Av ${author.name}`}
             </button>
           ) : <div className="k-by">Från Köket</div>}
+          {r.sourceUrl && (
+            <a className="k-recipe-source-link" href={r.sourceUrl} target="_blank" rel="noopener noreferrer">
+              Importerat från {r.sourceName}
+            </a>
+          )}
           <Stats cookedCount={cookedCount} />
           {who.length > 0 && (
             <div className="k-proof">

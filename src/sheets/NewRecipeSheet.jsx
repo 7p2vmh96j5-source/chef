@@ -3,7 +3,7 @@ import { EMOJIS } from "../data/constants.js";
 import { INGREDIENTS, COMMON_INGREDIENTS } from "../data/recipes.js";
 import { PhotoPicker } from "../components/PhotoPicker.jsx";
 import { Sheet } from "./Sheet.jsx";
-import { Search, Plus, X } from "lucide-react";
+import { Search, Plus, X, Link2, RefreshCw } from "lucide-react";
 
 export function NewRecipeSheet({ app, onClose }) {
   const [f, setF] = useState({ title: "", emoji: "🍲" });
@@ -12,6 +12,10 @@ export function NewRecipeSheet({ app, onClose }) {
   const [sel, setSel] = useState([]);
   const [q, setQ] = useState("");
   const [steps, setSteps] = useState([""]);
+  const [importUrl, setImportUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState("");
+  const [source, setSource] = useState(null);
   const set = (k, v) => setF((p) => ({ ...p, [k]: v }));
   const chosen = new Set(sel.map((item) => item.name.toLowerCase()));
   const ql = q.trim().toLowerCase();
@@ -33,6 +37,26 @@ export function NewRecipeSheet({ app, onClose }) {
   const addStep = () => setSteps((items) => [...items, ""]);
   const removeStep = (index) => setSteps((items) => items.length === 1 ? [""] : items.filter((_, i) => i !== index));
 
+  const importFromLink = async () => {
+    const url = importUrl.trim();
+    if (!url) return;
+    setImporting(true); setImportError("");
+    try {
+      const response = await fetch(`/api/import-recipe?url=${encodeURIComponent(url)}`);
+      const data = await response.json();
+      if (!response.ok) { setImportError(data.error || "Kunde inte importera receptet."); return; }
+      setF((p) => ({ ...p, title: data.title }));
+      setSel(data.ingredients.map((name, i) => ({ key: "imp" + Date.now() + i, name, amount: "" })));
+      setSteps(data.steps.length ? data.steps : [""]);
+      setSource({ url: data.sourceUrl, name: data.sourceName });
+      setImportUrl("");
+    } catch (e) {
+      setImportError("Något gick fel. Kontrollera länken och försök igen.");
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const save = () => {
     const ingredients = sel.map((item) => item.amount.trim()
       ? `${item.amount.trim()} ${item.name.charAt(0).toLowerCase() + item.name.slice(1)}`
@@ -47,11 +71,24 @@ export function NewRecipeSheet({ app, onClose }) {
       emoji: f.emoji,
       ingredients,
       steps: steps.map((step) => step.trim()).filter(Boolean),
+      ...(source ? { sourceUrl: source.url, sourceName: source.name } : {}),
     }, photos);
   };
 
   return (
     <Sheet tall title="Nytt recept" onClose={onClose} footer={<button className="k-primary" onClick={save}>Spara recept</button>}>
+      <label className="k-label" style={{ marginTop: 4 }}>Importera från länk (valfritt)</label>
+      <div className="k-ed-add" style={{ marginTop: 0 }}>
+        <input className="k-field" value={importUrl} onChange={(e) => setImportUrl(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && importFromLink()}
+          placeholder="Klistra in en receptlänk" aria-label="Receptlänk att importera" inputMode="url" />
+        <button className="k-send" disabled={!importUrl.trim() || importing} onClick={importFromLink} aria-label="Hämta recept från länk">
+          <RefreshCw size={17} style={importing ? { animation: "k-spin 0.8s linear infinite" } : undefined} />
+        </button>
+      </div>
+      {importError && <p className="k-err" role="alert">{importError}</p>}
+      {source && <p className="k-meta" style={{ margin: "6px 0 0" }}><Link2 size={12} style={{ verticalAlign: -1 }} /> Importerat från {source.name}</p>}
+
       <label className="k-label" htmlFor="k-t">Namn</label>
       <input id="k-t" className="k-input" value={f.title} onChange={(e) => set("title", e.target.value)} placeholder="Till exempel mormors köttbullar" />
 
