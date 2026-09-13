@@ -78,8 +78,8 @@ export function RecipeView({ id, app, fromUserId }) {
             </button>
           ) : <div className="k-by">Från Köket</div>}
           {savedFromUser && (
-            <button className="k-plain k-meta" style={{ display: "block", marginTop: 2 }} onClick={() => app.open("user", savedFromId)}>
-              Sparat från {savedFromUser.name}
+            <button className="k-plain k-saved-from" onClick={() => app.open("user", savedFromId)}>
+              Sparat från <b>{savedFromUser.name}</b>
             </button>
           )}
           {r.sourceUrl && (
