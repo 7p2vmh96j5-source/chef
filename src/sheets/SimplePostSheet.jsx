@@ -5,14 +5,29 @@ import { photoList } from "../lib/photos.js";
 import { Sheet } from "./Sheet.jsx";
 
 function StarPicker({ value, onChange }) {
+  const pick = (e, n) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const isLeftHalf = e.clientX - rect.left < rect.width / 2;
+    const picked = isLeftHalf ? n - 0.5 : n;
+    onChange(value === picked ? 0 : picked);
+  };
   return (
     <div className="k-star-picker" role="radiogroup" aria-label="Betyg">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <button key={n} type="button" role="radio" aria-checked={value === n}
-          onClick={() => onChange(value === n ? 0 : n)} aria-label={`${n} av 5 stjärnor`}>
-          <Star size={26} fill={n <= value ? "#FFB800" : "none"} color={n <= value ? "#FFB800" : "#C7C7CC"} />
-        </button>
-      ))}
+      {[1, 2, 3, 4, 5].map((n) => {
+        const pct = value >= n ? 100 : value >= n - 0.5 ? 50 : 0;
+        return (
+          <button key={n} type="button" onClick={(e) => pick(e, n)} aria-label={`${n} av 5 stjärnor`}>
+            <span className="k-star-wrap" style={{ width: 26, height: 26 }}>
+              <Star size={26} fill="none" color="#C7C7CC" />
+              {pct > 0 && (
+                <span className="k-star-fill" style={{ width: `${pct}%` }}>
+                  <Star size={26} fill="#FFB800" color="#FFB800" />
+                </span>
+              )}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -26,7 +41,7 @@ export function SimplePostSheet({ app, onClose, editCook }) {
   const [folderId, setFolderId] = useState(() => editCook ? (app.data.restaurantFolderOf?.[editCook.id] || null) : null);
   const [creatingFolder, setCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
-  const canPublish = text.trim().length > 0 && photos.length > 0;
+  const canPublish = text.trim().length > 0 || photos.length > 0 || place.trim().length > 0;
   const folders = app.data.restaurantFolders || [];
 
   const createFolder = () => {

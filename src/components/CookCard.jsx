@@ -125,7 +125,7 @@ export function CookCard({ cook, app, detail, onComment }) {
             )
           ) : <Stats />}
           <div className="k-media">{media}</div>
-          <button className="k-plain k-post-title" onClick={() => (custom ? openCook(false) : openRecipe())}>{r.title}</button>
+          {r.title && <button className="k-plain k-post-title" onClick={() => (custom ? openCook(false) : openRecipe())}>{r.title}</button>}
           <PlaceBadge custom={cook.custom} />
           {!custom && <RecipeCredit recipe={r} cook={cook} app={app} />}
           {cook.note && <p className="k-note">{cook.note}</p>}
@@ -133,7 +133,7 @@ export function CookCard({ cook, app, detail, onComment }) {
         </>
       ) : (
         <>
-          <button className="k-plain k-post-title" onClick={() => (custom ? openCook(false) : openRecipe())}>{r.title}</button>
+          {r.title && <button className="k-plain k-post-title" onClick={() => (custom ? openCook(false) : openRecipe())}>{r.title}</button>}
           <PlaceBadge custom={cook.custom} />
           {!custom && <RecipeCredit recipe={r} cook={cook} app={app} />}
           {cook.note && <p className="k-note">{cook.note}</p>}

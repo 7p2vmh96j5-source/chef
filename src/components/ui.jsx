@@ -35,9 +35,19 @@ export function Stars({ value, size = 14 }) {
   if (!value) return null;
   return (
     <span className="k-stars" aria-label={`${value} av 5 stjärnor`}>
-      {[1, 2, 3, 4, 5].map((n) => (
-        <Star key={n} size={size} fill={n <= value ? "#FFB800" : "none"} color={n <= value ? "#FFB800" : "#C7C7CC"} />
-      ))}
+      {[1, 2, 3, 4, 5].map((n) => {
+        const pct = value >= n ? 100 : value >= n - 0.5 ? 50 : 0;
+        return (
+          <span key={n} className="k-star-wrap" style={{ width: size, height: size }}>
+            <Star size={size} fill="none" color="#C7C7CC" />
+            {pct > 0 && (
+              <span className="k-star-fill" style={{ width: `${pct}%` }}>
+                <Star size={size} fill="#FFB800" color="#FFB800" />
+              </span>
+            )}
+          </span>
+        );
+      })}
     </span>
   );
 }

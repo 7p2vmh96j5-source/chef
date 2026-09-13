@@ -328,6 +328,9 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-star-picker{display:flex;gap:4px}
 .k-star-picker button{border:0;background:none;padding:2px}
 .k-stars{display:inline-flex;gap:1px;vertical-align:-4px}
+.k-star-wrap{position:relative;display:inline-block;line-height:0}
+.k-star-fill{position:absolute;top:0;left:0;overflow:hidden;display:block;pointer-events:none}
+.k-star-fill svg{display:block}
 .k-emo{width:44px;height:44px;border-radius:12px;border:0;background:#F2F2F7;font-size:24px!important}
 .k-emo.on{background:#FFB800}
 .k-err{color:#D70015;font-size:14px;margin:12px 0 0}
