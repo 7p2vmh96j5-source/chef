@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { ChevronLeft, ChefHat } from "lucide-react";
 import { PhotoCtx } from "../lib/photoContext.js";
+import { photoList } from "../lib/photos.js";
 
 export function Avatar({ user, size = 40, ring }) {
   const ini = user.name.split(" ").map((s) => s[0]).slice(0, 2).join("");
@@ -18,7 +19,7 @@ export function Avatar({ user, size = 40, ring }) {
 export function Tile({ r, size = 56, radius = 12, font, src }) {
   const photos = useContext(PhotoCtx);
   const dim = typeof size === "number" ? { width: size, height: size } : { width: "100%", aspectRatio: "1" };
-  const image = src || photos[r.id];
+  const image = src || photoList(photos[r.id])[0];
   if (image) {
     return <img className="k-tile" src={image} alt="" style={{ ...dim, borderRadius: radius, objectFit: "cover", display: "block" }} />;
   }

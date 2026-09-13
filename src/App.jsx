@@ -399,6 +399,18 @@ export default function App() {
     return m;
   }, [data.myRecipes, data.sharedRecipes]);
 
+  const myRecipesList = useMemo(() => [...new Map([
+    ...data.myRecipes,
+    ...Object.values(recipes).filter((r) => r.author === "me"),
+    ...data.saved.map((id) => recipes[id]).filter(Boolean),
+  ].map((recipe) => [recipe.id, recipe])).values()]
+    .sort((a, b) => {
+      const savedAt = data.recipeSavedAt || {};
+      const aTime = savedAt[a.id] || a.created_at || "";
+      const bTime = savedAt[b.id] || b.created_at || "";
+      return bTime.localeCompare(aTime) || String(b.id).localeCompare(String(a.id));
+    }), [data.myRecipes, recipes, data.saved, data.recipeSavedAt]);
+
   const notifs = useMemo(() => buildNotifs(data.myCooks, data), [
     data.myCooks, data.myRecipes, data.sharedCooks, data.sharedMums, data.sharedComments, data.sharedSaves, data.seededAt,
   ]);
@@ -421,7 +433,7 @@ export default function App() {
   };
 
   const app = {
-    data, recipes, allCooks, setSheet, photos, notifs, unread, unreadMessages, profilesLoaded, currentUserId: userId,
+    data, recipes, allCooks, myRecipesList, setSheet, photos, notifs, unread, unreadMessages, profilesLoaded, currentUserId: userId,
     logout: async () => {
       const { error } = await supabase.auth.signOut();
       if (error) showToast("Det gick inte att logga ut");
@@ -542,20 +554,62 @@ export default function App() {
     }),
     toggleSave: (id) => {
       const on = data.saved.includes(id);
-      setData((d) => ({
-        ...d,
-        saved: on ? d.saved.filter((x) => x !== id) : [id, ...d.saved],
-        recipeSavedAt: on
-          ? d.recipeSavedAt
-          : { ...(d.recipeSavedAt || {}), [id]: new Date().toISOString() },
-        recipeSaves: { ...d.recipeSaves, [id]: Math.max(0, (d.recipeSaves[id] || 0) + (on ? -1 : 1)) },
-      }));
+      setData((d) => {
+        const recipeFolderOf = { ...(d.recipeFolderOf || {}) };
+        if (on) delete recipeFolderOf[id];
+        return {
+          ...d,
+          saved: on ? d.saved.filter((x) => x !== id) : [id, ...d.saved],
+          recipeSavedAt: on
+            ? d.recipeSavedAt
+            : { ...(d.recipeSavedAt || {}), [id]: new Date().toISOString() },
+          recipeSaves: { ...d.recipeSaves, [id]: Math.max(0, (d.recipeSaves[id] || 0) + (on ? -1 : 1)) },
+          recipeFolderOf,
+        };
+      });
       showToast(on ? "Borttaget från Sparade" : "Sparat");
       if (supabase && userId) {
         const request = on
           ? supabase.from("saves").delete().eq("recipe_id", id).eq("user_id", userId)
           : supabase.from("saves").upsert({ recipe_id: id, user_id: userId }, { onConflict: "recipe_id,user_id" });
         request.then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
+      }
+    },
+    saveRecipeToFolder: (id, folderId) => {
+      const on = data.saved.includes(id);
+      setData((d) => ({
+        ...d,
+        saved: on ? d.saved : [id, ...d.saved],
+        recipeSavedAt: on ? d.recipeSavedAt : { ...(d.recipeSavedAt || {}), [id]: new Date().toISOString() },
+        recipeSaves: on ? d.recipeSaves : { ...d.recipeSaves, [id]: (d.recipeSaves[id] || 0) + 1 },
+        recipeFolderOf: { ...(d.recipeFolderOf || {}), [id]: folderId || null },
+      }));
+      const folderName = folderId ? data.recipeFolders.find((f) => f.id === folderId)?.name : null;
+      showToast(folderName ? `Sparat i ${folderName}` : "Sparat");
+      setSheet(null);
+      if (supabase && userId && !on) {
+        supabase.from("saves").upsert({ recipe_id: id, user_id: userId }, { onConflict: "recipe_id,user_id" })
+          .then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
+      }
+    },
+    createFolderAndSave: (recipeId, name) => {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      const folderId = "f" + Date.now();
+      const alreadySaved = data.saved.includes(recipeId);
+      setData((d) => ({
+        ...d,
+        recipeFolders: [...(d.recipeFolders || []), { id: folderId, name: trimmed }],
+        saved: alreadySaved ? d.saved : [recipeId, ...d.saved],
+        recipeSavedAt: alreadySaved ? d.recipeSavedAt : { ...(d.recipeSavedAt || {}), [recipeId]: new Date().toISOString() },
+        recipeSaves: alreadySaved ? d.recipeSaves : { ...d.recipeSaves, [recipeId]: (d.recipeSaves[recipeId] || 0) + 1 },
+        recipeFolderOf: { ...(d.recipeFolderOf || {}), [recipeId]: folderId },
+      }));
+      showToast(`Mappen "${trimmed}" skapad`);
+      setSheet(null);
+      if (supabase && userId && !alreadySaved) {
+        supabase.from("saves").upsert({ recipe_id: recipeId, user_id: userId }, { onConflict: "recipe_id,user_id" })
+          .then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
       }
     },
     toggleFollow: (id) => {
