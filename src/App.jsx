@@ -130,43 +130,52 @@ export default function App() {
     }
     let active = true;
     (async () => {
-      const { data: profileRows, error } = await supabase.from("profiles").select("id,name,bio,location,photo_url,birth_date");
-      if (!active) return;
+      let { data: profileRows, error } = await supabase.from("profiles").select("id,name,bio,location,photo_url,birth_date");
       if (error) {
+        // Om birth_date-kolumnen inte finns än i databasen, försök utan den istället för att låta hela laddningen (följningar m.m.) misslyckas.
+        console.error("Kunde inte läsa profiler (med födelsedatum), försöker utan:", error);
+        const fallback = await supabase.from("profiles").select("id,name,bio,location,photo_url");
+        profileRows = fallback.data ? fallback.data.map((p) => ({ ...p, birth_date: null })) : null;
+        error = fallback.error;
+      }
+      if (!active) return;
+      if (error || !profileRows) {
         console.error("Kunde inte läsa profiler:", error);
-        setProfilesLoaded(true);
-        return;
-      }
-      profileRows.forEach((profile) => {
-        if (profile.id !== userId) {
-          USERS[profile.id] = { id: profile.id, name: profile.name || "Köksvän", bio: profile.bio || "", location: profile.location || "", photo: profile.photo_url || null, color: "#6D8CA5", fg: "#fff" };
-        }
-      });
-      const currentProfile = profileRows.find((profile) => profile.id === userId);
-      const fallbackName = session.user.user_metadata?.full_name || session.user.email?.split("@")[0]?.replace(/[._-]+/g, " ").trim() || USERS.me.name;
-      const ownProfile = currentProfile || { id: userId, name: fallbackName, bio: "", location: "", photo_url: null, birth_date: null };
-      USERS.me = { ...USERS.me, name: ownProfile.name || fallbackName, bio: ownProfile.bio || "" };
-      setData((current) => ({
-        ...current,
-        profile: {
-          ...(current.profile || {}),
-          name: ownProfile.name || fallbackName,
-          bio: ownProfile.bio || "",
-          location: ownProfile.location || "",
-          birthDate: ownProfile.birth_date || "",
-        },
-      }));
-      if (ownProfile.photo_url) {
-        setPhotos((current) => ({ ...current, "profile:me": ownProfile.photo_url }));
-      }
-      if (!currentProfile) {
-        const { error: insertError } = await supabase.from("profiles").insert({
-          id: userId, name: fallbackName, bio: "", location: "", photo_url: null,
+      } else {
+        profileRows.forEach((profile) => {
+          if (profile.id !== userId) {
+            USERS[profile.id] = { id: profile.id, name: profile.name || "Köksvän", bio: profile.bio || "", location: profile.location || "", photo: profile.photo_url || null, color: "#000000", fg: "#fff" };
+          }
         });
-        if (insertError) console.error("Kunde inte skapa profil:", insertError);
+        const currentProfile = profileRows.find((profile) => profile.id === userId);
+        const fallbackName = session.user.user_metadata?.full_name || session.user.email?.split("@")[0]?.replace(/[._-]+/g, " ").trim() || USERS.me.name;
+        const ownProfile = currentProfile || { id: userId, name: fallbackName, bio: "", location: "", photo_url: null, birth_date: null };
+        USERS.me = { ...USERS.me, name: ownProfile.name || fallbackName, bio: ownProfile.bio || "" };
+        setData((current) => ({
+          ...current,
+          profile: {
+            ...(current.profile || {}),
+            name: ownProfile.name || fallbackName,
+            bio: ownProfile.bio || "",
+            location: ownProfile.location || "",
+            birthDate: ownProfile.birth_date || "",
+          },
+        }));
+        if (ownProfile.photo_url) {
+          setPhotos((current) => ({ ...current, "profile:me": ownProfile.photo_url }));
+        }
+        if (!currentProfile) {
+          const { error: insertError } = await supabase.from("profiles").insert({
+            id: userId, name: fallbackName, bio: "", location: "", photo_url: null,
+          });
+          if (insertError) console.error("Kunde inte skapa profil:", insertError);
+        }
       }
+      // Hämtas oberoende av om profilerna kunde läsas, så att ett fel ovan inte tar bort följningar också.
       const { data: follows, error: followsError } = await supabase.from("follows").select("follower_id,following_id");
-      if (!followsError && follows) {
+      if (followsError) {
+        console.error("Kunde inte läsa följningar:", followsError);
+      } else if (follows) {
         setFollowRelations(follows);
         setData((current) => ({ ...current, following: follows.filter((row) => row.follower_id === userId).map((row) => row.following_id) }));
       }
