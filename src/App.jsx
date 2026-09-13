@@ -741,6 +741,10 @@ export default function App() {
           ...d,
           myCooks: d.myCooks.filter((cook) => cook.recipeId !== id),
           myRecipes: d.myRecipes.filter((recipe) => recipe.id !== id),
+          // Rensa också bort ur den delade cachen direkt, annars kan receptet dyka upp
+          // igen i t.ex. Mina recept i upp till 20 sekunder tills nästa bakgrundssynk.
+          sharedRecipes: d.sharedRecipes.filter((recipe) => recipe.id !== id),
+          sharedCooks: d.sharedCooks.filter((cook) => !relatedCookIds.includes(cook.id)),
           saved: d.saved.filter((savedId) => savedId !== id),
           recipeSaves,
         };
@@ -779,6 +783,8 @@ export default function App() {
           ...d,
           myCooks: d.myCooks.filter((cook) => cook.id !== cookId),
           myRecipes: keepRecipe ? d.myRecipes : d.myRecipes.filter((recipe) => recipe.sourceCookId !== cookId),
+          sharedCooks: d.sharedCooks.filter((cook) => cook.id !== cookId),
+          sharedRecipes: derived && !keepRecipe ? d.sharedRecipes.filter((recipe) => recipe.id !== derived.id) : d.sharedRecipes,
           saved: derived && !keepRecipe ? d.saved.filter((savedId) => savedId !== derived.id) : d.saved,
           recipeSaves,
         };

@@ -130,7 +130,7 @@ export function ProfileBody({ uid, app }) {
         </>
       ) : (
         <>
-          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Sparat"]]} />
+          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Sparade recept"]]} />
           {seg === "activity" && (
             <>
               {activity}
