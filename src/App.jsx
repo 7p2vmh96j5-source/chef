@@ -25,6 +25,7 @@ import { NewRecipeSheet } from "./sheets/NewRecipeSheet.jsx";
 import { ShareSheet } from "./sheets/ShareSheet.jsx";
 import { ProfileSettingsSheet } from "./sheets/ProfileSettingsSheet.jsx";
 import { SaveRecipeSheet } from "./sheets/SaveRecipeSheet.jsx";
+import { MyFoldersSheet } from "./sheets/MyFoldersSheet.jsx";
 import { AuthScreen } from "./screens/AuthScreen.jsx";
 import { supabase } from "./lib/supabase.js";
 
@@ -614,6 +615,26 @@ export default function App() {
           .then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
       }
     },
+    renameFolder: (folderId, name) => {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      setData((d) => ({
+        ...d,
+        recipeFolders: (d.recipeFolders || []).map((f) => (f.id === folderId ? { ...f, name: trimmed } : f)),
+      }));
+    },
+    deleteFolder: (folderId) => {
+      setData((d) => {
+        const recipeFolderOf = { ...(d.recipeFolderOf || {}) };
+        Object.keys(recipeFolderOf).forEach((rid) => { if (recipeFolderOf[rid] === folderId) delete recipeFolderOf[rid]; });
+        return {
+          ...d,
+          recipeFolders: (d.recipeFolders || []).filter((f) => f.id !== folderId),
+          recipeFolderOf,
+        };
+      });
+      showToast("Mappen borttagen");
+    },
     toggleFollow: (id) => {
       if (id === "me" || id === userId) return;
       const on = data.following.includes(id);
@@ -902,6 +923,7 @@ export default function App() {
           {sheet?.type === "share" && <ShareSheet app={app} recipeId={sheet.recipeId} onClose={() => setSheet(null)} />}
           {sheet?.type === "profile-settings" && <ProfileSettingsSheet app={app} onClose={() => setSheet(null)} />}
           {sheet?.type === "saveTo" && <SaveRecipeSheet app={app} recipeId={sheet.recipeId} onClose={() => setSheet(null)} />}
+          {sheet?.type === "my-folders" && <MyFoldersSheet app={app} onClose={() => setSheet(null)} />}
 
           {toast && <div key={toast.k} className="k-toast" role="status"><Check size={16} strokeWidth={3} />{toast.text}</div>}
         </div>
