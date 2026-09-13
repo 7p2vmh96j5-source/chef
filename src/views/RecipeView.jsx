@@ -27,10 +27,10 @@ export function RecipeView({ id, app, fromUserId }) {
     <>
       <NavBar onBack={app.back} title={r.title} right={
         <>
-          <button className="k-nav-btn" aria-label={ownRecipe ? "Ta bort från Mina recept" : (saved ? "Ta bort från sparade" : "Spara recept")} aria-pressed={ownRecipe || saved}
+          <button className="k-nav-btn k-save-btn" aria-label={ownRecipe ? "Ta bort från Mina recept" : (saved ? "Ta bort från sparade" : "Spara recept")} aria-pressed={ownRecipe || saved}
             onClick={() => ownRecipe ? setConfirmDelete(true) : (saved ? app.toggleSave(id) : app.setSheet({ type: "saveTo", recipeId: id, fromUserId: fromUserId && fromUserId !== "me" ? fromUserId : undefined }))}>
-            <Bookmark size={22} fill={ownRecipe ? "#FFB800" : (saved ? "#000" : "none")} color={ownRecipe ? "#FFB800" : "#000"} />
             <span className="k-save-count">{saveCount}</span>
+            <Bookmark size={22} fill={ownRecipe ? "#FFB800" : (saved ? "#000" : "none")} color={ownRecipe ? "#FFB800" : "#000"} />
           </button>
           <button className="k-nav-btn" aria-label="Dela recept" onClick={() => app.setSheet({ type: "share", recipeId: id })}>
             <Share size={21} />

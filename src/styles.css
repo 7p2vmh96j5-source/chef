@@ -262,7 +262,8 @@
 .k-confirm-actions button{flex:1;border:0;border-radius:10px;padding:10px;font-size:16px;font-weight:600}
 .k-confirm-no{background:#F2F2F7}
 .k-confirm-yes{background:#D70015;color:#fff}
-.k-save-count{font-size:12px;font-weight:600;color:#8E8E93;margin-left:-2px}
+.k-save-btn{display:flex;align-items:center;justify-content:center;gap:3px;width:auto;min-width:42px;padding:0 4px}
+.k-save-count{font-size:12px;font-weight:600;color:#8E8E93;margin-left:0}
 .k-push{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;animation:k-push .34s cubic-bezier(.2,.8,.2,1);box-shadow:-12px 0 30px rgba(0,0,0,.08)}
 .k-push-glass{background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
 .k-push-glass .k-nav{background:rgba(255,255,255,.72);border-bottom-color:rgba(209,209,214,.72)}
