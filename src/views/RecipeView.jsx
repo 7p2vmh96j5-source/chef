@@ -77,7 +77,11 @@ export function RecipeView({ id, app, fromUserId }) {
               <Avatar user={author} size={26} />{r.author === "me" ? "Ditt recept" : `Av ${author.name}`}
             </button>
           ) : <div className="k-by">Från Köket</div>}
-          {savedFromUser && <div className="k-meta" style={{ marginTop: 2 }}>Sparat från {savedFromUser.name}</div>}
+          {savedFromUser && (
+            <button className="k-plain k-meta" style={{ display: "block", marginTop: 2 }} onClick={() => app.open("user", savedFromId)}>
+              Sparat från {savedFromUser.name}
+            </button>
+          )}
           {r.sourceUrl && (
             <a className="k-recipe-source-link" href={r.sourceUrl} target="_blank" rel="noopener noreferrer">
               Importerat från {r.sourceName}
