@@ -318,7 +318,7 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 /* Blue-gray app theme */
 .k-root{background:#DCE4EB;color:#243442}
 .k-root :focus-visible{outline-color:#66859E}
-.k-phone,.k-status,.k-panel,.k-feed-item,.k-post,.k-social,.k-actions-wrap,.k-compose,.k-nav,.k-confirm,.k-push,.k-sheet,.k-as-g,.k-as-cancel,.k-actions,.k-act,.k-message-view,.k-message-compose{background:#F9FBFC}
+.k-phone,.k-status,.k-panel,.k-feed-item,.k-post,.k-social,.k-actions-wrap,.k-compose,.k-nav,.k-confirm,.k-push,.k-sheet,.k-as-g,.k-as-cancel,.k-actions,.k-act,.k-message-view,.k-message-compose{background:#FAF6EF}
 .k-scroll.grey{background:#EEF3F7}
 .k-meta,.k-empty,.k-end,.k-recipe-credit,.k-recipe-source,.k-mums-count,.k-more,.k-tab,.k-label,.k-message-time,.k-message>small,.k-message-recipe small,.k-message-empty,.k-kitchen-note{color:#718291}
 .k-note,.k-cmt,.k-cm p,.k-mutual,.k-act,.k-search,.k-recipe-credit b,.k-mod,.k-tag,.k-shared,.k-message-recipe,.k-field,.k-input,.k-date-selects select,.k-message p{color:#344856}
@@ -327,33 +327,33 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-search,.k-field,.k-input,.k-date-selects select,.k-mod,.k-tag,.k-step-dot,.k-add-i,.k-mums,.k-message p,.k-message-recipe,.k-message-compose select,.k-feed-share{background:#EEF3F7}
 .k-search{color:#718291}
 .k-refresh:active,.k-confirm-close,.k-recipe-menu button:active,.k-feed-share:active{background:#E3EBF1}
-.k-settings-photo-edit,.k-kitchen-note,.k-send,.k-plus,.k-primary,.k-steps li::before,.k-create-i,.k-as-i,.k-tag.added,.k-act.on .k-mums{background:#6D8CA5}
+.k-settings-photo-edit,.k-kitchen-note,.k-send,.k-plus,.k-primary,.k-steps li::before,.k-create-i,.k-as-i,.k-tag.added,.k-act.on .k-mums{background:#000000}
 .k-settings-photo-edit,.k-send,.k-plus,.k-primary,.k-steps li::before,.k-create-i,.k-as-i,.k-tag.added,.k-act.on .k-mums{color:#fff}
-.k-settings-photo-edit{border-color:#F9FBFC}
+.k-settings-photo-edit{border-color:#FAF6EF}
 .k-kitchen-note,.k-primary{color:#fff!important}
-.k-message.mine p{background:#6D8CA5;color:#fff}
+.k-message.mine p{background:#000000;color:#fff}
 .k-message.mine .k-message-recipe{background:#DCE8F0}
 .k-proof,.k-create,.k-mod.added,.k-tag.changed,.k-message.mine .k-message-recipe{background:#DCE8F0;color:#344856}
 .k-create small{color:#60798D}
 .k-recipe-menu button,.k-err{color:#B33A4A}
 .k-confirm-yes{background:#B33A4A}
 .k-kitchen-note{border-color:#C7D6E1}
-.k-logout{display:flex;align-items:center;justify-content:center;gap:7px;width:calc(100% - 32px);margin:0 16px 28px;padding:12px;border:1px solid #C7D6E1;border-radius:12px;background:#F9FBFC;color:#B33A4A;font-size:15px;font-weight:600}
+.k-logout{display:flex;align-items:center;justify-content:center;gap:7px;width:calc(100% - 32px);margin:0 16px 28px;padding:12px;border:1px solid #C7D6E1;border-radius:12px;background:#FAF6EF;color:#B33A4A;font-size:15px;font-weight:600}
 .k-logout:active{background:#F3E8EA}
 .k-settings-logout{width:100%;margin:24px 0 8px}
-.k-auth{width:min(390px,calc(100% - 32px));padding:32px 24px 28px;border-radius:24px;background:#F9FBFC;box-shadow:0 20px 50px rgba(55,79,96,.14)}
+.k-auth{width:min(390px,calc(100% - 32px));padding:32px 24px 28px;border-radius:24px;background:#FAF6EF;box-shadow:0 20px 50px rgba(55,79,96,.14)}
 .k-auth-brand{text-align:center}
 .k-auth-brand h1{margin:10px 0 2px;font-size:32px;letter-spacing:-.6px}
 .k-auth-brand p{margin:0;color:#718291;font-size:15px}
-.k-auth-icon{width:58px;height:58px;border-radius:18px;background:#6D8CA5;color:#fff;display:inline-grid;place-items:center}
+.k-auth-icon{width:58px;height:58px;border-radius:18px;background:#000000;color:#fff;display:inline-grid;place-items:center}
 .k-auth-form{margin-top:28px}
 .k-auth-password{position:relative}
 .k-auth-password .k-input{padding-right:44px}
 .k-auth-password-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;background:none;color:#718291;display:grid;place-items:center}
 .k-auth-remember{display:flex;align-items:center;gap:9px;margin-top:14px;color:#718291;font-size:14px;cursor:pointer}
-.k-auth-remember input{width:17px;height:17px;margin:0;accent-color:#6D8CA5}
+.k-auth-remember input{width:17px;height:17px;margin:0;accent-color:#000000}
 .k-auth-submit{margin-top:22px}
-.k-auth-switch{display:block;margin:20px auto 0;border:0;background:none;color:#607E96;font-size:14px;font-weight:600}
+.k-auth-switch{display:block;margin:20px auto 0;border:0;background:none;color:#000000;font-size:14px;font-weight:600}
 .k-auth-error,.k-auth-message{margin:12px 0 0;font-size:14px}
 .k-auth-error{color:#B33A4A}
 .k-auth-message{color:#52758E}
