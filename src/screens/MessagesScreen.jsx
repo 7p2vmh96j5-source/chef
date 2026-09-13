@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, MessageCircle, Send, X } from "lucide-react";
 import { USERS } from "../data/users.js";
 import { first, relDate } from "../lib/format.js";
@@ -10,6 +10,13 @@ export function MessagesScreen({ app }) {
   const [recipeId, setRecipeId] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
   const selectedRecipe = recipeId ? app.recipes[recipeId] : null;
+
+  // Nollställ utkastet (öppen receptmeny, valt recept, otryckt text) när man byter chatt.
+  useEffect(() => {
+    setPickerOpen(false);
+    setRecipeId("");
+    setText("");
+  }, [selectedId]);
 
   const people = [...new Set([
     ...app.data.following,
