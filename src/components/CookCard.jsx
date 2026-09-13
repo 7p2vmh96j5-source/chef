@@ -1,9 +1,20 @@
-import { Bookmark, BookmarkPlus, MessageCircle, ChefHat, Share, Images } from "lucide-react";
+import { Bookmark, BookmarkPlus, MessageCircle, ChefHat, Share, Images, MapPin } from "lucide-react";
 import { USERS } from "../data/users.js";
 import { first, relDate } from "../lib/format.js";
 import { modList } from "../lib/variants.js";
 import { photoList } from "../lib/photos.js";
-import { Avatar, Stats } from "./ui.jsx";
+import { Avatar, Stats, Stars } from "./ui.jsx";
+
+function PlaceBadge({ custom }) {
+  if (!custom?.place) return null;
+  return (
+    <div className="k-place-badge">
+      <MapPin size={13} />
+      <span>{custom.place}</span>
+      <Stars value={custom.rating} size={13} />
+    </div>
+  );
+}
 
 export function Mods({ mods, items, limit, onMore, label = "Ändringar jämfört med receptet" }) {
   const all = items || modList(mods);
@@ -115,6 +126,7 @@ export function CookCard({ cook, app, detail, onComment }) {
           ) : <Stats />}
           <div className="k-media">{media}</div>
           <button className="k-plain k-post-title" onClick={() => (custom ? openCook(false) : openRecipe())}>{r.title}</button>
+          <PlaceBadge custom={cook.custom} />
           {!custom && <RecipeCredit recipe={r} cook={cook} app={app} />}
           {cook.note && <p className="k-note">{cook.note}</p>}
           {cook.mods && <Mods mods={cook.mods} limit={null} onMore={() => openCook(false)} />}
@@ -122,6 +134,7 @@ export function CookCard({ cook, app, detail, onComment }) {
       ) : (
         <>
           <button className="k-plain k-post-title" onClick={() => (custom ? openCook(false) : openRecipe())}>{r.title}</button>
+          <PlaceBadge custom={cook.custom} />
           {!custom && <RecipeCredit recipe={r} cook={cook} app={app} />}
           {cook.note && <p className="k-note">{cook.note}</p>}
           {cook.mods && <Mods mods={cook.mods} limit={3} onMore={() => openCook(false)} />}

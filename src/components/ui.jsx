@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ChevronLeft, ChefHat } from "lucide-react";
+import { ChevronLeft, ChefHat, Star } from "lucide-react";
 import { PhotoCtx } from "../lib/photoContext.js";
 import { photoList } from "../lib/photos.js";
 
@@ -27,6 +27,17 @@ export function Tile({ r, size = 56, radius = 12, font, src }) {
     <span className="k-tile" aria-hidden="true"
       style={{ ...dim, background: r.tile, borderRadius: radius, fontSize: font || (typeof size === "number" ? size * 0.52 : 64) }}>
       {r.emoji}
+    </span>
+  );
+}
+
+export function Stars({ value, size = 14 }) {
+  if (!value) return null;
+  return (
+    <span className="k-stars" aria-label={`${value} av 5 stjärnor`}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <Star key={n} size={size} fill={n <= value ? "#FFB800" : "none"} color={n <= value ? "#FFB800" : "#C7C7CC"} />
+      ))}
     </span>
   );
 }

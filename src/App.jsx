@@ -17,6 +17,7 @@ import { CookView } from "./views/CookView.jsx";
 import { NotifsView } from "./views/NotifsView.jsx";
 import { FollowsView } from "./views/FollowsView.jsx";
 import { FolderView } from "./views/FolderView.jsx";
+import { RestaurantFolderView } from "./views/RestaurantFolderView.jsx";
 import { UserView } from "./views/UserView.jsx";
 import { MumsView } from "./views/MumsView.jsx";
 import { ActionSheet } from "./sheets/ActionSheet.jsx";
@@ -26,6 +27,7 @@ import { ShareSheet } from "./sheets/ShareSheet.jsx";
 import { ProfileSettingsSheet } from "./sheets/ProfileSettingsSheet.jsx";
 import { SaveRecipeSheet } from "./sheets/SaveRecipeSheet.jsx";
 import { MyFoldersSheet } from "./sheets/MyFoldersSheet.jsx";
+import { MyRestaurantFoldersSheet } from "./sheets/MyRestaurantFoldersSheet.jsx";
 import { SimplePostSheet } from "./sheets/SimplePostSheet.jsx";
 import { AuthScreen } from "./screens/AuthScreen.jsx";
 import { supabase } from "./lib/supabase.js";
@@ -647,6 +649,33 @@ export default function App() {
       });
       showToast("Mappen borttagen");
     },
+    createRestaurantFolder: (name) => {
+      const trimmed = name.trim();
+      if (!trimmed) return null;
+      const folderId = "rf" + Date.now();
+      setData((d) => ({ ...d, restaurantFolders: [...(d.restaurantFolders || []), { id: folderId, name: trimmed }] }));
+      return folderId;
+    },
+    renameRestaurantFolder: (folderId, name) => {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      setData((d) => ({
+        ...d,
+        restaurantFolders: (d.restaurantFolders || []).map((f) => (f.id === folderId ? { ...f, name: trimmed } : f)),
+      }));
+    },
+    deleteRestaurantFolder: (folderId) => {
+      setData((d) => {
+        const restaurantFolderOf = { ...(d.restaurantFolderOf || {}) };
+        Object.keys(restaurantFolderOf).forEach((cid) => { if (restaurantFolderOf[cid] === folderId) delete restaurantFolderOf[cid]; });
+        return {
+          ...d,
+          restaurantFolders: (d.restaurantFolders || []).filter((f) => f.id !== folderId),
+          restaurantFolderOf,
+        };
+      });
+      showToast("Gruppen borttagen");
+    },
     toggleFollow: (id) => {
       if (id === "me" || id === userId) return;
       const on = data.following.includes(id);
@@ -662,11 +691,15 @@ export default function App() {
       }
       if (!on && USERS[id]) showToast(`Du följer nu ${first(USERS[id].name)}`);
     },
-    logCook: (recipeId, note, photos, mods, custom, steps) => {
+    logCook: (recipeId, note, photos, mods, custom, steps, folderId) => {
       const c = { id: "me-" + Date.now(), userId: "me", recipeId, date: new Date().toISOString(), note, mums: [], mumsAt: {}, comments: [], mods: mods || null, custom: custom || null, steps: steps || null };
       const list = photoList(photos);
       if (list.length) setPhotos((p) => ({ ...p, [c.id]: list, ...(recipeId ? { [recipeId]: list } : {}) }));
-      setData((d) => ({ ...d, myCooks: [c, ...d.myCooks] }));
+      setData((d) => ({
+        ...d,
+        myCooks: [c, ...d.myCooks],
+        restaurantFolderOf: folderId ? { ...(d.restaurantFolderOf || {}), [c.id]: folderId } : d.restaurantFolderOf,
+      }));
       setSheet(null); setStack([]); setTab("feed");
       showToast("Publicerat");
       if (supabase && userId) {
@@ -691,7 +724,13 @@ export default function App() {
         steps: "steps" in patch ? (patch.steps || null) : existing.steps,
         custom: "custom" in patch ? (patch.custom || null) : existing.custom,
       };
-      setData((d) => ({ ...d, myCooks: d.myCooks.map((c) => (c.id === cookId ? updated : c)) }));
+      setData((d) => ({
+        ...d,
+        myCooks: d.myCooks.map((c) => (c.id === cookId ? updated : c)),
+        restaurantFolderOf: "folderId" in patch
+          ? { ...(d.restaurantFolderOf || {}), [cookId]: patch.folderId || null }
+          : d.restaurantFolderOf,
+      }));
       setPhotos((p) => {
         const next = { ...p };
         if (list.length) next[cookId] = list; else delete next[cookId];
@@ -783,6 +822,8 @@ export default function App() {
       setData((d) => {
         const recipeSaves = { ...d.recipeSaves };
         if (derived && !keepRecipe) delete recipeSaves[derived.id];
+        const restaurantFolderOf = { ...(d.restaurantFolderOf || {}) };
+        delete restaurantFolderOf[cookId];
         return {
           ...d,
           myCooks: d.myCooks.filter((cook) => cook.id !== cookId),
@@ -791,6 +832,7 @@ export default function App() {
           sharedRecipes: derived && !keepRecipe ? d.sharedRecipes.filter((recipe) => recipe.id !== derived.id) : d.sharedRecipes,
           saved: derived && !keepRecipe ? d.saved.filter((savedId) => savedId !== derived.id) : d.saved,
           recipeSaves,
+          restaurantFolderOf,
         };
       });
       setPhotos((p) => {
@@ -941,6 +983,7 @@ export default function App() {
               {v.type === "mums" && <MumsView cook={allCooks.find((c) => c.id === v.id)} app={app} />}
               {v.type === "follows" && <FollowsView uid={v.id} tab={v.tab} app={app} />}
               {v.type === "folder" && <FolderView id={v.id} app={app} />}
+              {v.type === "restaurantFolder" && <RestaurantFolderView id={v.id} app={app} />}
             </div>
           ))}
 
@@ -951,6 +994,7 @@ export default function App() {
           {sheet?.type === "profile-settings" && <ProfileSettingsSheet app={app} onClose={() => setSheet(null)} />}
           {sheet?.type === "saveTo" && <SaveRecipeSheet app={app} recipeId={sheet.recipeId} fromUserId={sheet.fromUserId} onClose={() => setSheet(null)} />}
           {sheet?.type === "my-folders" && <MyFoldersSheet app={app} onClose={() => setSheet(null)} />}
+          {sheet?.type === "my-restaurant-folders" && <MyRestaurantFoldersSheet app={app} onClose={() => setSheet(null)} />}
           {sheet?.type === "simple-post" && <SimplePostSheet app={app} onClose={() => setSheet(null)} />}
 
           {toast && <div key={toast.k} className="k-toast" role="status"><Check size={16} strokeWidth={3} />{toast.text}</div>}

@@ -54,6 +54,8 @@ export function defaultData() {
     recipeFolders: [],
     recipeFolderOf: {},
     recipeSavedFrom: {},
+    restaurantFolders: [],
+    restaurantFolderOf: {},
     following: [],
     mums: {},
     comments: {},

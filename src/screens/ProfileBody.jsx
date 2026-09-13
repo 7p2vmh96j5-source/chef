@@ -5,7 +5,7 @@ import { first, times, relDate } from "../lib/format.js";
 import { topRecipes, mutualText } from "../lib/social.js";
 import { photoList } from "../lib/photos.js";
 import { Avatar, Seg } from "../components/ui.jsx";
-import { RecipeRow, FollowButton } from "../components/rows.jsx";
+import { RecipeRow, RestaurantRow, FollowButton } from "../components/rows.jsx";
 import { Gallery } from "../components/Gallery.jsx";
 
 export function ProfileBody({ uid, app }) {
@@ -22,6 +22,10 @@ export function ProfileBody({ uid, app }) {
   const folderOf = app.data.recipeFolderOf || {};
   const ungroupedRecipes = myProfileRecipes.filter((r) => !folderOf[r.id]);
   const savedByUser = isMe ? [] : app.savedOf(uid);
+  const restaurantCooks = [...cooks].filter((c) => c.custom?.place).sort((a, b) => b.date.localeCompare(a.date));
+  const restaurantFolders = isMe ? (app.data.restaurantFolders || []) : [];
+  const restaurantFolderOf = app.data.restaurantFolderOf || {};
+  const ungroupedRestaurants = restaurantCooks.filter((c) => !restaurantFolderOf[c.id]);
   const top = topRecipes(cooks);
   const recent = [...cooks].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   const followingIds = app.followingOf(uid);
@@ -68,6 +72,38 @@ export function ProfileBody({ uid, app }) {
       </div>
     );
 
+  const restaurantList = (list, empty) =>
+    list.length === 0 ? <p className="k-empty" style={{ marginTop: 14 }}>{empty}</p> : (
+      <div className="k-list" style={{ marginTop: 6 }}>
+        {list.map((c) => <RestaurantRow key={c.id} cook={c} app={app} onClick={() => app.open("cook", c.id)} />)}
+      </div>
+    );
+
+  const restaurantFolderList = (folderList, list, folderOfMap, empty) => (
+    <>
+      {folderList.length > 0 && (
+        <div className="k-list" style={{ marginTop: 6 }}>
+          {folderList.map((f) => {
+            const count = restaurantCooks.filter((c) => folderOfMap[c.id] === f.id).length;
+            return (
+              <button key={f.id} className="k-row" onClick={() => app.open("restaurantFolder", f.id)}>
+                <span className="k-tile" style={{ width: 52, height: 52, borderRadius: 12, background: "#F2F2F7", display: "grid", placeItems: "center" }}>
+                  <Folder size={22} color="#8E8E93" />
+                </span>
+                <span className="k-row-body">
+                  <span className="k-row-t">{f.name}</span>
+                  <span className="k-row-s">{count} {count === 1 ? "plats" : "platser"}</span>
+                </span>
+                <ChevronRight size={18} color="#C7C7CC" />
+              </button>
+            );
+          })}
+        </div>
+      )}
+      {restaurantList(list, empty)}
+    </>
+  );
+
   return (
     <>
       <div className="k-prof">
@@ -100,9 +136,10 @@ export function ProfileBody({ uid, app }) {
 
       {isMe ? (
         <>
-          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Mina recept"]]} />
+          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Mina recept"], ["restaurants", "Restauranger"]]} />
           {seg === "activity" && activity}
           {seg === "gallery" && <Gallery cooks={cooks} app={app} empty="Inga matlagningar än. Logga din första så hamnar den här." />}
+          {seg === "restaurants" && restaurantFolderList(restaurantFolders, ungroupedRestaurants, restaurantFolderOf, "Inga platser tillagda än. Lägg till ett inlägg med en plats för att komma igång.")}
           {seg === "saved" && (
             <>
               {folders.length > 0 && (
@@ -130,7 +167,7 @@ export function ProfileBody({ uid, app }) {
         </>
       ) : (
         <>
-          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Sparade recept"]]} />
+          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Sparade recept"], ["restaurants", "Restauranger"]]} />
           {seg === "activity" && (
             <>
               {activity}
@@ -139,6 +176,7 @@ export function ProfileBody({ uid, app }) {
             </>
           )}
           {seg === "gallery" && <Gallery cooks={cooks} app={app} empty={`${first(u.name)} har inte loggat något än.`} />}
+          {seg === "restaurants" && restaurantList(restaurantCooks, `${first(u.name)} har inte tillagt några platser än.`)}
           {seg === "saved" && recipeList(savedByUser, `${first(u.name)} har inga sparade recept än.`)}
           <div style={{ height: 36 }} />
         </>
