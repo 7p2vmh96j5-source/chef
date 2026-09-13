@@ -16,7 +16,7 @@ export function ActionSheet({ app, onClose }) {
           </button>
           <button className="k-as-b" onClick={() => app.setSheet({ type: "simple-post" })}>
             <span className="k-as-i"><Camera size={22} /></span>
-            <span><b>Lägg till inlägg</b><small>Dela en bild, till exempel om du ätit ute</small></span>
+            <span><b>Lägg till inlägg</b><small>Dela en bild, till exempel om du har ätit något gott</small></span>
           </button>
         </div>
         <button className="k-as-cancel" onClick={onClose}>Avbryt</button>
