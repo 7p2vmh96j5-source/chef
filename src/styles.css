@@ -190,9 +190,14 @@
 .k-message-compose{position:sticky;bottom:0;z-index:3;display:flex;align-items:center;gap:6px;padding:8px 12px calc(10px + env(safe-area-inset-bottom));border-top:.5px solid #E5E5EA;background:#fff;box-shadow:0 -3px 12px rgba(0,0,0,.06)}
 .k-message-compose .k-field{min-height:36px;box-sizing:border-box}
 .k-message-more{position:relative;width:34px;height:34px;flex:0 0 auto}
-.k-message-more>span{position:absolute;inset:0;z-index:1;display:grid;place-items:center;color:#8E8E93;font-size:15px;letter-spacing:1px;pointer-events:none}
-.k-message-compose select{position:absolute;inset:0;width:34px;height:34px;border:0;border-radius:17px;background:#F2F2F7;color:transparent;overflow:hidden}
-.k-message-compose select:focus{color:#000;width:130px}
+.k-message-more-btn{width:34px;height:34px;border:0;border-radius:17px;background:#F2F2F7;color:#8E8E93;display:grid;place-items:center;font-size:15px;letter-spacing:1px;padding:0}
+.k-message-recipe-menu{position:absolute;left:0;bottom:100%;margin-bottom:8px;z-index:25;background:#fff;border:1px solid #E5E5EA;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.14);padding:4px;min-width:200px;max-height:260px;overflow-y:auto}
+.k-message-recipe-menu button{display:block;width:100%;border:0;background:none;border-radius:8px;padding:10px 14px;color:#000;font-size:15px;text-align:left}
+.k-message-recipe-menu button:active{background:#F2F2F7}
+.k-message-recipe-menu button.on{font-weight:700}
+.k-message-recipe-chip{display:flex;align-items:center;gap:4px;max-width:120px;background:#F2F2F7;border-radius:999px;padding:5px 6px 5px 10px;font-size:13px;font-weight:600;flex:0 0 auto}
+.k-message-recipe-chip-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.k-message-recipe-chip button{display:grid;place-items:center;border:0;background:none;padding:2px;flex:0 0 auto;color:inherit}
 .k-message-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:80px 32px;color:#8E8E93;text-align:center}
 .k-message-empty p{margin:0;font-size:15px}
 .k-message-list .k-row{min-height:70px}
@@ -343,11 +348,11 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-note,.k-cmt,.k-cm p,.k-mutual,.k-act,.k-search,.k-recipe-credit b,.k-mod,.k-tag,.k-shared,.k-message-recipe,.k-field,.k-input,.k-date-selects select,.k-message p{color:#344856}
 .k-stats span,.k-comment-like,.k-ed-btn,.k-save-count,.k-messages small{color:#718291}
 .k-stats>*+*,.k-compose,.k-nav,.k-sheet-f,.k-as-b+.k-as-b,.k-message-compose,.k-actions,.k-ed,.k-var li,.k-custom-steps li,.k-ing{border-color:#D5E0E8}
-.k-search,.k-field,.k-input,.k-date-selects select,.k-mod,.k-tag,.k-step-dot,.k-add-i,.k-mums,.k-message p,.k-message-recipe,.k-message-compose select,.k-feed-share{background:#EEF3F7}
+.k-search,.k-field,.k-input,.k-date-selects select,.k-mod,.k-tag,.k-step-dot,.k-add-i,.k-mums,.k-message p,.k-message-recipe,.k-message-more-btn,.k-message-recipe-chip,.k-feed-share{background:#EEF3F7}
 .k-search{color:#718291}
 .k-refresh:active,.k-confirm-close,.k-recipe-menu button:active,.k-feed-share:active{background:#E3EBF1}
 .k-settings-photo-edit,.k-kitchen-note,.k-send,.k-plus,.k-primary,.k-steps li::before,.k-create-i,.k-as-i,.k-tag.added,.k-act.on .k-mums{background:#000000}
-.k-settings-photo-edit,.k-send,.k-plus,.k-primary,.k-steps li::before,.k-create-i,.k-as-i,.k-tag.added,.k-act.on .k-mums{color:#fff}
+.k-settings-photo-edit,.k-send,.k-plus,.k-primary,.k-steps li::before,.k-create-i,.k-as-i,.k-tag.added,.k-act.on .k-mums{color:#fff!important}
 .k-settings-photo-edit{border-color:#fff}
 .k-kitchen-note,.k-primary{color:#fff!important}
 .k-message.mine p{background:#000000;color:#fff}

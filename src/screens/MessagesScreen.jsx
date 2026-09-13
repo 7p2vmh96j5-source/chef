@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, MessageCircle, Send } from "lucide-react";
+import { ArrowLeft, MessageCircle, Send, X } from "lucide-react";
 import { USERS } from "../data/users.js";
 import { first, relDate } from "../lib/format.js";
 import { Avatar, Tile } from "../components/ui.jsx";
@@ -8,6 +8,8 @@ export function MessagesScreen({ app }) {
   const [selectedId, setSelectedId] = useState(null);
   const [text, setText] = useState("");
   const [recipeId, setRecipeId] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const selectedRecipe = recipeId ? app.recipes[recipeId] : null;
 
   const people = [...new Set([
     ...app.data.following,
@@ -39,7 +41,11 @@ export function MessagesScreen({ app }) {
         <header className="k-nav">
           <button className="k-back" onClick={() => setSelectedId(null)}><ArrowLeft size={22} />Meddelanden</button>
           <div className="k-nav-t">{first(selected.name)}</div>
-          <div className="k-nav-r"><Avatar user={selected} size={30} /></div>
+          <div className="k-nav-r">
+            <button className="k-plain" onClick={() => app.open("user", selectedId)} aria-label={`Visa profilen för ${selected.name}`}>
+              <Avatar user={selected} size={30} />
+            </button>
+          </div>
         </header>
         <div className="k-messages">
           {messages.length === 0 && <p className="k-empty">Skriv något till {first(selected.name)}.</p>}
@@ -61,12 +67,27 @@ export function MessagesScreen({ app }) {
         </div>
         <div className="k-message-compose">
           <span className="k-message-more">
-            <span aria-hidden="true">•••</span>
-            <select value={recipeId} onChange={(e) => setRecipeId(e.target.value)} aria-label="Dela ett recept">
-              <option value="" disabled hidden></option>
-              {app.myRecipesList.map((r) => <option key={r.id} value={r.id}>{r.title}</option>)}
-            </select>
+            <button type="button" className="k-message-more-btn" onClick={() => setPickerOpen((open) => !open)}
+              aria-label="Dela ett recept" aria-expanded={pickerOpen}>
+              <span aria-hidden="true">•••</span>
+            </button>
+            {pickerOpen && (
+              <div className="k-message-recipe-menu" role="menu">
+                {app.myRecipesList.length === 0 ? (
+                  <p className="k-empty" style={{ padding: "10px 14px", margin: 0 }}>Inga recept att dela.</p>
+                ) : app.myRecipesList.map((r) => (
+                  <button key={r.id} role="menuitem" className={recipeId === r.id ? "on" : ""}
+                    onClick={() => { setRecipeId(r.id); setPickerOpen(false); }}>{r.title}</button>
+                ))}
+              </div>
+            )}
           </span>
+          {selectedRecipe && (
+            <span className="k-message-recipe-chip">
+              <span className="k-message-recipe-chip-text">{selectedRecipe.title}</span>
+              <button type="button" onClick={() => setRecipeId("")} aria-label="Ta bort valt recept"><X size={13} /></button>
+            </span>
+          )}
           <input autoFocus className="k-field" value={text} onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") send(text, recipeId || null); }}
             placeholder="Skriv ett meddelande" aria-label="Skriv ett meddelande" />
