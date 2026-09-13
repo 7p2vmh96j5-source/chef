@@ -319,7 +319,7 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-root{background:#DCE4EB;color:#243442}
 .k-root :focus-visible{outline-color:#66859E}
 .k-phone,.k-status,.k-panel,.k-feed-item,.k-post,.k-social,.k-actions-wrap,.k-compose,.k-nav,.k-confirm,.k-push,.k-sheet,.k-as-g,.k-as-cancel,.k-actions,.k-act,.k-message-view,.k-message-compose{background:#FAF6EF}
-.k-scroll.grey{background:#EEF3F7}
+.k-scroll.grey{background:#F1EAE0}
 .k-meta,.k-empty,.k-end,.k-recipe-credit,.k-recipe-source,.k-mums-count,.k-more,.k-tab,.k-label,.k-message-time,.k-message>small,.k-message-recipe small,.k-message-empty,.k-kitchen-note{color:#718291}
 .k-note,.k-cmt,.k-cm p,.k-mutual,.k-act,.k-search,.k-recipe-credit b,.k-mod,.k-tag,.k-shared,.k-message-recipe,.k-field,.k-input,.k-date-selects select,.k-message p{color:#344856}
 .k-stats span,.k-comment-like,.k-ed-btn,.k-save-count,.k-messages small{color:#718291}
