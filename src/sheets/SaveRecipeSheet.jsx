@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Bookmark, Folder, FolderPlus, ChevronRight } from "lucide-react";
 import { Sheet } from "./Sheet.jsx";
 
-export function SaveRecipeSheet({ app, recipeId, onClose }) {
+export function SaveRecipeSheet({ app, recipeId, fromUserId, onClose }) {
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const folders = app.data.recipeFolders || [];
@@ -12,7 +12,7 @@ export function SaveRecipeSheet({ app, recipeId, onClose }) {
   if (creating) {
     return (
       <Sheet title="Ny mapp" onClose={onClose} bodyKey="new-folder"
-        footer={<button className="k-primary" disabled={!name.trim()} onClick={() => app.createFolderAndSave(recipeId, name)}>Skapa och spara</button>}>
+        footer={<button className="k-primary" disabled={!name.trim()} onClick={() => app.createFolderAndSave(recipeId, name, fromUserId)}>Skapa och spara</button>}>
         <label className="k-label" htmlFor="folder-name" style={{ marginTop: 4 }}>Mappnamn</label>
         <input id="folder-name" className="k-input" value={name} onChange={(e) => setName(e.target.value)}
           placeholder="Till exempel Efterrätter" autoFocus />
@@ -22,13 +22,13 @@ export function SaveRecipeSheet({ app, recipeId, onClose }) {
 
   return (
     <Sheet title="Spara recept" onClose={onClose} bodyKey="save-to">
-      <button className="k-pick" onClick={() => app.saveRecipeToFolder(recipeId, null)}>
+      <button className="k-pick" onClick={() => app.saveRecipeToFolder(recipeId, null, fromUserId)}>
         <Bookmark size={20} />
         <span style={{ flex: 1 }}>Bara spara</span>
         <ChevronRight size={18} color="#C7C7CC" />
       </button>
       {folders.map((f) => (
-        <button key={f.id} className="k-pick" onClick={() => app.saveRecipeToFolder(recipeId, f.id)}>
+        <button key={f.id} className="k-pick" onClick={() => app.saveRecipeToFolder(recipeId, f.id, fromUserId)}>
           <Folder size={20} />
           <span style={{ flex: 1 }}>{f.name}</span>
           <span className="k-meta">{countIn(f.id)}</span>

@@ -560,7 +560,8 @@ export default function App() {
       const on = data.saved.includes(id);
       setData((d) => {
         const recipeFolderOf = { ...(d.recipeFolderOf || {}) };
-        if (on) delete recipeFolderOf[id];
+        const recipeSavedFrom = { ...(d.recipeSavedFrom || {}) };
+        if (on) { delete recipeFolderOf[id]; delete recipeSavedFrom[id]; }
         return {
           ...d,
           saved: on ? d.saved.filter((x) => x !== id) : [id, ...d.saved],
@@ -569,6 +570,7 @@ export default function App() {
             : { ...(d.recipeSavedAt || {}), [id]: new Date().toISOString() },
           recipeSaves: { ...d.recipeSaves, [id]: Math.max(0, (d.recipeSaves[id] || 0) + (on ? -1 : 1)) },
           recipeFolderOf,
+          recipeSavedFrom,
         };
       });
       showToast(on ? "Borttaget från Sparade" : "Sparat");
@@ -579,7 +581,7 @@ export default function App() {
         request.then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
       }
     },
-    saveRecipeToFolder: (id, folderId) => {
+    saveRecipeToFolder: (id, folderId, fromUserId) => {
       const on = data.saved.includes(id);
       setData((d) => ({
         ...d,
@@ -587,6 +589,7 @@ export default function App() {
         recipeSavedAt: on ? d.recipeSavedAt : { ...(d.recipeSavedAt || {}), [id]: new Date().toISOString() },
         recipeSaves: on ? d.recipeSaves : { ...d.recipeSaves, [id]: (d.recipeSaves[id] || 0) + 1 },
         recipeFolderOf: { ...(d.recipeFolderOf || {}), [id]: folderId || null },
+        recipeSavedFrom: fromUserId ? { ...(d.recipeSavedFrom || {}), [id]: fromUserId } : (d.recipeSavedFrom || {}),
       }));
       const folderName = folderId ? data.recipeFolders.find((f) => f.id === folderId)?.name : null;
       showToast(folderName ? `Sparat i ${folderName}` : "Sparat");
@@ -596,7 +599,7 @@ export default function App() {
           .then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
       }
     },
-    createFolderAndSave: (recipeId, name) => {
+    createFolderAndSave: (recipeId, name, fromUserId) => {
       const trimmed = name.trim();
       if (!trimmed) return;
       const folderId = "f" + Date.now();
@@ -608,6 +611,7 @@ export default function App() {
         recipeSavedAt: alreadySaved ? d.recipeSavedAt : { ...(d.recipeSavedAt || {}), [recipeId]: new Date().toISOString() },
         recipeSaves: alreadySaved ? d.recipeSaves : { ...d.recipeSaves, [recipeId]: (d.recipeSaves[recipeId] || 0) + 1 },
         recipeFolderOf: { ...(d.recipeFolderOf || {}), [recipeId]: folderId },
+        recipeSavedFrom: fromUserId ? { ...(d.recipeSavedFrom || {}), [recipeId]: fromUserId } : (d.recipeSavedFrom || {}),
       }));
       showToast(`Mappen "${trimmed}" skapad`);
       setSheet(null);
@@ -930,7 +934,7 @@ export default function App() {
 
           {stack.map((v, i) => (
             <div key={v.k} className={"k-push" + (v.type === "mums" || v.type === "notifs" ? " k-push-glass" : "")} style={{ zIndex: 20 + i }}>
-              {v.type === "recipe" && <RecipeView id={v.id} app={app} />}
+              {v.type === "recipe" && <RecipeView id={v.id} app={app} fromUserId={v.fromUserId} />}
               {v.type === "user" && <UserView id={v.id} app={app} />}
               {v.type === "cook" && <CookView id={v.id} app={app} focus={!!v.focus} />}
               {v.type === "notifs" && <NotifsView app={app} seenBefore={v.seenBefore} />}
@@ -945,7 +949,7 @@ export default function App() {
           {sheet?.type === "new" && <NewRecipeSheet app={app} onClose={() => setSheet(null)} />}
           {sheet?.type === "share" && <ShareSheet app={app} recipeId={sheet.recipeId} onClose={() => setSheet(null)} />}
           {sheet?.type === "profile-settings" && <ProfileSettingsSheet app={app} onClose={() => setSheet(null)} />}
-          {sheet?.type === "saveTo" && <SaveRecipeSheet app={app} recipeId={sheet.recipeId} onClose={() => setSheet(null)} />}
+          {sheet?.type === "saveTo" && <SaveRecipeSheet app={app} recipeId={sheet.recipeId} fromUserId={sheet.fromUserId} onClose={() => setSheet(null)} />}
           {sheet?.type === "my-folders" && <MyFoldersSheet app={app} onClose={() => setSheet(null)} />}
           {sheet?.type === "simple-post" && <SimplePostSheet app={app} onClose={() => setSheet(null)} />}
 

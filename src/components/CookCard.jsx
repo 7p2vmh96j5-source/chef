@@ -44,7 +44,7 @@ export function CookActions({ cook, app, onComment, detail }) {
           mums
         </button>
         <button className="k-act" onClick={() => (detail ? onComment && onComment() : app.open("cook", cook.id, { focus: true }))}><MessageCircle size={19} />Kommentera</button>
-        {!custom && <button className="k-act" onClick={() => app.open("recipe", r.id)}><ChefHat size={19} />Recept</button>}
+        {!custom && <button className="k-act" onClick={() => app.open("recipe", r.id, cook.userId !== "me" ? { fromUserId: cook.userId } : undefined)}><ChefHat size={19} />Recept</button>}
         {custom && !detail && <button className="k-act" onClick={() => app.open("cook", cook.id)}><ChefHat size={19} />Innehåll</button>}
       </div>
     </div>
@@ -62,6 +62,7 @@ export function CookCard({ cook, app, detail, onComment }) {
   const ownPhotos = photoList(app.photos[cook.id]);
   const photos = ownPhotos.length ? ownPhotos : photoList(app.photos[r.id]);
   const openCook = (focus) => app.open("cook", cook.id, { focus });
+  const openRecipe = () => app.open("recipe", r.id, cook.userId !== "me" ? { fromUserId: cook.userId } : undefined);
 
   const media = photos.length === 0
     ? <span className="k-photo" style={{ background: r.tile }}><span aria-hidden="true">{r.emoji}</span></span>
@@ -90,7 +91,7 @@ export function CookCard({ cook, app, detail, onComment }) {
           </button>
         )}
         {detail && !custom && (
-          <button className="k-save-recipe" onClick={() => app.data.saved.includes(r.id) ? app.toggleSave(r.id) : app.setSheet({ type: "saveTo", recipeId: r.id })} aria-label={app.data.saved.includes(r.id) ? "Ta bort recept från sparade" : "Spara recept"} aria-pressed={app.data.saved.includes(r.id)}>
+          <button className="k-save-recipe" onClick={() => app.data.saved.includes(r.id) ? app.toggleSave(r.id) : app.setSheet({ type: "saveTo", recipeId: r.id, fromUserId: cook.userId !== "me" ? cook.userId : undefined })} aria-label={app.data.saved.includes(r.id) ? "Ta bort recept från sparade" : "Spara recept"} aria-pressed={app.data.saved.includes(r.id)}>
             <Bookmark size={18} fill={app.data.saved.includes(r.id) ? "#000" : "none"} />
             <span>Spara recept</span>
           </button>
@@ -113,14 +114,14 @@ export function CookCard({ cook, app, detail, onComment }) {
             )
           ) : <Stats />}
           <div className="k-media">{media}</div>
-          <button className="k-plain k-post-title" onClick={() => (custom ? openCook(false) : app.open("recipe", r.id))}>{r.title}</button>
+          <button className="k-plain k-post-title" onClick={() => (custom ? openCook(false) : openRecipe())}>{r.title}</button>
           {!custom && <RecipeCredit recipe={r} cook={cook} app={app} />}
           {cook.note && <p className="k-note">{cook.note}</p>}
           {cook.mods && <Mods mods={cook.mods} limit={null} onMore={() => openCook(false)} />}
         </>
       ) : (
         <>
-          <button className="k-plain k-post-title" onClick={() => (custom ? openCook(false) : app.open("recipe", r.id))}>{r.title}</button>
+          <button className="k-plain k-post-title" onClick={() => (custom ? openCook(false) : openRecipe())}>{r.title}</button>
           {!custom && <RecipeCredit recipe={r} cook={cook} app={app} />}
           {cook.note && <p className="k-note">{cook.note}</p>}
           {cook.mods && <Mods mods={cook.mods} limit={3} onMore={() => openCook(false)} />}

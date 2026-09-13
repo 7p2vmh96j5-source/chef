@@ -4,7 +4,7 @@ import { USERS } from "../data/users.js";
 import { photoList } from "../lib/photos.js";
 import { Avatar, Stats, NavBar } from "../components/ui.jsx";
 
-export function RecipeView({ id, app }) {
+export function RecipeView({ id, app, fromUserId }) {
   const [done, setDone] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -18,6 +18,8 @@ export function RecipeView({ id, app }) {
   const friendCooks = app.allCooks.filter((c) => c.recipeId === id && app.data.following.includes(c.userId));
   const who = [...new Set(friendCooks.map((c) => c.userId))];
   const author = USERS[r.author];
+  const savedFromId = app.data.recipeSavedFrom?.[id];
+  const savedFromUser = !ownRecipe && saved && savedFromId ? USERS[savedFromId] : null;
   const toggle = (i) => setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
   const photos = photoList(app.photos[r.id]);
 
@@ -26,7 +28,7 @@ export function RecipeView({ id, app }) {
       <NavBar onBack={app.back} title={r.title} right={
         <>
           <button className="k-nav-btn" aria-label={ownRecipe ? "Ta bort från Mina recept" : (saved ? "Ta bort från sparade" : "Spara recept")} aria-pressed={ownRecipe || saved}
-            onClick={() => ownRecipe ? setConfirmDelete(true) : (saved ? app.toggleSave(id) : app.setSheet({ type: "saveTo", recipeId: id }))}>
+            onClick={() => ownRecipe ? setConfirmDelete(true) : (saved ? app.toggleSave(id) : app.setSheet({ type: "saveTo", recipeId: id, fromUserId: fromUserId && fromUserId !== "me" ? fromUserId : undefined }))}>
             <Bookmark size={22} fill={ownRecipe ? "#FFB800" : (saved ? "#000" : "none")} color={ownRecipe ? "#FFB800" : "#000"} />
             <span className="k-save-count">{saveCount}</span>
           </button>
@@ -75,6 +77,7 @@ export function RecipeView({ id, app }) {
               <Avatar user={author} size={26} />{r.author === "me" ? "Ditt recept" : `Av ${author.name}`}
             </button>
           ) : <div className="k-by">Från Köket</div>}
+          {savedFromUser && <div className="k-meta" style={{ marginTop: 2 }}>Sparat från {savedFromUser.name}</div>}
           {r.sourceUrl && (
             <a className="k-recipe-source-link" href={r.sourceUrl} target="_blank" rel="noopener noreferrer">
               Importerat från {r.sourceName}
