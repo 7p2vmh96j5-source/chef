@@ -1,10 +1,11 @@
 import { Bell } from "lucide-react";
+import { USERS } from "../data/users.js";
 import { CookCard, CookActions } from "../components/CookCard.jsx";
 
 export function FeedScreen({ app }) {
   const visible = new Set(["me", ...app.data.following]);
   const items = app.allCooks
-    .filter((c) => visible.has(c.userId))
+    .filter((c) => visible.has(c.userId) && USERS[c.userId] && app.recipeOf(c))
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 30);
 
