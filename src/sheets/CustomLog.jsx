@@ -8,7 +8,7 @@ import { Sheet } from "./Sheet.jsx";
 export function CustomLog({ app, onClose, onBack, initialTitle }) {
   const [f, setF] = useState({ title: initialTitle || "", emoji: "🍲" });
   const [note, setNote] = useState("");
-  const [photo, setPhoto] = useState(null);
+  const [photos, setPhotos] = useState([]);
   const [sel, setSel] = useState([]);
   const [steps, setSteps] = useState([""]);
   const [q, setQ] = useState("");
@@ -39,7 +39,7 @@ export function CustomLog({ app, onClose, onBack, initialTitle }) {
   const canPublish = f.title.trim() && sel.length > 0;
   const publish = () => {
     const ingredients = sel.map((s) => (s.amount.trim() ? `${s.amount.trim()} ${s.name.charAt(0).toLowerCase() + s.name.slice(1)}` : s.name));
-    app.logCook(null, note.trim(), photo, null, {
+    app.logCook(null, note.trim(), photos, null, {
       title: f.title.trim(),
       category: "Middag",
       time: 30,
@@ -70,7 +70,7 @@ export function CustomLog({ app, onClose, onBack, initialTitle }) {
       </div>
 
       <label className="k-label">Foto (valfritt)</label>
-      <PhotoPicker value={photo} onChange={setPhoto} />
+      <PhotoPicker multiple value={photos} onChange={setPhotos} />
 
       <label className="k-label" htmlFor="k-cnote">Hur blev det?</label>
       <textarea id="k-cnote" className="k-input" style={{ minHeight: 76 }} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Berätta för dina vänner (valfritt)" />

@@ -10,7 +10,7 @@ export function LogSheet({ app, initial, onClose }) {
   const [rid, setRid] = useState(initial || null);
   const [note, setNote] = useState("");
   const [q, setQ] = useState("");
-  const [photo, setPhoto] = useState(null);
+  const [photos, setPhotos] = useState([]);
   const [items, setItems] = useState(() => toItems(initial ? app.recipes[initial] : null));
   const [newIng, setNewIng] = useState("");
   const [showSteps, setShowSteps] = useState(false);
@@ -92,7 +92,7 @@ export function LogSheet({ app, initial, onClose }) {
   // Steg 2: receptet, justeringar, foto och kommentar
   return (
     <Sheet tall title="Logga matlagning" onClose={onClose} bodyKey={"log-" + rid}
-      footer={<button className="k-primary" onClick={() => app.logCook(ownRecipe ? null : rid, note.trim(), photo, ownRecipe ? null : mods, ownRecipe, ownRecipe ? null : steps)}>Publicera</button>}>
+      footer={<button className="k-primary" onClick={() => app.logCook(ownRecipe ? null : rid, note.trim(), photos, ownRecipe ? null : mods, ownRecipe, ownRecipe ? null : steps)}>Publicera</button>}>
       <div className="k-log-rec">
         <Tile r={r} size={56} />
         <span className="k-row-body">
@@ -102,7 +102,7 @@ export function LogSheet({ app, initial, onClose }) {
       </div>
 
       <label className="k-label" style={{ marginTop: 12 }}>Foto</label>
-      <PhotoPicker value={photo} onChange={setPhoto} />
+      <PhotoPicker multiple value={photos} onChange={setPhotos} />
       <label className="k-label" htmlFor="k-note">Hur blev det?</label>
       <textarea id="k-note" className="k-input" style={{ minHeight: 76 }} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Berätta för dina vänner (valfritt)" />
 

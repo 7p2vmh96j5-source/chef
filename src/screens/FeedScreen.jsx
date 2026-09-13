@@ -12,7 +12,7 @@ export function FeedScreen({ app }) {
   return (
     <>
       <header className="k-lt k-lt-row">
-        <h1>Start</h1>
+        <h1 className="k-lt-brand">Fodtho</h1>
         <button className="k-bell" onClick={app.openNotifs} aria-label={app.unread ? `Notiser, ${app.unread} olästa` : "Notiser"}>
           <Bell size={24} />
           {app.unread > 0 && <span className="k-badge">{app.unread > 9 ? "9+" : app.unread}</span>}

@@ -1,7 +1,7 @@
 // Bildhantering
 
 // Skalar ner bilden så den ryms i lagringen
-export function resizeImage(file, max = 900) {
+export function resizeImage(file, max = 720) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -12,7 +12,7 @@ export function resizeImage(file, max = 900) {
       c.height = Math.round(img.height * s);
       c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(url);
-      resolve(c.toDataURL("image/jpeg", 0.72));
+      resolve(c.toDataURL("image/jpeg", 0.62));
     };
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Kunde inte läsa bilden")); };
     img.src = url;

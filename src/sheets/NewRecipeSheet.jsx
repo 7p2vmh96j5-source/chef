@@ -8,7 +8,7 @@ import { Search, Plus, X } from "lucide-react";
 export function NewRecipeSheet({ app, onClose }) {
   const [f, setF] = useState({ title: "", emoji: "🍲" });
   const [err, setErr] = useState("");
-  const [photo, setPhoto] = useState(null);
+  const [photos, setPhotos] = useState([]);
   const [sel, setSel] = useState([]);
   const [q, setQ] = useState("");
   const [steps, setSteps] = useState([""]);
@@ -47,7 +47,7 @@ export function NewRecipeSheet({ app, onClose }) {
       emoji: f.emoji,
       ingredients,
       steps: steps.map((step) => step.trim()).filter(Boolean),
-    }, photo);
+    }, photos);
   };
 
   return (
@@ -63,7 +63,7 @@ export function NewRecipeSheet({ app, onClose }) {
       </div>
 
       <label className="k-label">Foto (valfritt)</label>
-      <PhotoPicker value={photo} onChange={setPhoto} />
+      <PhotoPicker multiple value={photos} onChange={setPhotos} />
 
       <div className="k-ed-head">
         <h3>Ingredienser</h3>

@@ -5,6 +5,7 @@ import { USERS, GRAPH } from "./data/users.js";
 import { defaultData } from "./data/seed.js";
 import { SEED_RECIPES } from "./data/recipes.js";
 import { first } from "./lib/format.js";
+import { photoList } from "./lib/photos.js";
 import { evDate, buildNotifs } from "./lib/social.js";
 import { PhotoCtx } from "./lib/photoContext.js";
 import { FeedScreen } from "./screens/FeedScreen.jsx";
@@ -220,12 +221,18 @@ export default function App() {
     let active = true;
     (async () => {
       const results = await Promise.all([
-        ...data.myRecipes.map((recipe) => supabase.from("recipes").upsert({
-          id: recipe.id, author_id: userId, data: recipe, photo: photos[recipe.id] || null,
-        }, { onConflict: "id" })),
-        ...data.myCooks.map((cook) => supabase.from("cooks").upsert({
-          id: cook.id, user_id: userId, recipe_id: cook.recipeId || null, data: cook, photo: photos[cook.id] || null,
-        }, { onConflict: "id" })),
+        ...data.myRecipes.map((recipe) => {
+          const list = photoList(photos[recipe.id]);
+          return supabase.from("recipes").upsert({
+            id: recipe.id, author_id: userId, data: recipe, photo: list[0] || null, photos: list.length ? list : null,
+          }, { onConflict: "id" });
+        }),
+        ...data.myCooks.map((cook) => {
+          const list = photoList(photos[cook.id]);
+          return supabase.from("cooks").upsert({
+            id: cook.id, user_id: userId, recipe_id: cook.recipeId || null, data: cook, photo: list[0] || null, photos: list.length ? list : null,
+          }, { onConflict: "id" });
+        }),
       ]);
       if (active && results.some(({ error }) => error)) {
         console.error("Kunde inte synkronisera lokala recept eller inlägg:", results
@@ -242,10 +249,21 @@ export default function App() {
       return undefined;
     }
     let active = true;
+    // Om photos-kolumnen inte finns än i databasen, försök utan den istället för att låta hela synken misslyckas.
+    const selectWithPhotosFallback = async (table, columns, fallbackColumns) => {
+      let { data, error } = await supabase.from(table).select(columns).order("created_at", { ascending: false });
+      if (error) {
+        console.error(`Kunde inte läsa ${table} (med photos), försöker utan:`, error);
+        const fallback = await supabase.from(table).select(fallbackColumns).order("created_at", { ascending: false });
+        data = fallback.data ? fallback.data.map((row) => ({ ...row, photos: null })) : null;
+        error = fallback.error;
+      }
+      return { data, error };
+    };
     const loadShared = async () => {
       const [recipesResult, cooksResult, commentsResult, mumsResult, savesResult] = await Promise.all([
-        supabase.from("recipes").select("id,author_id,data,photo,created_at").order("created_at", { ascending: false }),
-        supabase.from("cooks").select("id,user_id,recipe_id,data,photo,created_at").order("created_at", { ascending: false }),
+        selectWithPhotosFallback("recipes", "id,author_id,data,photo,photos,created_at", "id,author_id,data,photo,created_at"),
+        selectWithPhotosFallback("cooks", "id,user_id,recipe_id,data,photo,photos,created_at", "id,user_id,recipe_id,data,photo,created_at"),
         supabase.from("comments").select("id,cook_id,user_id,text,created_at").order("created_at", { ascending: true }),
         supabase.from("mums").select("cook_id,user_id,created_at"),
         supabase.from("saves").select("recipe_id,user_id,created_at"),
@@ -541,15 +559,16 @@ export default function App() {
       }
       if (!on && USERS[id]) showToast(`Du följer nu ${first(USERS[id].name)}`);
     },
-    logCook: (recipeId, note, photo, mods, custom, steps) => {
+    logCook: (recipeId, note, photos, mods, custom, steps) => {
       const c = { id: "me-" + Date.now(), userId: "me", recipeId, date: new Date().toISOString(), note, mums: [], mumsAt: {}, comments: [], mods: mods || null, custom: custom || null, steps: steps || null };
-      if (photo) setPhotos((p) => ({ ...p, [c.id]: photo, ...(recipeId ? { [recipeId]: photo } : {}) }));
+      const list = photoList(photos);
+      if (list.length) setPhotos((p) => ({ ...p, [c.id]: list, ...(recipeId ? { [recipeId]: list } : {}) }));
       setData((d) => ({ ...d, myCooks: [c, ...d.myCooks] }));
       setSheet(null); setStack([]); setTab("feed");
       showToast("Publicerat");
       if (supabase && userId) {
         supabase.from("cooks").upsert({
-          id: c.id, user_id: userId, recipe_id: recipeId || null, data: c, photo: photo || null,
+          id: c.id, user_id: userId, recipe_id: recipeId || null, data: c, photo: list[0] || null, photos: list.length ? list : null,
         }, { onConflict: "id" }).then(({ error }) => {
           if (error) {
             console.error("Kunde inte publicera inlägg:", error);
@@ -558,10 +577,11 @@ export default function App() {
         });
       }
     },
-    addRecipe: (r, photo) => {
+    addRecipe: (r, photos) => {
       const id = "u" + Date.now();
       const rec = { ...r, id, author: "me", tile: TILES[data.myRecipes.length % TILES.length] };
-      if (photo) setPhotos((p) => ({ ...p, [id]: photo }));
+      const list = photoList(photos);
+      if (list.length) setPhotos((p) => ({ ...p, [id]: list }));
       setData((d) => ({
         ...d,
         myRecipes: [rec, ...d.myRecipes],
@@ -573,7 +593,7 @@ export default function App() {
       setStack((s) => [...s, { type: "recipe", id, k: Date.now() }]);
       showToast("Recept sparat");
       if (supabase && userId) {
-        supabase.from("recipes").upsert({ id, author_id: userId, data: rec, photo: photo || null }, { onConflict: "id" })
+        supabase.from("recipes").upsert({ id, author_id: userId, data: rec, photo: list[0] || null, photos: list.length ? list : null }, { onConflict: "id" })
           .then(({ error }) => {
             if (error) {
               console.error("Kunde inte publicera recept:", error);
@@ -671,7 +691,8 @@ export default function App() {
         ingredients: recipe.ingredients,
         steps: recipe.steps,
       };
-      if (photos[cook.id]) setPhotos((p) => ({ ...p, [id]: p[cook.id] }));
+      const list = photoList(photos[cook.id]);
+      if (list.length) setPhotos((p) => ({ ...p, [id]: list }));
       setData((d) => ({
         ...d,
         myRecipes: [rec, ...d.myRecipes],
@@ -681,7 +702,7 @@ export default function App() {
       }));
       showToast("Eget recept sparat");
       if (supabase && userId) {
-        supabase.from("recipes").upsert({ id, author_id: userId, data: rec, photo: photos[cook.id] || null }, { onConflict: "id" })
+        supabase.from("recipes").upsert({ id, author_id: userId, data: rec, photo: list[0] || null, photos: list.length ? list : null }, { onConflict: "id" })
           .then(({ error }) => {
             if (error) console.error("Kunde inte publicera sparat recept:", error);
           });
