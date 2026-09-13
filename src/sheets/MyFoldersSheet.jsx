@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Trash2, Pencil, X, Plus } from "lucide-react";
+import { Trash2, Pencil, X, Plus, Check } from "lucide-react";
 import { Sheet } from "./Sheet.jsx";
 
 function FolderRow({ folder, count, app, onRequestDelete }) {
@@ -19,8 +19,8 @@ function FolderRow({ folder, count, app, onRequestDelete }) {
         <input value={name} autoFocus onChange={(e) => setName(e.target.value)}
           onBlur={commit} onKeyDown={(e) => e.key === "Enter" && commit()}
           aria-label={`Byt namn på mappen ${folder.name}`} />
-        <button className="k-ed-btn" onClick={() => onRequestDelete(folder)} aria-label={`Ta bort mappen ${folder.name}`}>
-          <Trash2 size={18} />
+        <button className="k-ed-btn" onClick={commit} aria-label="Spara nytt namn">
+          <Check size={18} />
         </button>
       </div>
     );
