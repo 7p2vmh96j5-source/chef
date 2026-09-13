@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Bookmark, Share, ChefHat, Check, MoreHorizontal, X } from "lucide-react";
 import { USERS } from "../data/users.js";
+import { photoList } from "../lib/photos.js";
 import { Avatar, Stats, NavBar } from "../components/ui.jsx";
 
 export function RecipeView({ id, app }) {
@@ -18,6 +19,7 @@ export function RecipeView({ id, app }) {
   const who = [...new Set(friendCooks.map((c) => c.userId))];
   const author = USERS[r.author];
   const toggle = (i) => setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
+  const photos = photoList(app.photos[r.id]);
 
   return (
     <>
@@ -57,9 +59,15 @@ export function RecipeView({ id, app }) {
         </div>
       )}
       <div className="k-scroll">
-        {app.photos[r.id]
-          ? <img className="k-hero-img" src={app.photos[r.id]} alt={r.title} />
-          : <div className="k-hero" style={{ background: r.tile }} aria-hidden="true">{r.emoji}</div>}
+        {photos.length === 0 ? (
+          <div className="k-hero" style={{ background: r.tile }} aria-hidden="true">{r.emoji}</div>
+        ) : photos.length > 1 ? (
+          <div className="k-media-gallery">
+            {photos.map((src, i) => <img key={i} className="k-hero-img" src={src} alt={`${r.title}, bild ${i + 1} av ${photos.length}`} />)}
+          </div>
+        ) : (
+          <img className="k-hero-img" src={photos[0]} alt={r.title} />
+        )}
         <div className="k-rv">
           <h1>{r.title}</h1>
           {author ? (

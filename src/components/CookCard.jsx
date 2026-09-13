@@ -2,6 +2,7 @@ import { Bookmark, BookmarkPlus, MessageCircle, ChefHat, Share } from "lucide-re
 import { USERS } from "../data/users.js";
 import { first, relDate } from "../lib/format.js";
 import { modList } from "../lib/variants.js";
+import { photoList } from "../lib/photos.js";
 import { Avatar, Stats } from "./ui.jsx";
 
 export function Mods({ mods, items, limit, onMore, label = "Ändringar jämfört med receptet" }) {
@@ -58,12 +59,22 @@ export function CookCard({ cook, app, detail, onComment }) {
   const isMe = cook.userId === "me";
   const comments = app.commentsOf(cook);
   const savedAsRecipe = custom && app.data.myRecipes.some((savedRecipe) => savedRecipe.sourceCookId === cook.id);
-  const src = app.photos[cook.id] || app.photos[r.id];
+  const ownPhotos = photoList(app.photos[cook.id]);
+  const photos = ownPhotos.length ? ownPhotos : photoList(app.photos[r.id]);
   const openCook = (focus) => app.open("cook", cook.id, { focus });
 
-  const media = src
-    ? <img className="k-photo-img" src={src} alt={`${r.title}, lagad av ${isMe ? "dig" : first(u.name)}`} />
-    : <span className="k-photo" style={{ background: r.tile }}><span aria-hidden="true">{r.emoji}</span></span>;
+  const media = photos.length === 0
+    ? <span className="k-photo" style={{ background: r.tile }}><span aria-hidden="true">{r.emoji}</span></span>
+    : detail && photos.length > 1 ? (
+      <div className="k-media-gallery">
+        {photos.map((src, i) => <img key={i} className="k-photo-img" src={src} alt={`${r.title}, bild ${i + 1} av ${photos.length}`} />)}
+      </div>
+    ) : (
+      <div className="k-media-wrap">
+        <img className="k-photo-img" src={photos[0]} alt={`${r.title}, lagad av ${isMe ? "dig" : first(u.name)}`} />
+        {!detail && photos.length > 1 && <span className="k-photo-count">1/{photos.length}</span>}
+      </div>
+    );
 
   return (
     <article className="k-post">

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { USERS } from "../data/users.js";
 import { first, times, relDate } from "../lib/format.js";
 import { topRecipes, mutualText } from "../lib/social.js";
+import { photoList } from "../lib/photos.js";
 import { Avatar, Seg } from "../components/ui.jsx";
 import { RecipeRow, FollowButton } from "../components/rows.jsx";
 import { Gallery } from "../components/Gallery.jsx";
@@ -53,7 +54,7 @@ export function ProfileBody({ uid, app }) {
         <div className="k-list">
           {recent.map((c) => {
             const r = app.recipeOf(c);
-            return r ? <RecipeRow key={c.id} r={r} photo={app.photos[c.id]} sub={relDate(c.date)} onClick={() => app.open("cook", c.id)} /> : null;
+            return r ? <RecipeRow key={c.id} r={r} photo={photoList(app.photos[c.id])[0]} sub={relDate(c.date)} onClick={() => app.open("cook", c.id)} /> : null;
           })}
         </div>
       )}

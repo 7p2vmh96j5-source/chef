@@ -84,10 +84,12 @@ create table if not exists public.recipes (
   author_id uuid not null references auth.users(id) on delete cascade,
   data jsonb not null,
   photo text,
+  photos jsonb,
   created_at timestamptz not null default now()
 );
 
 alter table public.recipes add column if not exists photo text;
+alter table public.recipes add column if not exists photos jsonb;
 alter table public.recipes enable row level security;
 
 drop policy if exists "Inloggade kan läsa recept" on public.recipes;
@@ -117,10 +119,12 @@ create table if not exists public.cooks (
   recipe_id text,
   data jsonb not null,
   photo text,
+  photos jsonb,
   created_at timestamptz not null default now()
 );
 
 alter table public.cooks add column if not exists photo text;
+alter table public.cooks add column if not exists photos jsonb;
 alter table public.cooks enable row level security;
 
 drop policy if exists "Inloggade kan läsa inlägg" on public.cooks;

@@ -1,4 +1,5 @@
 import { relDate } from "../lib/format.js";
+import { photoList } from "../lib/photos.js";
 
 export function Gallery({ cooks, app, empty }) {
   const list = [...cooks].sort((a, b) => b.date.localeCompare(a.date));
@@ -8,7 +9,8 @@ export function Gallery({ cooks, app, empty }) {
       {list.map((c) => {
         const r = app.recipeOf(c);
         if (!r) return null;
-        const src = app.photos[c.id] || app.photos[r.id];
+        const ownPhotos = photoList(app.photos[c.id]);
+        const src = (ownPhotos.length ? ownPhotos : photoList(app.photos[r.id]))[0];
         return (
           <button key={c.id} onClick={() => app.open("cook", c.id)} aria-label={`${r.title}, ${relDate(c.date).toLowerCase()}`}
             style={{ background: src ? "#F2F2F7" : r.tile }}>

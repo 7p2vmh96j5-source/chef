@@ -223,15 +223,15 @@ export default function App() {
       const results = await Promise.all([
         ...data.myRecipes.map((recipe) => {
           const list = photoList(photos[recipe.id]);
-          return supabase.from("recipes").upsert({
+          return upsertWithPhotosFallback("recipes", {
             id: recipe.id, author_id: userId, data: recipe, photo: list[0] || null, photos: list.length ? list : null,
-          }, { onConflict: "id" });
+          });
         }),
         ...data.myCooks.map((cook) => {
           const list = photoList(photos[cook.id]);
-          return supabase.from("cooks").upsert({
+          return upsertWithPhotosFallback("cooks", {
             id: cook.id, user_id: userId, recipe_id: cook.recipeId || null, data: cook, photo: list[0] || null, photos: list.length ? list : null,
-          }, { onConflict: "id" });
+          });
         }),
       ]);
       if (active && results.some(({ error }) => error)) {
@@ -316,11 +316,15 @@ export default function App() {
       });
       setPhotos((current) => {
         const next = { ...current };
-        recipeRows.forEach((row) => { if (row.photo) next[row.id] = row.photo; });
+        recipeRows.forEach((row) => {
+          const list = row.photos && row.photos.length ? row.photos : photoList(row.photo);
+          if (list.length) next[row.id] = list;
+        });
         cookRows.forEach((row) => {
-          if (row.photo) {
-            next[row.id] = row.photo;
-            if (row.recipe_id) next[row.recipe_id] = row.photo;
+          const list = row.photos && row.photos.length ? row.photos : photoList(row.photo);
+          if (list.length) {
+            next[row.id] = list;
+            if (row.recipe_id) next[row.recipe_id] = list;
           }
         });
         return next;
@@ -405,6 +409,16 @@ export default function App() {
   [data.messages, data.messagesSeen]);
 
   const showToast = (text) => setToast({ text, k: Date.now() });
+
+  // Om photos-kolumnen inte finns än i databasen, försök utan den istället för att låta hela sparningen misslyckas.
+  const upsertWithPhotosFallback = async (table, payload, onConflict = "id") => {
+    const result = await supabase.from(table).upsert(payload, { onConflict });
+    if (result.error && /photos/i.test(result.error.message || "")) {
+      const { photos: _photos, ...rest } = payload;
+      return supabase.from(table).upsert(rest, { onConflict });
+    }
+    return result;
+  };
 
   const app = {
     data, recipes, allCooks, setSheet, photos, notifs, unread, unreadMessages, profilesLoaded, currentUserId: userId,
@@ -567,9 +581,9 @@ export default function App() {
       setSheet(null); setStack([]); setTab("feed");
       showToast("Publicerat");
       if (supabase && userId) {
-        supabase.from("cooks").upsert({
+        upsertWithPhotosFallback("cooks", {
           id: c.id, user_id: userId, recipe_id: recipeId || null, data: c, photo: list[0] || null, photos: list.length ? list : null,
-        }, { onConflict: "id" }).then(({ error }) => {
+        }).then(({ error }) => {
           if (error) {
             console.error("Kunde inte publicera inlägg:", error);
             showToast(`Inlägget kunde inte synkas: ${error.message}`);
@@ -593,7 +607,7 @@ export default function App() {
       setStack((s) => [...s, { type: "recipe", id, k: Date.now() }]);
       showToast("Recept sparat");
       if (supabase && userId) {
-        supabase.from("recipes").upsert({ id, author_id: userId, data: rec, photo: list[0] || null, photos: list.length ? list : null }, { onConflict: "id" })
+        upsertWithPhotosFallback("recipes", { id, author_id: userId, data: rec, photo: list[0] || null, photos: list.length ? list : null })
           .then(({ error }) => {
             if (error) {
               console.error("Kunde inte publicera recept:", error);
@@ -702,7 +716,7 @@ export default function App() {
       }));
       showToast("Eget recept sparat");
       if (supabase && userId) {
-        supabase.from("recipes").upsert({ id, author_id: userId, data: rec, photo: list[0] || null, photos: list.length ? list : null }, { onConflict: "id" })
+        upsertWithPhotosFallback("recipes", { id, author_id: userId, data: rec, photo: list[0] || null, photos: list.length ? list : null })
           .then(({ error }) => {
             if (error) console.error("Kunde inte publicera sparat recept:", error);
           });
