@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Home, Search, Plus, MessageCircle, User, Check, Settings } from "lucide-react";
 import { STORAGE_KEY, PHOTO_KEY, PHOTO_MAX_CHARS, TILES, CUSTOM_TILE } from "./data/constants.js";
 import { USERS, GRAPH } from "./data/users.js";
@@ -40,6 +40,8 @@ export default function App() {
   const [profilesLoaded, setProfilesLoaded] = useState(false);
   const [sharedLoaded, setSharedLoaded] = useState(false);
   const [followRelations, setFollowRelations] = useState([]);
+  const deletedRecipeIds = useRef(new Set());
+  const deletedCookIds = useRef(new Set());
   const userId = session?.user?.id || "";
   const userStorageKey = userId ? `${STORAGE_KEY}:${userId}` : STORAGE_KEY;
   const userPhotoKey = userId ? `${PHOTO_KEY}:${userId}` : PHOTO_KEY;
@@ -254,6 +256,10 @@ export default function App() {
       if (commentsResult.error) console.error("Kunde inte läsa kommentarer:", commentsResult.error);
       if (mumsResult.error) console.error("Kunde inte läsa mums:", mumsResult.error);
       if (savesResult.error) console.error("Kunde inte läsa sparade recept:", savesResult.error);
+      // Filtrera bort sådant som just tagits bort lokalt men ännu inte hunnit försvinna från Supabase,
+      // så att en pågående borttagning inte dyker upp igen vid nästa synk.
+      const recipeRows = (recipesResult.data || []).filter((row) => !deletedRecipeIds.current.has(row.id));
+      const cookRows = (cooksResult.data || []).filter((row) => !deletedCookIds.current.has(row.id));
       const sharedComments = {};
       (commentsResult.data || []).filter((row) => row.user_id !== userId).forEach((row) => {
         (sharedComments[row.cook_id] ||= []).push({ id: row.id, userId: row.user_id, text: row.text, date: row.created_at });
@@ -268,21 +274,21 @@ export default function App() {
       });
       setData((current) => {
         const myCooksById = new Map(current.myCooks.map((c) => [c.id, c]));
-        (cooksResult.data || []).filter((row) => row.user_id === userId).forEach((row) => {
+        cookRows.filter((row) => row.user_id === userId).forEach((row) => {
           if (!myCooksById.has(row.id)) myCooksById.set(row.id, { ...row.data, id: row.id });
         });
         const myRecipesById = new Map(current.myRecipes.map((r) => [r.id, r]));
-        (recipesResult.data || []).filter((row) => row.author_id === userId).forEach((row) => {
+        recipeRows.filter((row) => row.author_id === userId).forEach((row) => {
           if (!myRecipesById.has(row.id)) myRecipesById.set(row.id, { ...row.data, id: row.id, author: "me" });
         });
         return {
           ...current,
           myCooks: [...myCooksById.values()].sort((a, b) => b.date.localeCompare(a.date)),
           myRecipes: [...myRecipesById.values()],
-          sharedRecipes: (recipesResult.data || []).map((row) => ({
+          sharedRecipes: recipeRows.map((row) => ({
             ...row.data, id: row.id, author: row.author_id === userId ? "me" : row.author_id,
           })),
-          sharedCooks: (cooksResult.data || []).filter((row) => row.user_id !== userId).map((row) => ({
+          sharedCooks: cookRows.filter((row) => row.user_id !== userId).map((row) => ({
             ...row.data, id: row.id, userId: row.user_id, recipeId: row.recipe_id, date: row.created_at,
           })),
           sharedComments,
@@ -292,8 +298,8 @@ export default function App() {
       });
       setPhotos((current) => {
         const next = { ...current };
-        (recipesResult.data || []).forEach((row) => { if (row.photo) next[row.id] = row.photo; });
-        (cooksResult.data || []).forEach((row) => {
+        recipeRows.forEach((row) => { if (row.photo) next[row.id] = row.photo; });
+        cookRows.forEach((row) => {
           if (row.photo) {
             next[row.id] = row.photo;
             if (row.recipe_id) next[row.recipe_id] = row.photo;
@@ -598,8 +604,19 @@ export default function App() {
       setStack((s) => s.slice(0, -1));
       showToast("Borttaget från Mina recept");
       if (supabase && userId) {
-        supabase.from("recipes").delete().eq("id", id).eq("author_id", userId)
-          .then(({ error }) => { if (error) console.error("Kunde inte ta bort recept:", error); });
+        deletedRecipeIds.current.add(id);
+        relatedCookIds.forEach((cookId) => deletedCookIds.current.add(cookId));
+        Promise.all([
+          supabase.from("recipes").delete().eq("id", id).eq("author_id", userId),
+          relatedCookIds.length
+            ? supabase.from("cooks").delete().in("id", relatedCookIds).eq("user_id", userId)
+            : Promise.resolve({ error: null }),
+        ]).then(([recipeResult, cooksResult]) => {
+          if (recipeResult.error) console.error("Kunde inte ta bort recept:", recipeResult.error);
+          if (cooksResult.error) console.error("Kunde inte ta bort relaterade inlägg:", cooksResult.error);
+          deletedRecipeIds.current.delete(id);
+          relatedCookIds.forEach((cookId) => deletedCookIds.current.delete(cookId));
+        });
       }
     },
     deleteCook: (cookId) => {
@@ -625,8 +642,12 @@ export default function App() {
       setStack((s) => s.slice(0, -1));
       showToast("Loggen är borttagen");
       if (supabase && userId) {
+        deletedCookIds.current.add(cookId);
         supabase.from("cooks").delete().eq("id", cookId).eq("user_id", userId)
-          .then(({ error }) => { if (error) console.error("Kunde inte ta bort inlägg:", error); });
+          .then(({ error }) => {
+            if (error) console.error("Kunde inte ta bort inlägg:", error);
+            deletedCookIds.current.delete(cookId);
+          });
       }
     },
     saveCookAsRecipe: (cook) => {
