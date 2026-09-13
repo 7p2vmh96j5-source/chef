@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronRight, Folder } from "lucide-react";
 import { USERS } from "../data/users.js";
 import { first, times, relDate } from "../lib/format.js";
 import { topRecipes, mutualText } from "../lib/social.js";
@@ -15,19 +16,10 @@ export function ProfileBody({ uid, app }) {
   const age = birthDate ? Math.max(0, Math.floor((Date.now() - new Date(`${birthDate}T00:00:00`).getTime()) / 31557600000)) : "";
   const cooks = app.cooksOf(uid);
   const authored = Object.values(app.recipes).filter((r) => r.author === uid);
-  const myProfileRecipes = isMe
-    ? [...new Map([
-        ...app.data.myRecipes,
-        ...Object.values(app.recipes).filter((r) => r.author === "me"),
-        ...app.data.saved.map((id) => app.recipes[id]).filter(Boolean),
-      ].map((recipe) => [recipe.id, recipe])).values()]
-      .sort((a, b) => {
-        const savedAt = app.data.recipeSavedAt || {};
-        const aTime = savedAt[a.id] || a.created_at || "";
-        const bTime = savedAt[b.id] || b.created_at || "";
-        return bTime.localeCompare(aTime) || String(b.id).localeCompare(String(a.id));
-      })
-    : [];
+  const myProfileRecipes = isMe ? app.myRecipesList : [];
+  const folders = isMe ? (app.data.recipeFolders || []) : [];
+  const folderOf = app.data.recipeFolderOf || {};
+  const ungroupedRecipes = myProfileRecipes.filter((r) => !folderOf[r.id]);
   const savedByUser = isMe ? [] : app.savedOf(uid);
   const top = topRecipes(cooks);
   const recent = [...cooks].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
@@ -110,9 +102,29 @@ export function ProfileBody({ uid, app }) {
           <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Mina recept"]]} />
           {seg === "activity" && activity}
           {seg === "gallery" && <Gallery cooks={cooks} app={app} empty="Inga matlagningar än. Logga din första så hamnar den här." />}
-          {seg === "saved" && recipeList(
-            myProfileRecipes,
-            "Du har inga recept sparade ännu."
+          {seg === "saved" && (
+            <>
+              {folders.length > 0 && (
+                <div className="k-list" style={{ marginTop: 6 }}>
+                  {folders.map((f) => {
+                    const count = myProfileRecipes.filter((r) => folderOf[r.id] === f.id).length;
+                    return (
+                      <button key={f.id} className="k-row" onClick={() => app.open("folder", f.id)}>
+                        <span className="k-tile" style={{ width: 52, height: 52, borderRadius: 12, background: "#F2F2F7", display: "grid", placeItems: "center" }}>
+                          <Folder size={22} color="#8E8E93" />
+                        </span>
+                        <span className="k-row-body">
+                          <span className="k-row-t">{f.name}</span>
+                          <span className="k-row-s">{count} {count === 1 ? "recept" : "recept"}</span>
+                        </span>
+                        <ChevronRight size={18} color="#C7C7CC" />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {recipeList(ungroupedRecipes, "Du har inga recept sparade ännu.")}
+            </>
           )}
         </>
       ) : (

@@ -27,6 +27,19 @@ export function variantLines(recipe, mods) {
 
 export const toItems = (r) => (r ? r.ingredients.map((t, i) => ({ key: "o" + i, orig: t, text: t, removed: false })) : []);
 
+// Bygger upp redigeringsraderna igen från ett recept plus tidigare sparade ändringar
+export function itemsFromMods(r, mods) {
+  if (!r) return [];
+  const m = normMods(mods);
+  const items = r.ingredients.map((t, i) => {
+    if (m.removed.includes(t)) return { key: "o" + i, orig: t, text: t, removed: true };
+    const ch = m.changed.find((c) => c.from === t);
+    return { key: "o" + i, orig: t, text: ch ? ch.to : t, removed: false };
+  });
+  const added = m.added.map((t, i) => ({ key: "e" + i, orig: null, text: t, removed: false }));
+  return [...items, ...added];
+}
+
 export function itemsToMods(items) {
   const removed = [], added = [], changed = [];
   items.forEach((it) => {

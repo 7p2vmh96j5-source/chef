@@ -16,6 +16,7 @@ import { RecipeView } from "./views/RecipeView.jsx";
 import { CookView } from "./views/CookView.jsx";
 import { NotifsView } from "./views/NotifsView.jsx";
 import { FollowsView } from "./views/FollowsView.jsx";
+import { FolderView } from "./views/FolderView.jsx";
 import { UserView } from "./views/UserView.jsx";
 import { MumsView } from "./views/MumsView.jsx";
 import { ActionSheet } from "./sheets/ActionSheet.jsx";
@@ -23,6 +24,7 @@ import { LogSheet } from "./sheets/LogSheet.jsx";
 import { NewRecipeSheet } from "./sheets/NewRecipeSheet.jsx";
 import { ShareSheet } from "./sheets/ShareSheet.jsx";
 import { ProfileSettingsSheet } from "./sheets/ProfileSettingsSheet.jsx";
+import { SaveRecipeSheet } from "./sheets/SaveRecipeSheet.jsx";
 import { AuthScreen } from "./screens/AuthScreen.jsx";
 import { supabase } from "./lib/supabase.js";
 
@@ -645,6 +647,37 @@ export default function App() {
         });
       }
     },
+    updateCook: (cookId, patch) => {
+      const existing = data.myCooks.find((c) => c.id === cookId);
+      if (!existing) return;
+      const list = photoList(patch.photos);
+      const updated = {
+        ...existing,
+        note: patch.note ?? existing.note,
+        mods: "mods" in patch ? (patch.mods || null) : existing.mods,
+        steps: "steps" in patch ? (patch.steps || null) : existing.steps,
+        custom: "custom" in patch ? (patch.custom || null) : existing.custom,
+      };
+      setData((d) => ({ ...d, myCooks: d.myCooks.map((c) => (c.id === cookId ? updated : c)) }));
+      setPhotos((p) => {
+        const next = { ...p };
+        if (list.length) next[cookId] = list; else delete next[cookId];
+        return next;
+      });
+      setSheet(null);
+      showToast("Ändringarna sparade");
+      if (supabase && userId) {
+        upsertWithPhotosFallback("cooks", {
+          id: cookId, user_id: userId, recipe_id: updated.recipeId || null, data: updated,
+          photo: list[0] || null, photos: list.length ? list : null,
+        }).then(({ error }) => {
+          if (error) {
+            console.error("Kunde inte spara ändringar:", error);
+            showToast(`Ändringarna kunde inte synkas: ${error.message}`);
+          }
+        });
+      }
+    },
     addRecipe: (r, photos) => {
       const id = "u" + Date.now();
       const rec = { ...r, id, author: "me", tile: TILES[data.myRecipes.length % TILES.length] };
@@ -859,14 +892,16 @@ export default function App() {
               {v.type === "notifs" && <NotifsView app={app} seenBefore={v.seenBefore} />}
               {v.type === "mums" && <MumsView cook={allCooks.find((c) => c.id === v.id)} app={app} />}
               {v.type === "follows" && <FollowsView uid={v.id} tab={v.tab} app={app} />}
+              {v.type === "folder" && <FolderView id={v.id} app={app} />}
             </div>
           ))}
 
           {sheet?.type === "action" && <ActionSheet app={app} onClose={() => setSheet(null)} />}
-          {sheet?.type === "log" && <LogSheet app={app} initial={sheet.recipeId} onClose={() => setSheet(null)} />}
+          {sheet?.type === "log" && <LogSheet app={app} initial={sheet.recipeId} editCook={sheet.editCookId ? allCooks.find((c) => c.id === sheet.editCookId) : null} onClose={() => setSheet(null)} />}
           {sheet?.type === "new" && <NewRecipeSheet app={app} onClose={() => setSheet(null)} />}
           {sheet?.type === "share" && <ShareSheet app={app} recipeId={sheet.recipeId} onClose={() => setSheet(null)} />}
           {sheet?.type === "profile-settings" && <ProfileSettingsSheet app={app} onClose={() => setSheet(null)} />}
+          {sheet?.type === "saveTo" && <SaveRecipeSheet app={app} recipeId={sheet.recipeId} onClose={() => setSheet(null)} />}
 
           {toast && <div key={toast.k} className="k-toast" role="status"><Check size={16} strokeWidth={3} />{toast.text}</div>}
         </div>

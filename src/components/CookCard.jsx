@@ -90,7 +90,7 @@ export function CookCard({ cook, app, detail, onComment }) {
           </button>
         )}
         {detail && !custom && (
-          <button className="k-save-recipe" onClick={() => app.toggleSave(r.id)} aria-label={app.data.saved.includes(r.id) ? "Ta bort recept från sparade" : "Spara recept"} aria-pressed={app.data.saved.includes(r.id)}>
+          <button className="k-save-recipe" onClick={() => app.data.saved.includes(r.id) ? app.toggleSave(r.id) : app.setSheet({ type: "saveTo", recipeId: r.id })} aria-label={app.data.saved.includes(r.id) ? "Ta bort recept från sparade" : "Spara recept"} aria-pressed={app.data.saved.includes(r.id)}>
             <Bookmark size={18} fill={app.data.saved.includes(r.id) ? "#000" : "none"} />
             <span>Spara recept</span>
           </button>

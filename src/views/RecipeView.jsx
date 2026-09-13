@@ -26,7 +26,7 @@ export function RecipeView({ id, app }) {
       <NavBar onBack={app.back} title={r.title} right={
         <>
           <button className="k-nav-btn" aria-label={ownRecipe ? "Ta bort från Mina recept" : (saved ? "Ta bort från sparade" : "Spara recept")} aria-pressed={ownRecipe || saved}
-            onClick={() => ownRecipe ? setConfirmDelete(true) : app.toggleSave(id)}>
+            onClick={() => ownRecipe ? setConfirmDelete(true) : (saved ? app.toggleSave(id) : app.setSheet({ type: "saveTo", recipeId: id }))}>
             <Bookmark size={22} fill={ownRecipe ? "#FFB800" : (saved ? "#000" : "none")} color={ownRecipe ? "#FFB800" : "#000"} />
             <span className="k-save-count">{saveCount}</span>
           </button>
@@ -42,7 +42,7 @@ export function RecipeView({ id, app }) {
       } />
       {ownRecipe && menuOpen && (
         <div className="k-recipe-menu">
-          <button onClick={() => { setMenuOpen(false); setConfirmDelete(true); }}>Ta bort recept</button>
+          <button className="danger" onClick={() => { setMenuOpen(false); setConfirmDelete(true); }}>Ta bort recept</button>
         </div>
       )}
       {ownRecipe && confirmDelete && (

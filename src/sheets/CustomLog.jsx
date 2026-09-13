@@ -3,14 +3,22 @@ import { Search, Plus, ChevronLeft, X } from "lucide-react";
 import { EMOJIS } from "../data/constants.js";
 import { INGREDIENTS, COMMON_INGREDIENTS } from "../data/recipes.js";
 import { PhotoPicker } from "../components/PhotoPicker.jsx";
+import { photoList } from "../lib/photos.js";
 import { Sheet } from "./Sheet.jsx";
 
-export function CustomLog({ app, onClose, onBack, initialTitle }) {
-  const [f, setF] = useState({ title: initialTitle || "", emoji: "🍲" });
-  const [note, setNote] = useState("");
-  const [photos, setPhotos] = useState([]);
-  const [sel, setSel] = useState([]);
-  const [steps, setSteps] = useState([""]);
+export function CustomLog({ app, onClose, onBack, initialTitle, editCook }) {
+  const editing = !!editCook;
+  const [f, setF] = useState(() => editCook
+    ? { title: editCook.custom.title, emoji: editCook.custom.emoji || "🍲" }
+    : { title: initialTitle || "", emoji: "🍲" });
+  const [note, setNote] = useState(editCook ? (editCook.note || "") : "");
+  const [photos, setPhotos] = useState(() => editCook ? photoList(app.photos[editCook.id]) : []);
+  const [sel, setSel] = useState(() => editCook
+    ? editCook.custom.ingredients.map((name, i) => ({ key: "e" + i, name, amount: "" }))
+    : []);
+  const [steps, setSteps] = useState(() => editCook && editCook.custom.steps && editCook.custom.steps.length
+    ? [...editCook.custom.steps]
+    : [""]);
   const [q, setQ] = useState("");
   const set = (key, value) => setF((previous) => ({ ...previous, [key]: value }));
   const ql = q.trim().toLowerCase();
@@ -39,7 +47,7 @@ export function CustomLog({ app, onClose, onBack, initialTitle }) {
   const canPublish = f.title.trim() && sel.length > 0;
   const publish = () => {
     const ingredients = sel.map((s) => (s.amount.trim() ? `${s.amount.trim()} ${s.name.charAt(0).toLowerCase() + s.name.slice(1)}` : s.name));
-    app.logCook(null, note.trim(), photos, null, {
+    const custom = {
       title: f.title.trim(),
       category: "Middag",
       time: 30,
@@ -47,17 +55,19 @@ export function CustomLog({ app, onClose, onBack, initialTitle }) {
       emoji: f.emoji,
       ingredients,
       steps: steps.map((step) => step.trim()).filter(Boolean),
-    });
+    };
+    if (editing) app.updateCook(editCook.id, { note: note.trim(), photos, custom });
+    else app.logCook(null, note.trim(), photos, null, custom);
   };
 
   return (
-    <Sheet tall title="Skapa eget" onClose={onClose} bodyKey="custom"
+    <Sheet tall title={editing ? "Redigera inlägg" : "Skapa eget"} onClose={onClose} bodyKey="custom"
       footer={
         <button className="k-primary" disabled={!canPublish} onClick={publish}>
-          {!f.title.trim() ? "Ge rätten ett namn" : sel.length === 0 ? "Välj minst en ingrediens" : "Publicera"}
+          {!f.title.trim() ? "Ge rätten ett namn" : sel.length === 0 ? "Välj minst en ingrediens" : editing ? "Spara ändringar" : "Publicera"}
         </button>
       }>
-      <button className="k-back-sm" onClick={onBack}><ChevronLeft size={22} />Välj ett recept istället</button>
+      {!editing && <button className="k-back-sm" onClick={onBack}><ChevronLeft size={22} />Välj ett recept istället</button>}
 
       <label className="k-label" htmlFor="k-ctitle" style={{ marginTop: 4 }}>Namn</label>
       <input id="k-ctitle" className="k-input" value={f.title} onChange={(e) => set("title", e.target.value)} placeholder="Till exempel mormors köttbullar" />

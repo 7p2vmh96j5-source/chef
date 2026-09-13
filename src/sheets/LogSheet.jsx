@@ -1,22 +1,38 @@
 import { useState } from "react";
 import { Search, Plus, ChevronRight, X, MinusCircle, ChevronDown } from "lucide-react";
-import { toItems, itemsToMods } from "../lib/variants.js";
+import { toItems, itemsFromMods, itemsToMods } from "../lib/variants.js";
+import { photoList } from "../lib/photos.js";
 import { Tile } from "../components/ui.jsx";
 import { PhotoPicker } from "../components/PhotoPicker.jsx";
 import { Sheet } from "./Sheet.jsx";
 import { CustomLog } from "./CustomLog.jsx";
 
-export function LogSheet({ app, initial, onClose }) {
-  const [rid, setRid] = useState(initial || null);
-  const [note, setNote] = useState("");
+export function LogSheet({ app, initial, editCook, onClose }) {
+  const editing = !!editCook;
+  const [rid, setRid] = useState(editCook ? editCook.recipeId : (initial || null));
+  const [note, setNote] = useState(editCook ? (editCook.note || "") : "");
   const [q, setQ] = useState("");
-  const [photos, setPhotos] = useState([]);
-  const [items, setItems] = useState(() => toItems(initial ? app.recipes[initial] : null));
+  const [photos, setPhotos] = useState(() => editCook ? photoList(app.photos[editCook.id]) : []);
+  const [items, setItems] = useState(() => {
+    if (editCook) return itemsFromMods(app.recipes[editCook.recipeId], editCook.mods);
+    return toItems(initial ? app.recipes[initial] : null);
+  });
   const [newIng, setNewIng] = useState("");
   const [showSteps, setShowSteps] = useState(false);
-  const [steps, setSteps] = useState(() => app.recipes[initial]?.steps ? [...app.recipes[initial].steps] : []);
+  const [steps, setSteps] = useState(() => {
+    if (editCook) {
+      const recipeSteps = app.recipes[editCook.recipeId]?.steps || [];
+      return editCook.steps && editCook.steps.length ? [...editCook.steps] : [...recipeSteps];
+    }
+    return app.recipes[initial]?.steps ? [...app.recipes[initial].steps] : [];
+  });
   const [custom, setCustom] = useState(false);
   const r = rid ? app.recipes[rid] : null;
+
+  // Redigera en tidigare loggad egen rätt: hoppa direkt till CustomLog i redigeringsläge.
+  if (editing && editCook.custom) {
+    return <CustomLog app={app} onClose={onClose} editCook={editCook} />;
+  }
 
   const choose = (id) => {
     setRid(id);
@@ -91,14 +107,18 @@ export function LogSheet({ app, initial, onClose }) {
 
   // Steg 2: receptet, justeringar, foto och kommentar
   return (
-    <Sheet tall title="Logga matlagning" onClose={onClose} bodyKey={"log-" + rid}
-      footer={<button className="k-primary" onClick={() => app.logCook(ownRecipe ? null : rid, note.trim(), photos, ownRecipe ? null : mods, ownRecipe, ownRecipe ? null : steps)}>Publicera</button>}>
+    <Sheet tall title={editing ? "Redigera inlägg" : "Logga matlagning"} onClose={onClose} bodyKey={"log-" + rid}
+      footer={<button className="k-primary" onClick={() => editing
+        ? app.updateCook(editCook.id, { note: note.trim(), photos, mods, steps })
+        : app.logCook(ownRecipe ? null : rid, note.trim(), photos, ownRecipe ? null : mods, ownRecipe, ownRecipe ? null : steps)}>
+        {editing ? "Spara ändringar" : "Publicera"}
+      </button>}>
       <div className="k-log-rec">
         <Tile r={r} size={56} />
         <span className="k-row-body">
           <span className="k-row-t">{r.title}</span>
         </span>
-        <button className="k-link-sm" onClick={() => setRid(null)}>Byt recept</button>
+        {!editing && <button className="k-link-sm" onClick={() => setRid(null)}>Byt recept</button>}
       </div>
 
       <label className="k-label" style={{ marginTop: 12 }}>Foto</label>

@@ -10,6 +10,7 @@ export function CookView({ id, app, focus }) {
   const [text, setText] = useState("");
   const [doneSteps, setDoneSteps] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const inputRef = useRef(null);
   const scrollRef = useRef(null);
   const cook = app.allCooks.find((c) => c.id === id);
@@ -36,10 +37,16 @@ export function CookView({ id, app, focus }) {
   return (
     <>
       <NavBar onBack={app.back} title="Matlagning" right={cook.userId === "me" ? (
-        <button className="k-nav-btn" onClick={() => setConfirmDelete(true)} aria-label="Fler alternativ">
+        <button className="k-nav-btn" onClick={() => setMenuOpen((open) => !open)} aria-label="Fler alternativ">
           <MoreHorizontal size={22} />
         </button>
       ) : null} />
+      {cook.userId === "me" && menuOpen && (
+        <div className="k-recipe-menu">
+          <button onClick={() => { setMenuOpen(false); app.setSheet({ type: "log", editCookId: cook.id }); }}>Redigera inlägg</button>
+          <button className="danger" onClick={() => { setMenuOpen(false); setConfirmDelete(true); }}>Ta bort logg</button>
+        </div>
+      )}
       <div className="k-scroll grey" ref={scrollRef}>
         <CookCard cook={cook} app={app} detail onComment={() => inputRef.current && inputRef.current.focus()} />
         {!cook.custom && (
