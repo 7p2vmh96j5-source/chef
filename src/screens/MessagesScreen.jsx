@@ -64,7 +64,7 @@ export function MessagesScreen({ app }) {
             <span aria-hidden="true">•••</span>
             <select value={recipeId} onChange={(e) => setRecipeId(e.target.value)} aria-label="Dela ett recept">
               <option value="" disabled hidden></option>
-              {Object.values(app.recipes).map((r) => <option key={r.id} value={r.id}>{r.title}</option>)}
+              {app.myRecipesList.map((r) => <option key={r.id} value={r.id}>{r.title}</option>)}
             </select>
           </span>
           <input autoFocus className="k-field" value={text} onChange={(e) => setText(e.target.value)}
