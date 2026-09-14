@@ -120,11 +120,13 @@ create table if not exists public.cooks (
   data jsonb not null,
   photo text,
   photos jsonb,
+  folder_id text,
   created_at timestamptz not null default now()
 );
 
 alter table public.cooks add column if not exists photo text;
 alter table public.cooks add column if not exists photos jsonb;
+alter table public.cooks add column if not exists folder_id text;
 alter table public.cooks enable row level security;
 
 drop policy if exists "Inloggade kan läsa inlägg" on public.cooks;
@@ -196,10 +198,14 @@ with check (auth.uid() = user_id);
 create table if not exists public.saves (
   recipe_id text not null,
   user_id uuid not null references auth.users(id) on delete cascade,
+  folder_id text,
+  saved_from uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   primary key (recipe_id, user_id)
 );
 
+alter table public.saves add column if not exists folder_id text;
+alter table public.saves add column if not exists saved_from uuid references auth.users(id) on delete set null;
 alter table public.saves enable row level security;
 
 drop policy if exists "Inloggade kan läsa sparade recept" on public.saves;
@@ -222,3 +228,48 @@ drop policy if exists "Användare kan avspara recept" on public.saves;
 create policy "Användare kan avspara recept"
 on public.saves for delete to authenticated
 using (auth.uid() = user_id);
+
+create table if not exists public.recipe_folders (
+  id text primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.recipe_folders enable row level security;
+
+drop policy if exists "Användare kan hantera sina receptmappar" on public.recipe_folders;
+create policy "Användare kan hantera sina receptmappar"
+on public.recipe_folders for all to authenticated
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+create table if not exists public.restaurant_folders (
+  id text primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.restaurant_folders enable row level security;
+
+drop policy if exists "Användare kan hantera sina platsgrupper" on public.restaurant_folders;
+create policy "Användare kan hantera sina platsgrupper"
+on public.restaurant_folders for all to authenticated
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+create table if not exists public.user_state (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  notif_seen timestamptz,
+  messages_seen timestamptz,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.user_state enable row level security;
+
+drop policy if exists "Användare kan hantera sitt eget tillstånd" on public.user_state;
+create policy "Användare kan hantera sitt eget tillstånd"
+on public.user_state for all to authenticated
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);

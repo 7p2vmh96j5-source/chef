@@ -49,6 +49,7 @@ export default function App() {
   const [followRelations, setFollowRelations] = useState([]);
   const deletedRecipeIds = useRef(new Set());
   const deletedCookIds = useRef(new Set());
+  const unsavingRecipeIds = useRef(new Set());
   const userId = session?.user?.id || "";
   const userStorageKey = userId ? `${STORAGE_KEY}:${userId}` : STORAGE_KEY;
   const userPhotoKey = userId ? `${PHOTO_KEY}:${userId}` : PHOTO_KEY;
@@ -266,13 +267,31 @@ export default function App() {
       }
       return { data, error };
     };
+    const selectSavesWithFallback = async () => {
+      let { data, error } = await supabase.from("saves").select("recipe_id,user_id,folder_id,saved_from,created_at");
+      if (error) {
+        console.error("Kunde inte läsa sparade recept (med mapp/källa), försöker utan:", error);
+        const fallback = await supabase.from("saves").select("recipe_id,user_id,created_at");
+        data = fallback.data ? fallback.data.map((row) => ({ ...row, folder_id: null, saved_from: null })) : null;
+        error = fallback.error;
+      }
+      return { data, error };
+    };
+    const selectIgnoringMissingTable = async (table, columns) => {
+      const { data, error } = await supabase.from(table).select(columns);
+      if (error) console.error(`Kunde inte läsa ${table} (synkas lokalt tills tabellen finns):`, error);
+      return { data: data || [], error };
+    };
     const loadShared = async () => {
-      const [recipesResult, cooksResult, commentsResult, mumsResult, savesResult] = await Promise.all([
+      const [recipesResult, cooksResult, commentsResult, mumsResult, savesResult, recipeFoldersResult, restaurantFoldersResult, userStateResult] = await Promise.all([
         selectWithPhotosFallback("recipes", "id,author_id,data,photo,photos,created_at", "id,author_id,data,photo,created_at"),
-        selectWithPhotosFallback("cooks", "id,user_id,recipe_id,data,photo,photos,created_at", "id,user_id,recipe_id,data,photo,created_at"),
+        selectWithPhotosFallback("cooks", "id,user_id,recipe_id,data,photo,photos,folder_id,created_at", "id,user_id,recipe_id,data,photo,created_at"),
         supabase.from("comments").select("id,cook_id,user_id,text,created_at").order("created_at", { ascending: true }),
         supabase.from("mums").select("cook_id,user_id,created_at"),
-        supabase.from("saves").select("recipe_id,user_id,created_at"),
+        selectSavesWithFallback(),
+        selectIgnoringMissingTable("recipe_folders", "id,name"),
+        selectIgnoringMissingTable("restaurant_folders", "id,name"),
+        selectIgnoringMissingTable("user_state", "notif_seen,messages_seen"),
       ]);
       if (!active) return;
       if (recipesResult.error) console.error("Kunde inte läsa gemensamma recept:", recipesResult.error);
@@ -284,6 +303,8 @@ export default function App() {
       // så att en pågående borttagning inte dyker upp igen vid nästa synk.
       const recipeRows = (recipesResult.data || []).filter((row) => !deletedRecipeIds.current.has(row.id));
       const cookRows = (cooksResult.data || []).filter((row) => !deletedCookIds.current.has(row.id));
+      const saveRows = (savesResult.data || []).filter((row) =>
+        !deletedRecipeIds.current.has(row.recipe_id) && !(row.user_id === userId && unsavingRecipeIds.current.has(row.recipe_id)));
       const sharedComments = {};
       (commentsResult.data || []).filter((row) => row.user_id !== userId).forEach((row) => {
         (sharedComments[row.cook_id] ||= []).push({ id: row.id, userId: row.user_id, text: row.text, date: row.created_at });
@@ -293,9 +314,26 @@ export default function App() {
         (sharedMums[row.cook_id] ||= []).push({ userId: row.user_id, date: row.created_at });
       });
       const sharedSaves = {};
-      (savesResult.data || []).filter((row) => row.user_id !== userId).forEach((row) => {
+      saveRows.filter((row) => row.user_id !== userId).forEach((row) => {
         (sharedSaves[row.recipe_id] ||= []).push({ userId: row.user_id, date: row.created_at });
       });
+      // Ägda av mig, hämtade från Supabase så att sparat/mums/mappar inte försvinner på en ny enhet.
+      const myMums = {};
+      (mumsResult.data || []).filter((row) => row.user_id === userId).forEach((row) => { myMums[row.cook_id] = true; });
+      const mySaveRows = saveRows.filter((row) => row.user_id === userId);
+      const recipeFolderOf = {};
+      const recipeSavedFrom = {};
+      const recipeSavedAt = {};
+      mySaveRows.forEach((row) => {
+        if (row.folder_id) recipeFolderOf[row.recipe_id] = row.folder_id;
+        if (row.saved_from) recipeSavedFrom[row.recipe_id] = row.saved_from;
+        if (row.created_at) recipeSavedAt[row.recipe_id] = row.created_at;
+      });
+      const recipeSaves = {};
+      saveRows.forEach((row) => { recipeSaves[row.recipe_id] = (recipeSaves[row.recipe_id] || 0) + 1; });
+      const restaurantFolderOf = {};
+      cookRows.filter((row) => row.user_id === userId && row.folder_id).forEach((row) => { restaurantFolderOf[row.id] = row.folder_id; });
+      const remoteState = (userStateResult.data || [])[0];
       setData((current) => {
         const myCooksById = new Map(current.myCooks.map((c) => [c.id, c]));
         cookRows.filter((row) => row.user_id === userId).forEach((row) => {
@@ -318,6 +356,19 @@ export default function App() {
           sharedComments,
           sharedMums,
           sharedSaves,
+          mums: { ...current.mums, ...myMums },
+          // Endast ersätt dessa om respektive hämtning faktiskt lyckades - annars kan ett tillfälligt
+          // nätverksfel eller en saknad kolumn/tabell tömma redan kända sparade recept/mappar lokalt.
+          saved: savesResult.error ? current.saved : mySaveRows.map((row) => row.recipe_id),
+          recipeSavedAt: savesResult.error ? current.recipeSavedAt : recipeSavedAt,
+          recipeFolderOf: savesResult.error ? current.recipeFolderOf : recipeFolderOf,
+          recipeSavedFrom: savesResult.error ? current.recipeSavedFrom : recipeSavedFrom,
+          recipeSaves: savesResult.error ? current.recipeSaves : recipeSaves,
+          restaurantFolderOf: cooksResult.error ? current.restaurantFolderOf : restaurantFolderOf,
+          recipeFolders: recipeFoldersResult.error ? current.recipeFolders : recipeFoldersResult.data,
+          restaurantFolders: restaurantFoldersResult.error ? current.restaurantFolders : restaurantFoldersResult.data,
+          notifSeen: remoteState?.notif_seen && remoteState.notif_seen > current.notifSeen ? remoteState.notif_seen : current.notifSeen,
+          messagesSeen: remoteState?.messages_seen && remoteState.messages_seen > current.messagesSeen ? remoteState.messages_seen : current.messagesSeen,
         };
       });
       setPhotos((current) => {
@@ -431,11 +482,36 @@ export default function App() {
   // Om photos-kolumnen inte finns än i databasen, försök utan den istället för att låta hela sparningen misslyckas.
   const upsertWithPhotosFallback = async (table, payload, onConflict = "id") => {
     const result = await supabase.from(table).upsert(payload, { onConflict });
-    if (result.error && /photos/i.test(result.error.message || "")) {
-      const { photos: _photos, ...rest } = payload;
-      return supabase.from(table).upsert(rest, { onConflict });
+    if (result.error) {
+      const msg = result.error.message || "";
+      const rest = { ...payload };
+      let changed = false;
+      if (/photos/i.test(msg) && "photos" in rest) { delete rest.photos; changed = true; }
+      if (/folder_id/i.test(msg) && "folder_id" in rest) { delete rest.folder_id; changed = true; }
+      if (changed) return supabase.from(table).upsert(rest, { onConflict });
     }
     return result;
+  };
+
+  // Om folder_id/saved_from-kolumnerna inte finns än i databasen, försök utan dem istället för
+  // att låta hela sparningen misslyckas.
+  const upsertSaveWithFallback = async (payload) => {
+    const result = await supabase.from("saves").upsert(payload, { onConflict: "recipe_id,user_id" });
+    if (result.error) {
+      const msg = result.error.message || "";
+      const rest = { ...payload };
+      let changed = false;
+      if (/folder_id/i.test(msg) && "folder_id" in rest) { delete rest.folder_id; changed = true; }
+      if (/saved_from/i.test(msg) && "saved_from" in rest) { delete rest.saved_from; changed = true; }
+      if (changed) return supabase.from("saves").upsert(rest, { onConflict: "recipe_id,user_id" });
+    }
+    return result;
+  };
+
+  const syncUserState = (patch) => {
+    if (!supabase || !userId) return;
+    supabase.from("user_state").upsert({ user_id: userId, ...patch }, { onConflict: "user_id" })
+      .then(({ error }) => { if (error) console.error("Kunde inte synka läst-status (finns tabellen user_state?):", error); });
   };
 
   const app = {
@@ -527,7 +603,9 @@ export default function App() {
     },
     openNotifs: () => {
       setStack((s) => [...s, { type: "notifs", seenBefore: data.notifSeen, k: Date.now() }]);
-      setData((d) => ({ ...d, notifSeen: new Date().toISOString() }));
+      const seenAt = new Date().toISOString();
+      setData((d) => ({ ...d, notifSeen: seenAt }));
+      syncUserState({ notif_seen: seenAt });
     },
     back: () => setStack((s) => s.slice(0, -1)),
     toggleMums: (cookId) => {
@@ -577,10 +655,17 @@ export default function App() {
       });
       showToast(on ? "Borttaget från Sparade" : "Sparat");
       if (supabase && userId) {
-        const request = on
-          ? supabase.from("saves").delete().eq("recipe_id", id).eq("user_id", userId)
-          : supabase.from("saves").upsert({ recipe_id: id, user_id: userId }, { onConflict: "recipe_id,user_id" });
-        request.then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
+        if (on) {
+          unsavingRecipeIds.current.add(id);
+          supabase.from("saves").delete().eq("recipe_id", id).eq("user_id", userId)
+            .then(({ error }) => {
+              if (error) console.error("Kunde inte synka sparat recept:", error);
+              unsavingRecipeIds.current.delete(id);
+            });
+        } else {
+          supabase.from("saves").upsert({ recipe_id: id, user_id: userId }, { onConflict: "recipe_id,user_id" })
+            .then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
+        }
       }
     },
     saveRecipeToFolder: (id, folderId, fromUserId) => {
@@ -596,9 +681,11 @@ export default function App() {
       const folderName = folderId ? data.recipeFolders.find((f) => f.id === folderId)?.name : null;
       showToast(folderName ? `Sparat i ${folderName}` : "Sparat");
       setSheet(null);
-      if (supabase && userId && !on) {
-        supabase.from("saves").upsert({ recipe_id: id, user_id: userId }, { onConflict: "recipe_id,user_id" })
-          .then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
+      if (supabase && userId) {
+        upsertSaveWithFallback({
+          recipe_id: id, user_id: userId, folder_id: folderId || null,
+          ...(fromUserId ? { saved_from: fromUserId } : {}),
+        }).then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
       }
     },
     createFolderAndSave: (recipeId, name, fromUserId) => {
@@ -617,9 +704,13 @@ export default function App() {
       }));
       showToast(`Mappen "${trimmed}" skapad`);
       setSheet(null);
-      if (supabase && userId && !alreadySaved) {
-        supabase.from("saves").upsert({ recipe_id: recipeId, user_id: userId }, { onConflict: "recipe_id,user_id" })
-          .then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
+      if (supabase && userId) {
+        supabase.from("recipe_folders").insert({ id: folderId, user_id: userId, name: trimmed })
+          .then(({ error }) => { if (error) console.error("Kunde inte synka mappen (finns tabellen recipe_folders?):", error); });
+        upsertSaveWithFallback({
+          recipe_id: recipeId, user_id: userId, folder_id: folderId,
+          ...(fromUserId ? { saved_from: fromUserId } : {}),
+        }).then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
       }
     },
     createFolder: (name) => {
@@ -628,6 +719,10 @@ export default function App() {
       const folderId = "f" + Date.now();
       setData((d) => ({ ...d, recipeFolders: [...(d.recipeFolders || []), { id: folderId, name: trimmed }] }));
       showToast(`Mappen "${trimmed}" skapad`);
+      if (supabase && userId) {
+        supabase.from("recipe_folders").insert({ id: folderId, user_id: userId, name: trimmed })
+          .then(({ error }) => { if (error) console.error("Kunde inte synka mappen (finns tabellen recipe_folders?):", error); });
+      }
     },
     renameFolder: (folderId, name) => {
       const trimmed = name.trim();
@@ -636,6 +731,10 @@ export default function App() {
         ...d,
         recipeFolders: (d.recipeFolders || []).map((f) => (f.id === folderId ? { ...f, name: trimmed } : f)),
       }));
+      if (supabase && userId) {
+        supabase.from("recipe_folders").update({ name: trimmed }).eq("id", folderId).eq("user_id", userId)
+          .then(({ error }) => { if (error) console.error("Kunde inte synka mappnamnet:", error); });
+      }
     },
     deleteFolder: (folderId) => {
       setData((d) => {
@@ -648,12 +747,22 @@ export default function App() {
         };
       });
       showToast("Mappen borttagen");
+      if (supabase && userId) {
+        supabase.from("recipe_folders").delete().eq("id", folderId).eq("user_id", userId)
+          .then(({ error }) => { if (error) console.error("Kunde inte ta bort mappen:", error); });
+        supabase.from("saves").update({ folder_id: null }).eq("user_id", userId).eq("folder_id", folderId)
+          .then(({ error }) => { if (error) console.error("Kunde inte rensa mappen från sparade recept:", error); });
+      }
     },
     createRestaurantFolder: (name) => {
       const trimmed = name.trim();
       if (!trimmed) return null;
       const folderId = "rf" + Date.now();
       setData((d) => ({ ...d, restaurantFolders: [...(d.restaurantFolders || []), { id: folderId, name: trimmed }] }));
+      if (supabase && userId) {
+        supabase.from("restaurant_folders").insert({ id: folderId, user_id: userId, name: trimmed })
+          .then(({ error }) => { if (error) console.error("Kunde inte synka gruppen (finns tabellen restaurant_folders?):", error); });
+      }
       return folderId;
     },
     renameRestaurantFolder: (folderId, name) => {
@@ -663,6 +772,10 @@ export default function App() {
         ...d,
         restaurantFolders: (d.restaurantFolders || []).map((f) => (f.id === folderId ? { ...f, name: trimmed } : f)),
       }));
+      if (supabase && userId) {
+        supabase.from("restaurant_folders").update({ name: trimmed }).eq("id", folderId).eq("user_id", userId)
+          .then(({ error }) => { if (error) console.error("Kunde inte synka gruppnamnet:", error); });
+      }
     },
     deleteRestaurantFolder: (folderId) => {
       setData((d) => {
@@ -675,6 +788,12 @@ export default function App() {
         };
       });
       showToast("Gruppen borttagen");
+      if (supabase && userId) {
+        supabase.from("restaurant_folders").delete().eq("id", folderId).eq("user_id", userId)
+          .then(({ error }) => { if (error) console.error("Kunde inte ta bort gruppen:", error); });
+        supabase.from("cooks").update({ folder_id: null }).eq("user_id", userId).eq("folder_id", folderId)
+          .then(({ error }) => { if (error) console.error("Kunde inte rensa gruppen från platser:", error); });
+      }
     },
     toggleFollow: (id) => {
       if (id === "me" || id === userId) return;
@@ -705,6 +824,7 @@ export default function App() {
       if (supabase && userId) {
         upsertWithPhotosFallback("cooks", {
           id: c.id, user_id: userId, recipe_id: recipeId || null, data: c, photo: list[0] || null, photos: list.length ? list : null,
+          folder_id: folderId || null,
         }).then(({ error }) => {
           if (error) {
             console.error("Kunde inte publicera inlägg:", error);
@@ -742,6 +862,7 @@ export default function App() {
         upsertWithPhotosFallback("cooks", {
           id: cookId, user_id: userId, recipe_id: updated.recipeId || null, data: updated,
           photo: list[0] || null, photos: list.length ? list : null,
+          ...("folderId" in patch ? { folder_id: patch.folderId || null } : {}),
         }).then(({ error }) => {
           if (error) {
             console.error("Kunde inte spara ändringar:", error);
@@ -773,6 +894,10 @@ export default function App() {
               showToast(`Receptet kunde inte synkas: ${error.message}`);
             }
           });
+        // Markera att man sparat sitt eget recept, annars försvinner det ur Mina recept
+        // så fort listan hämtas från saves-tabellen igen.
+        upsertSaveWithFallback({ recipe_id: id, user_id: userId })
+          .then(({ error }) => { if (error) console.error("Kunde inte markera eget recept som sparat:", error); });
       }
     },
     removeRecipe: (id) => {
@@ -808,9 +933,11 @@ export default function App() {
           relatedCookIds.length
             ? supabase.from("cooks").delete().in("id", relatedCookIds).eq("user_id", userId)
             : Promise.resolve({ error: null }),
-        ]).then(([recipeResult, cooksResult]) => {
+          supabase.from("saves").delete().eq("recipe_id", id).eq("user_id", userId),
+        ]).then(([recipeResult, cooksResult, saveResult]) => {
           if (recipeResult.error) console.error("Kunde inte ta bort recept:", recipeResult.error);
           if (cooksResult.error) console.error("Kunde inte ta bort relaterade inlägg:", cooksResult.error);
+          if (saveResult.error) console.error("Kunde inte ta bort sparat recept:", saveResult.error);
           deletedRecipeIds.current.delete(id);
           relatedCookIds.forEach((cookId) => deletedCookIds.current.delete(cookId));
         });
@@ -853,11 +980,14 @@ export default function App() {
           });
         if (derived && !keepRecipe) {
           deletedRecipeIds.current.add(derived.id);
-          supabase.from("recipes").delete().eq("id", derived.id).eq("author_id", userId)
-            .then(({ error }) => {
-              if (error) console.error("Kunde inte ta bort receptet:", error);
-              deletedRecipeIds.current.delete(derived.id);
-            });
+          Promise.all([
+            supabase.from("recipes").delete().eq("id", derived.id).eq("author_id", userId),
+            supabase.from("saves").delete().eq("recipe_id", derived.id).eq("user_id", userId),
+          ]).then(([recipeResult, saveResult]) => {
+            if (recipeResult.error) console.error("Kunde inte ta bort receptet:", recipeResult.error);
+            if (saveResult.error) console.error("Kunde inte ta bort sparat recept:", saveResult.error);
+            deletedRecipeIds.current.delete(derived.id);
+          });
         }
       }
     },
@@ -897,6 +1027,8 @@ export default function App() {
           .then(({ error }) => {
             if (error) console.error("Kunde inte publicera sparat recept:", error);
           });
+        upsertSaveWithFallback({ recipe_id: id, user_id: userId })
+          .then(({ error }) => { if (error) console.error("Kunde inte markera eget recept som sparat:", error); });
       }
     },
     share: (recipeId, ids) => {
@@ -960,7 +1092,11 @@ export default function App() {
                 <button key={id} className={"k-tab" + (tab === id ? " on" : "")} aria-current={tab === id ? "page" : undefined}
                   onClick={() => {
                     setTab(id); setStack([]);
-                    if (id === "messages") setData((d) => ({ ...d, messagesSeen: new Date().toISOString() }));
+                    if (id === "messages") {
+                      const seenAt = new Date().toISOString();
+                      setData((d) => ({ ...d, messagesSeen: seenAt }));
+                      syncUserState({ messages_seen: seenAt });
+                    }
                   }}>
                   <span className="k-tab-icon">
                     <Icon size={25} strokeWidth={tab === id ? 2.3 : 1.8} />
