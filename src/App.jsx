@@ -430,12 +430,6 @@ export default function App() {
 
   // Foton sparas separat så att huvuddatan förblir liten.
   // Bara egna foton cachas lokalt - allas foton hämtas ändå på nytt från Supabase, som är källan till sanning.
-  // Håll USERS.me.photo i synk med den faktiska profilbilden, så att den syns överallt
-  // (t.ex. i flödets inläggshuvuden) och inte bara på profilsidan där den slås ihop manuellt.
-  useEffect(() => {
-    USERS.me = { ...USERS.me, photo: photos["profile:me"] || null };
-  }, [photos]);
-
   useEffect(() => {
     if (!photosLoaded) return;
     const t = setTimeout(async () => {
@@ -1173,7 +1167,7 @@ export default function App() {
                   }}>
                   <span className="k-tab-icon">
                     {id === "profile" && photos["profile:me"] ? (
-                      <Avatar user={{ ...USERS.me, ...(data.profile || {}), photo: photos["profile:me"] }} size={25} />
+                      <Avatar user={USERS.me} size={25} />
                     ) : (
                       <Icon size={25} strokeWidth={tab === id ? 2.3 : 1.8} />
                     )}

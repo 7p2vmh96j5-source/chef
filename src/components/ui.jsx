@@ -4,9 +4,11 @@ import { PhotoCtx } from "../lib/photoContext.js";
 import { photoList } from "../lib/photos.js";
 
 export function Avatar({ user, size = 40, ring }) {
+  const photos = useContext(PhotoCtx);
+  const photo = user.id === "me" ? (photos["profile:me"] || user.photo) : user.photo;
   const ini = user.name.split(" ").map((s) => s[0]).slice(0, 2).join("");
-  if (user.photo) {
-    return <img className="k-av" src={user.photo} alt="" style={{ width: size, height: size, objectFit: "cover", background: user.color, boxShadow: ring ? `0 0 0 2px ${ring}` : undefined }} />;
+  if (photo) {
+    return <img className="k-av" src={photo} alt="" style={{ width: size, height: size, objectFit: "cover", background: user.color, boxShadow: ring ? `0 0 0 2px ${ring}` : undefined }} />;
   }
   return (
     <span className="k-av" aria-hidden="true"
