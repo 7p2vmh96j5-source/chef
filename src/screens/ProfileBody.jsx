@@ -136,7 +136,7 @@ export function ProfileBody({ uid, app }) {
 
       {isMe ? (
         <>
-          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Mina recept"], ["restaurants", "Restauranger"]]} />
+          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Recept"], ["restaurants", "Restauranger"]]} />
           {seg === "activity" && activity}
           {seg === "gallery" && <Gallery cooks={cooks} app={app} empty="Inga matlagningar än. Logga din första så hamnar den här." />}
           {seg === "restaurants" && restaurantFolderList(restaurantFolders, ungroupedRestaurants, restaurantFolderOf, "Inga platser tillagda än. Lägg till ett inlägg med en plats för att komma igång.")}
@@ -167,7 +167,7 @@ export function ProfileBody({ uid, app }) {
         </>
       ) : (
         <>
-          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Sparade recept"], ["restaurants", "Restauranger"]]} />
+          <Seg value={seg} onChange={setSeg} options={[["gallery", "Galleri"], ["activity", "Aktivitet"], ["saved", "Recept"], ["restaurants", "Restauranger"]]} />
           {seg === "activity" && (
             <>
               {activity}
