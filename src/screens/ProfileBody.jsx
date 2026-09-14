@@ -27,7 +27,7 @@ export function ProfileBody({ uid, app }) {
   const restaurantFolderOf = app.data.restaurantFolderOf || {};
   const ungroupedRestaurants = restaurantCooks.filter((c) => !restaurantFolderOf[c.id]);
   const top = topRecipes(cooks);
-  const recent = [...cooks].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
+  const recent = [...dishCooks].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   const followingIds = app.followingOf(uid);
   const followerIds = app.followersOf(uid);
   const mutual = isMe ? [] : app.mutualWith(uid);

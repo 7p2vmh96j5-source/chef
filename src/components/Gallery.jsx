@@ -3,7 +3,9 @@ import { relDate } from "../lib/format.js";
 import { photoList } from "../lib/photos.js";
 
 export function Gallery({ cooks, app, empty }) {
-  const list = [...cooks].sort((a, b) => b.date.localeCompare(a.date));
+  const list = [...cooks]
+    .filter((c) => !(c.custom?.simple && photoList(app.photos[c.id]).length === 0))
+    .sort((a, b) => b.date.localeCompare(a.date));
   if (list.length === 0) return <p className="k-empty" style={{ marginTop: 14 }}>{empty}</p>;
   return (
     <div className="k-gal">
