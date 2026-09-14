@@ -2,17 +2,19 @@
 
 // Nivåtitlarna följer den klassiska kökshierarkin (brigade de cuisine) istället
 // för påhittade namn - samma titlar som faktiskt används i riktiga kök.
+// Avståndet mellan nivåerna växer snabbare ju högre upp man kommer, så att
+// de sista nivåerna (Michelin-kock, Stjärnkock) tar betydligt längre att nå.
 export const LEVELS = [
   { title: "Köksbiträde", minXp: 0 },
-  { title: "Commis Chef", minXp: 60 },
-  { title: "Demichef de Partie", minXp: 130 },
-  { title: "Chef de Partie", minXp: 220 },
-  { title: "Chef Tournant", minXp: 350 },
-  { title: "Sous Chef", minXp: 550 },
-  { title: "Chef de Cuisine", minXp: 800 },
-  { title: "Executive Chef", minXp: 1150 },
-  { title: "Michelin-kock", minXp: 1600 },
-  { title: "Stjärnkock", minXp: 2200 },
+  { title: "Commis Chef", minXp: 80 },
+  { title: "Demichef de Partie", minXp: 180 },
+  { title: "Chef de Partie", minXp: 320 },
+  { title: "Chef Tournant", minXp: 550 },
+  { title: "Sous Chef", minXp: 900 },
+  { title: "Chef de Cuisine", minXp: 1400 },
+  { title: "Executive Chef", minXp: 2200 },
+  { title: "Michelin-kock", minXp: 3400 },
+  { title: "Stjärnkock", minXp: 5200 },
 ];
 
 // Enkel, transparent svårighetsberäkning utifrån tid, antal steg och antal
