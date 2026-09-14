@@ -1,16 +1,18 @@
 // XP och kocknivåer för recept från Köket
 
+// Nivåtitlarna följer den klassiska kökshierarkin (brigade de cuisine) istället
+// för påhittade namn - samma titlar som faktiskt används i riktiga kök.
 export const LEVELS = [
-  { title: "Nybörjarkock", minXp: 0 },
-  { title: "Hobbykock", minXp: 60 },
-  { title: "Street kock", minXp: 130 },
-  { title: "Hemmakock", minXp: 220 },
-  { title: "Skicklig kock", minXp: 350 },
-  { title: "Mästerkock", minXp: 550 },
-  { title: "Signaturkock", minXp: 800 },
-  { title: "Stjärnkock", minXp: 1150 },
+  { title: "Köksbiträde", minXp: 0 },
+  { title: "Commis Chef", minXp: 60 },
+  { title: "Demichef de Partie", minXp: 130 },
+  { title: "Chef de Partie", minXp: 220 },
+  { title: "Chef Tournant", minXp: 350 },
+  { title: "Sous Chef", minXp: 550 },
+  { title: "Chef de Cuisine", minXp: 800 },
+  { title: "Executive Chef", minXp: 1150 },
   { title: "Michelin-kock", minXp: 1600 },
-  { title: "Legendarisk kock", minXp: 2200 },
+  { title: "Stjärnkock", minXp: 2200 },
 ];
 
 // Enkel, transparent svårighetsberäkning utifrån tid, antal steg och antal
