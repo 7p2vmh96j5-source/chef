@@ -5,16 +5,16 @@
 // Avståndet mellan nivåerna växer snabbare ju högre upp man kommer, så att
 // de sista nivåerna (Michelin-kock, Stjärnkock) tar betydligt längre att nå.
 export const LEVELS = [
-  { title: "Diskare", minXp: 0 },
-  { title: "Commis Chef", minXp: 80 },
-  { title: "Demichef de Partie", minXp: 180 },
-  { title: "Chef de Partie", minXp: 320 },
-  { title: "Chef Tournant", minXp: 550 },
-  { title: "Sous Chef", minXp: 900 },
-  { title: "Chef de Cuisine", minXp: 1400 },
-  { title: "Executive Chef", minXp: 2200 },
-  { title: "Michelin-kock", minXp: 3400 },
-  { title: "Stjärnkock", minXp: 5200 },
+  { title: "Diskare", minXp: 0, desc: "Sköter disken och håller köket rent." },
+  { title: "Commis Chef", minXp: 80, desc: "Nykomling som lär sig grunderna av mer erfarna kockar." },
+  { title: "Demichef de Partie", minXp: 180, desc: "Assisterar en stationsansvarig kock." },
+  { title: "Chef de Partie", minXp: 320, desc: "Ansvarar för en egen station, till exempel sås eller grill." },
+  { title: "Chef Tournant", minXp: 550, desc: "Hoppar in på vilken station som helst vid behov." },
+  { title: "Sous Chef", minXp: 900, desc: "Kökets andrebefäl, näst efter köksmästaren." },
+  { title: "Chef de Cuisine", minXp: 1400, desc: "Köksmästare som leder hela köket och menyn." },
+  { title: "Executive Chef", minXp: 2200, desc: "Ansvarar för flera kök eller en hel restaurangkedja." },
+  { title: "Michelin-kock", minXp: 3400, desc: "Kock på en restaurang som tilldelats en Michelin-stjärna." },
+  { title: "Stjärnkock", minXp: 5200, desc: "Världskänd kock, ofta med egna program eller restauranger." },
 ];
 
 // Enkel, transparent svårighetsberäkning utifrån tid, antal steg och antal

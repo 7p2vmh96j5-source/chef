@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { LogOut, Pencil, Folder, MapPin } from "lucide-react";
+import { LogOut, Pencil, Folder, MapPin, Trophy } from "lucide-react";
 import { USERS } from "../data/users.js";
 import { Sheet } from "./Sheet.jsx";
 import { Avatar } from "../components/ui.jsx";
@@ -70,7 +70,8 @@ export function ProfileSettingsSheet({ app, onClose }) {
       <label className="k-label" htmlFor="profile-bio">Bio</label>
       <textarea id="profile-bio" className="k-input" value={bio} onChange={(e) => setBio(e.target.value.slice(0, 160))}
         placeholder="Skriv något om dig själv" style={{ minHeight: 90 }} />
-      <button className="k-wide" onClick={() => app.setSheet({ type: "my-folders" })}><Folder size={17} />Mina mappar</button>
+      <button className="k-wide" onClick={() => app.setSheet({ type: "chef-titles" })}><Trophy size={17} />Kocktitlar</button>
+      <button className="k-wide" style={{ marginTop: 8 }} onClick={() => app.setSheet({ type: "my-folders" })}><Folder size={17} />Mina mappar</button>
       <button className="k-wide" style={{ marginTop: 8 }} onClick={() => app.setSheet({ type: "my-restaurant-folders" })}><MapPin size={17} />Mina platsgrupper</button>
       <button className="k-logout k-settings-logout" onClick={app.logout}><LogOut size={15} />Logga ut</button>
     </Sheet>
