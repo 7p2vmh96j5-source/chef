@@ -5,16 +5,26 @@
 // Avståndet mellan nivåerna växer snabbare ju högre upp man kommer, så att
 // de sista nivåerna (Michelin-kock, Stjärnkock) tar betydligt längre att nå.
 export const LEVELS = [
-  { title: "Diskare", minXp: 0, desc: "Sköter disken och håller köket rent." },
-  { title: "Commis Chef", minXp: 80, desc: "Nykomling som lär sig grunderna av mer erfarna kockar." },
-  { title: "Demichef de Partie", minXp: 180, desc: "Assisterar en stationsansvarig kock." },
-  { title: "Chef de Partie", minXp: 320, desc: "Ansvarar för en egen station, till exempel sås eller grill." },
-  { title: "Chef Tournant", minXp: 550, desc: "Hoppar in på vilken station som helst vid behov." },
-  { title: "Sous Chef", minXp: 900, desc: "Kökets andrebefäl, näst efter köksmästaren." },
-  { title: "Chef de Cuisine", minXp: 1400, desc: "Köksmästare som leder hela köket och menyn." },
-  { title: "Executive Chef", minXp: 2200, desc: "Ansvarar för flera kök eller en hel restaurangkedja." },
-  { title: "Michelin-kock", minXp: 3400, desc: "Kock på en restaurang som tilldelats en Michelin-stjärna." },
-  { title: "Stjärnkock", minXp: 5200, desc: "Världskänd kock, ofta med egna program eller restauranger." },
+  { title: "Diskare", minXp: 0, desc: "Sköter disken och håller köket rent.",
+    long: "Diskaren håller köket rent och ser till att kockarna alltid har rena kastruller, pannor och redskap att jobba med. Det är ofta det första steget in i restaurangbranschen och ett bra sätt att lära känna ett kök från grunden." },
+  { title: "Commis Chef", minXp: 80, desc: "Nykomling som lär sig grunderna av mer erfarna kockar.",
+    long: "En commis chef är nyutexaminerad eller tidigt i karriären och jobbar under en mer erfaren kock på en specifik station. Här lär man sig grundläggande tekniker, hygienrutiner och köksrutinerna på riktigt." },
+  { title: "Demichef de Partie", minXp: 180, desc: "Assisterar en stationsansvarig kock.",
+    long: "Demichef de partie är ett steg upp från commis och assisterar chef de partie på en station, till exempel såser eller grönsaker. Man tar mer eget ansvar men jobbar fortfarande under någon annans ledning." },
+  { title: "Chef de Partie", minXp: 320, desc: "Ansvarar för en egen station, till exempel sås eller grill.",
+    long: "Chef de partie, även kallad stationskock, ansvarar självständigt för en hel station i köket - till exempel grillen, såserna eller desserterna - och ser till att stationens rätter alltid håller rätt kvalitet." },
+  { title: "Chef Tournant", minXp: 550, desc: "Hoppar in på vilken station som helst vid behov.",
+    long: "En tournant, eller svängkock, kan hoppa in och täcka upp på vilken station som helst. Det kräver bred erfarenhet från flera olika stationer och gör personen extra värdefull när någon är borta eller det är högt tryck." },
+  { title: "Sous Chef", minXp: 900, desc: "Kökets andrebefäl, näst efter köksmästaren.",
+    long: "Sous chef betyder bokstavligen \"under kocken\" och är köksmästarens högra hand. Sous chefen leder det dagliga arbetet i köket, håller koll på alla stationer och hoppar in där det behövs." },
+  { title: "Chef de Cuisine", minXp: 1400, desc: "Köksmästare som leder hela köket och menyn.",
+    long: "Chef de cuisine, eller köksmästare, har det yttersta ansvaret för ett kök - menyn, kvaliteten, personalen och budgeten. Det är den högsta positionen i det dagliga köksarbetet på en enskild restaurang." },
+  { title: "Executive Chef", minXp: 2200, desc: "Ansvarar för flera kök eller en hel restaurangkedja.",
+    long: "En executive chef ansvarar för flera kök samtidigt, till exempel alla restauranger i en kedja eller ett stort hotell. Rollen handlar mer om ledarskap, menyutveckling och strategi än om att själv stå vid spisen varje dag." },
+  { title: "Michelin-kock", minXp: 3400, desc: "Kock på en restaurang som tilldelats en Michelin-stjärna.",
+    long: "En Michelin-kock leder ett kök som tilldelats en eller flera stjärnor i Michelinguiden - en av de mest prestigefyllda utmärkelserna en restaurang kan få. Det kräver exceptionell konsekvens, teknik och kreativitet, år efter år." },
+  { title: "Stjärnkock", minXp: 5200, desc: "Världskänd kock, ofta med egna program eller restauranger.",
+    long: "En stjärnkock är världskänd, ofta genom tv-program, kokböcker eller flera egna restauranger. Det är toppen av yrket - dit väldigt få når, efter årtionden av hårt arbete och oräkneliga timmar i köket." },
 ];
 
 // Enkel, transparent svårighetsberäkning utifrån tid, antal steg och antal
