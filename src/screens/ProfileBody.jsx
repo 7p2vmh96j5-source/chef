@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { ChevronRight, Folder } from "lucide-react";
+import { ChevronRight, Folder, Trophy } from "lucide-react";
 import { USERS } from "../data/users.js";
 import { first, times, relDate } from "../lib/format.js";
 import { topRecipes, mutualText } from "../lib/social.js";
 import { photoList } from "../lib/photos.js";
+import { levelInfo } from "../lib/xp.js";
 import { Avatar, Seg } from "../components/ui.jsx";
 import { RecipeRow, RestaurantRow, FollowButton } from "../components/rows.jsx";
 import { Gallery } from "../components/Gallery.jsx";
@@ -32,6 +33,7 @@ export function ProfileBody({ uid, app }) {
   const followerIds = app.followersOf(uid);
   const mutual = isMe ? [] : app.mutualWith(uid);
   const followsMe = !isMe && app.followingOf(uid).includes("me");
+  const level = levelInfo(isMe ? app.data.xp : USERS[uid]?.xp);
 
   const activity = (
     <>
@@ -116,6 +118,11 @@ export function ProfileBody({ uid, app }) {
             {followsMe && <div className="k-meta">Följer dig</div>}
           </div>
           {!isMe && <FollowButton id={uid} app={app} />}
+        </div>
+        <div className="k-level">
+          <span className="k-level-badge"><Trophy size={13} />{level.title}</span>
+          <span className="k-level-xp">{level.xp} XP{level.next ? ` · ${level.xpToNext} till ${level.next.title}` : " · Högsta nivån"}</span>
+          <span className="k-level-bar"><span style={{ width: `${level.progress * 100}%` }} /></span>
         </div>
         {u.bio && <p className="k-bio">{u.bio}</p>}
         {!isMe && (mutual.length > 0 ? (

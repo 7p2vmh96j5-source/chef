@@ -5,10 +5,12 @@ create table if not exists public.profiles (
   location text not null default '',
   photo_url text,
   birth_date date,
+  xp integer not null default 0,
   created_at timestamptz not null default now()
 );
 
 alter table public.profiles add column if not exists birth_date date;
+alter table public.profiles add column if not exists xp integer not null default 0;
 
 alter table public.profiles enable row level security;
 

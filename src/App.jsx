@@ -7,6 +7,7 @@ import { defaultData } from "./data/seed.js";
 import { SEED_RECIPES } from "./data/recipes.js";
 import { first } from "./lib/format.js";
 import { photoList } from "./lib/photos.js";
+import { xpForRecipe } from "./lib/xp.js";
 import { evDate, buildNotifs } from "./lib/social.js";
 import { PhotoCtx } from "./lib/photoContext.js";
 import { FeedScreen } from "./screens/FeedScreen.jsx";
@@ -143,12 +144,12 @@ export default function App() {
     }
     let active = true;
     (async () => {
-      let { data: profileRows, error } = await supabase.from("profiles").select("id,name,bio,location,photo_url,birth_date");
+      let { data: profileRows, error } = await supabase.from("profiles").select("id,name,bio,location,photo_url,birth_date,xp");
       if (error) {
-        // Om birth_date-kolumnen inte finns än i databasen, försök utan den istället för att låta hela laddningen (följningar m.m.) misslyckas.
-        console.error("Kunde inte läsa profiler (med födelsedatum), försöker utan:", error);
+        // Om birth_date/xp-kolumnerna inte finns än i databasen, försök utan dem istället för att låta hela laddningen (följningar m.m.) misslyckas.
+        console.error("Kunde inte läsa profiler (med födelsedatum/xp), försöker utan:", error);
         const fallback = await supabase.from("profiles").select("id,name,bio,location,photo_url");
-        profileRows = fallback.data ? fallback.data.map((p) => ({ ...p, birth_date: null })) : null;
+        profileRows = fallback.data ? fallback.data.map((p) => ({ ...p, birth_date: null, xp: 0 })) : null;
         error = fallback.error;
       }
       if (!active) return;
@@ -157,15 +158,16 @@ export default function App() {
       } else {
         profileRows.forEach((profile) => {
           if (profile.id !== userId) {
-            USERS[profile.id] = { id: profile.id, name: profile.name || "Köksvän", bio: profile.bio || "", location: profile.location || "", photo: profile.photo_url || null, color: "#000000", fg: "#fff" };
+            USERS[profile.id] = { id: profile.id, name: profile.name || "Köksvän", bio: profile.bio || "", location: profile.location || "", photo: profile.photo_url || null, color: "#000000", fg: "#fff", xp: profile.xp || 0 };
           }
         });
         const currentProfile = profileRows.find((profile) => profile.id === userId);
         const fallbackName = session.user.user_metadata?.full_name || session.user.email?.split("@")[0]?.replace(/[._-]+/g, " ").trim() || USERS.me.name;
-        const ownProfile = currentProfile || { id: userId, name: fallbackName, bio: "", location: "", photo_url: null, birth_date: null };
-        USERS.me = { ...USERS.me, name: ownProfile.name || fallbackName, bio: ownProfile.bio || "" };
+        const ownProfile = currentProfile || { id: userId, name: fallbackName, bio: "", location: "", photo_url: null, birth_date: null, xp: 0 };
+        USERS.me = { ...USERS.me, name: ownProfile.name || fallbackName, bio: ownProfile.bio || "", xp: ownProfile.xp || 0 };
         setData((current) => ({
           ...current,
+          xp: ownProfile.xp || current.xp || 0,
           profile: {
             ...(current.profile || {}),
             name: ownProfile.name || fallbackName,
@@ -867,15 +869,20 @@ export default function App() {
     },
     logCook: (recipeId, note, photos, mods, custom, steps, folderId) => {
       const c = { id: "me-" + Date.now(), userId: "me", recipeId, date: new Date().toISOString(), note, mums: [], mumsAt: {}, comments: [], mods: mods || null, custom: custom || null, steps: steps || null };
+      // XP ges bara för recept från Köket (author === null), inte för egna/andras recept eller enkla inlägg.
+      const sourceRecipe = recipeId ? recipes[recipeId] : null;
+      const xpGain = sourceRecipe && sourceRecipe.author === null ? xpForRecipe(sourceRecipe) : 0;
+      const newXp = (data.xp || 0) + xpGain;
       const list = photoList(photos);
       if (list.length) setPhotos((p) => ({ ...p, [c.id]: list, ...(recipeId ? { [recipeId]: list } : {}) }));
       setData((d) => ({
         ...d,
         myCooks: [c, ...d.myCooks],
+        xp: xpGain ? (d.xp || 0) + xpGain : d.xp,
         restaurantFolderOf: folderId ? { ...(d.restaurantFolderOf || {}), [c.id]: folderId } : d.restaurantFolderOf,
       }));
       setSheet(null); setStack([]); setTab("feed");
-      showToast("Publicerat");
+      showToast(xpGain ? `Publicerat (+${xpGain} XP)` : "Publicerat");
       if (supabase && userId) {
         upsertWithPhotosFallback("cooks", {
           id: c.id, user_id: userId, recipe_id: recipeId || null, data: c, photo: list[0] || null, photos: list.length ? list : null,
@@ -886,6 +893,11 @@ export default function App() {
             showToast(`Inlägget kunde inte synkas: ${error.message}`);
           }
         });
+        if (xpGain) {
+          USERS.me = { ...USERS.me, xp: newXp };
+          supabase.from("profiles").update({ xp: newXp }).eq("id", userId)
+            .then(({ error }) => { if (error) console.error("Kunde inte synka XP:", error); });
+        }
       }
     },
     updateCook: (cookId, patch) => {
