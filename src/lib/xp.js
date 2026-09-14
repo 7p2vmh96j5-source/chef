@@ -5,7 +5,7 @@
 // Avståndet mellan nivåerna växer snabbare ju högre upp man kommer, så att
 // de sista nivåerna (Michelin-kock, Stjärnkock) tar betydligt längre att nå.
 export const LEVELS = [
-  { title: "Köksbiträde", minXp: 0 },
+  { title: "Diskare", minXp: 0 },
   { title: "Commis Chef", minXp: 80 },
   { title: "Demichef de Partie", minXp: 180 },
   { title: "Chef de Partie", minXp: 320 },
