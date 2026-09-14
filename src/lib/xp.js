@@ -3,11 +3,13 @@
 export const LEVELS = [
   { title: "Nybörjarkock", minXp: 0 },
   { title: "Hobbykock", minXp: 60 },
-  { title: "Hemmakock", minXp: 150 },
-  { title: "Skicklig kock", minXp: 300 },
+  { title: "Street kock", minXp: 130 },
+  { title: "Hemmakock", minXp: 220 },
+  { title: "Skicklig kock", minXp: 350 },
   { title: "Mästerkock", minXp: 550 },
-  { title: "Stjärnkock", minXp: 900 },
-  { title: "Michelin-kock", minXp: 1400 },
+  { title: "Signaturkock", minXp: 800 },
+  { title: "Stjärnkock", minXp: 1150 },
+  { title: "Michelin-kock", minXp: 1600 },
   { title: "Legendarisk kock", minXp: 2200 },
 ];
 
