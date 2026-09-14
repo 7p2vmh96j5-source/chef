@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Home, Search, Plus, MessageCircle, User, Check, Settings } from "lucide-react";
+import { Home, GraduationCap, Plus, MessageCircle, User, Check, Settings } from "lucide-react";
 import { STORAGE_KEY, PHOTO_KEY, PHOTO_MAX_CHARS, TILES, CUSTOM_TILE } from "./data/constants.js";
 import { USERS, GRAPH } from "./data/users.js";
 import { Avatar } from "./components/ui.jsx";
@@ -11,7 +11,7 @@ import { xpForRecipe } from "./lib/xp.js";
 import { evDate, buildNotifs } from "./lib/social.js";
 import { PhotoCtx } from "./lib/photoContext.js";
 import { FeedScreen } from "./screens/FeedScreen.jsx";
-import { DiscoverScreen } from "./screens/DiscoverScreen.jsx";
+import { GuideScreen } from "./screens/GuideScreen.jsx";
 import { MessagesScreen } from "./screens/MessagesScreen.jsx";
 import { ProfileBody } from "./screens/ProfileBody.jsx";
 import { RecipeView } from "./views/RecipeView.jsx";
@@ -546,6 +546,7 @@ export default function App() {
   const app = {
     data, recipes, allCooks, myRecipesList, setSheet, photos, notifs, unread, unreadMessages, profilesLoaded, currentUserId: userId,
     refreshShared: () => (loadSharedRef.current ? loadSharedRef.current() : Promise.resolve()),
+    showToast,
     logout: async () => {
       const { error } = await supabase.auth.signOut();
       if (error) showToast("Det gick inte att logga ut");
@@ -1116,7 +1117,7 @@ export default function App() {
 
   const TABS = [
     ["feed", "Start", Home],
-    ["discover", "Upptäck", Search],
+    ["discover", "Guide", GraduationCap],
     ["plus", "Skapa", Plus],
     ["messages", "Meddelanden", MessageCircle],
     ["profile", "Profil", User],
@@ -1139,7 +1140,7 @@ export default function App() {
         <div className="k-body">
           <main key={tab} className={"k-scroll" + (tab === "feed" ? " grey" : "")}>
             {tab === "feed" && <FeedScreen app={app} />}
-            {tab === "discover" && <DiscoverScreen app={app} />}
+            {tab === "discover" && <GuideScreen app={app} />}
             {tab === "messages" && <MessagesScreen app={app} />}
             {tab === "profile" && (
               <>
