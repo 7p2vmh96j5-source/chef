@@ -50,6 +50,7 @@ export default function App() {
   const deletedRecipeIds = useRef(new Set());
   const deletedCookIds = useRef(new Set());
   const unsavingRecipeIds = useRef(new Set());
+  const pendingCommentLikes = useRef(new Map());
   const userId = session?.user?.id || "";
   const userStorageKey = userId ? `${STORAGE_KEY}:${userId}` : STORAGE_KEY;
   const userPhotoKey = userId ? `${PHOTO_KEY}:${userId}` : PHOTO_KEY;
@@ -283,7 +284,7 @@ export default function App() {
       return { data: data || [], error };
     };
     const loadShared = async () => {
-      const [recipesResult, cooksResult, commentsResult, mumsResult, savesResult, recipeFoldersResult, restaurantFoldersResult, userStateResult] = await Promise.all([
+      const [recipesResult, cooksResult, commentsResult, mumsResult, savesResult, recipeFoldersResult, restaurantFoldersResult, userStateResult, commentLikesResult] = await Promise.all([
         selectWithPhotosFallback("recipes", "id,author_id,data,photo,photos,created_at", "id,author_id,data,photo,created_at"),
         selectWithPhotosFallback("cooks", "id,user_id,recipe_id,data,photo,photos,folder_id,created_at", "id,user_id,recipe_id,data,photo,created_at"),
         supabase.from("comments").select("id,cook_id,user_id,text,created_at").order("created_at", { ascending: true }),
@@ -292,6 +293,7 @@ export default function App() {
         selectIgnoringMissingTable("recipe_folders", "id,name"),
         selectIgnoringMissingTable("restaurant_folders", "id,name"),
         selectIgnoringMissingTable("user_state", "notif_seen,messages_seen"),
+        selectIgnoringMissingTable("comment_likes", "comment_id,user_id"),
       ]);
       if (!active) return;
       if (recipesResult.error) console.error("Kunde inte läsa gemensamma recept:", recipesResult.error);
@@ -334,6 +336,19 @@ export default function App() {
       const restaurantFolderOf = {};
       cookRows.filter((row) => row.user_id === userId && row.folder_id).forEach((row) => { restaurantFolderOf[row.id] = row.folder_id; });
       const remoteState = (userStateResult.data || [])[0];
+      // Alla gillningar (egna och andras), med lokalt pågående ändringar som vinner tills de bekräftats.
+      const commentLikes = {};
+      (commentLikesResult.data || []).forEach((row) => {
+        (commentLikes[row.comment_id] ||= []).push(row.user_id);
+      });
+      pendingCommentLikes.current.forEach((liked, key) => {
+        const likers = new Set(commentLikes[key] || []);
+        if (liked) likers.add(userId); else likers.delete(userId);
+        commentLikes[key] = [...likers];
+      });
+      // Egna kommentarer läggs till om de saknas lokalt, samma mönster som myCooks/myRecipes,
+      // så en egen kommentar syns igen på en ny enhet.
+      const myCommentRows = (commentsResult.data || []).filter((row) => row.user_id === userId);
       setData((current) => {
         const myCooksById = new Map(current.myCooks.map((c) => [c.id, c]));
         cookRows.filter((row) => row.user_id === userId).forEach((row) => {
@@ -343,10 +358,19 @@ export default function App() {
         recipeRows.filter((row) => row.author_id === userId).forEach((row) => {
           if (!myRecipesById.has(row.id)) myRecipesById.set(row.id, { ...row.data, id: row.id, author: "me" });
         });
+        const comments = { ...current.comments };
+        myCommentRows.forEach((row) => {
+          const list = comments[row.cook_id] || [];
+          if (!list.some((c) => c.id === row.id)) {
+            comments[row.cook_id] = [...list, { id: row.id, userId: "me", text: row.text, date: row.created_at }];
+          }
+        });
         return {
           ...current,
           myCooks: [...myCooksById.values()].sort((a, b) => b.date.localeCompare(a.date)),
           myRecipes: [...myRecipesById.values()],
+          comments,
+          commentLikes: commentLikesResult.error ? current.commentLikes : commentLikes,
           sharedRecipes: recipeRows.map((row) => ({
             ...row.data, id: row.id, author: row.author_id === userId ? "me" : row.author_id,
           })),
@@ -592,11 +616,24 @@ export default function App() {
       ...(data.mums[cook.id] ? ["me"] : []),
       ...(data.sharedMums[cook.id] || []).map((m) => m.userId),
     ],
-    commentsOf: (cook) => [
-      ...cook.comments.map((c, i) => ({ ...c, key: `${cook.id}-seed-${i}`, date: c.date || evDate(cook, 40 * (i + 1)) })),
-      ...(data.comments[cook.id] || []).map((c, i) => ({ ...c, key: `${cook.id}-comment-${c.id || i}`, date: c.date || cook.date })),
-      ...(data.sharedComments[cook.id] || []).map((c) => ({ ...c, key: `${cook.id}-shared-${c.id}` })),
-    ].sort((a, b) => a.date.localeCompare(b.date)),
+    commentsOf: (cook) => {
+      // Samma nyckelformat oavsett om kommentaren kommer från min egen lokala cache eller
+      // andras (synkade), så att t.ex. gillningar pekar på samma kommentar för alla.
+      const byKey = new Map();
+      cook.comments.forEach((c, i) => {
+        const key = `${cook.id}-seed-${i}`;
+        byKey.set(key, { ...c, key, date: c.date || evDate(cook, 40 * (i + 1)) });
+      });
+      (data.comments[cook.id] || []).forEach((c, i) => {
+        const key = `${cook.id}-comment-${c.id || i}`;
+        byKey.set(key, { ...c, key, date: c.date || cook.date });
+      });
+      (data.sharedComments[cook.id] || []).forEach((c) => {
+        const key = `${cook.id}-comment-${c.id}`;
+        if (!byKey.has(key)) byKey.set(key, { ...c, key });
+      });
+      return [...byKey.values()].sort((a, b) => a.date.localeCompare(b.date));
+    },
     open: (type, id, extra) => {
       if (type === "user" && id === "me") { setStack([]); setTab("profile"); return; }
       setStack((s) => [...s, { ...extra, type, id, k: Date.now() }]);
@@ -617,25 +654,39 @@ export default function App() {
       }
     },
     addComment: (cookId, text) => {
+      const id = "c" + Date.now();
       setData((d) => ({
-        ...d, comments: { ...d.comments, [cookId]: [...(d.comments[cookId] || []), { id: "comment-" + Date.now(), userId: "me", text, date: new Date().toISOString() }] },
+        ...d, comments: { ...d.comments, [cookId]: [...(d.comments[cookId] || []), { id, userId: "me", text, date: new Date().toISOString() }] },
       }));
       if (supabase && userId) {
-        supabase.from("comments").insert({ cook_id: cookId, user_id: userId, text })
+        supabase.from("comments").insert({ id, cook_id: cookId, user_id: userId, text })
           .then(({ error }) => { if (error) console.error("Kunde inte spara kommentar:", error); });
       }
     },
-    toggleCommentLike: (commentKey) => setData((d) => {
-      const current = d.commentLikes?.[commentKey] || [];
-      const liked = current.includes("me");
-      return {
-        ...d,
-        commentLikes: {
-          ...(d.commentLikes || {}),
-          [commentKey]: liked ? current.filter((id) => id !== "me") : [...current, "me"],
-        },
-      };
-    }),
+    toggleCommentLike: (commentKey) => {
+      const current = data.commentLikes?.[commentKey] || [];
+      const liked = userId ? current.includes(userId) : current.includes("me");
+      setData((d) => {
+        const list = d.commentLikes?.[commentKey] || [];
+        return {
+          ...d,
+          commentLikes: {
+            ...(d.commentLikes || {}),
+            [commentKey]: liked ? list.filter((x) => x !== userId && x !== "me") : [...list, userId || "me"],
+          },
+        };
+      });
+      if (supabase && userId) {
+        pendingCommentLikes.current.set(commentKey, !liked);
+        const request = liked
+          ? supabase.from("comment_likes").delete().eq("comment_id", commentKey).eq("user_id", userId)
+          : supabase.from("comment_likes").upsert({ comment_id: commentKey, user_id: userId }, { onConflict: "comment_id,user_id" });
+        request.then(({ error }) => {
+          if (error) console.error("Kunde inte synka gillning (finns tabellen comment_likes?):", error);
+          pendingCommentLikes.current.delete(commentKey);
+        });
+      }
+    },
     toggleSave: (id) => {
       const on = data.saved.includes(id);
       setData((d) => {

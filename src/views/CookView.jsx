@@ -159,7 +159,7 @@ export function CookView({ id, app, focus }) {
 
 function CommentLike({ comment, app }) {
   const likes = app.data.commentLikes?.[comment.key] || [];
-  const liked = likes.includes("me");
+  const liked = likes.includes(app.currentUserId) || likes.includes("me");
   return (
     <button className={"k-comment-like" + (liked ? " on" : "")} onClick={() => app.toggleCommentLike(comment.key)} aria-label={liked ? "Ta bort gilla-markering" : "Gilla kommentar"} aria-pressed={liked}>
       <Heart size={15} fill={liked ? "currentColor" : "none"} />
