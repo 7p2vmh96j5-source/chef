@@ -19,7 +19,8 @@ export function DiscoverScreen({ app }) {
     if (refreshing) return;
     setRefreshing(true);
     setRefreshSeed((seed) => seed + 1);
-    window.setTimeout(() => setRefreshing(false), 350);
+    const minSpin = new Promise((resolve) => window.setTimeout(resolve, 350));
+    Promise.all([app.refreshShared(), minSpin]).then(() => setRefreshing(false));
   };
   const onTouchStart = (event) => {
     if (event.touches[0].clientY < 90) setPullStart(event.touches[0].clientY);

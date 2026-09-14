@@ -49,6 +49,7 @@ export default function App() {
   const [followRelations, setFollowRelations] = useState([]);
   const deletedRecipeIds = useRef(new Set());
   const deletedCookIds = useRef(new Set());
+  const loadSharedRef = useRef(null);
   const unsavingRecipeIds = useRef(new Set());
   const pendingCommentLikes = useRef(new Map());
   const userId = session?.user?.id || "";
@@ -412,6 +413,7 @@ export default function App() {
       });
       setSharedLoaded(true);
     };
+    loadSharedRef.current = loadShared;
     loadShared();
     const onVisible = () => { if (document.visibilityState === "visible") loadShared(); };
     document.addEventListener("visibilitychange", onVisible);
@@ -540,6 +542,7 @@ export default function App() {
 
   const app = {
     data, recipes, allCooks, myRecipesList, setSheet, photos, notifs, unread, unreadMessages, profilesLoaded, currentUserId: userId,
+    refreshShared: () => (loadSharedRef.current ? loadSharedRef.current() : Promise.resolve()),
     logout: async () => {
       const { error } = await supabase.auth.signOut();
       if (error) showToast("Det gick inte att logga ut");
