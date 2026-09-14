@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Home, Search, Plus, MessageCircle, User, Check, Settings } from "lucide-react";
 import { STORAGE_KEY, PHOTO_KEY, PHOTO_MAX_CHARS, TILES, CUSTOM_TILE } from "./data/constants.js";
 import { USERS, GRAPH } from "./data/users.js";
+import { Avatar } from "./components/ui.jsx";
 import { defaultData } from "./data/seed.js";
 import { SEED_RECIPES } from "./data/recipes.js";
 import { first } from "./lib/format.js";
@@ -1153,7 +1154,11 @@ export default function App() {
                     }
                   }}>
                   <span className="k-tab-icon">
-                    <Icon size={25} strokeWidth={tab === id ? 2.3 : 1.8} />
+                    {id === "profile" && photos["profile:me"] ? (
+                      <Avatar user={{ ...USERS.me, ...(data.profile || {}), photo: photos["profile:me"] }} size={25} />
+                    ) : (
+                      <Icon size={25} strokeWidth={tab === id ? 2.3 : 1.8} />
+                    )}
                     {id === "messages" && unreadMessages > 0 && (
                       <span className="k-badge k-tab-badge">{unreadMessages > 9 ? "9+" : unreadMessages}</span>
                     )}
