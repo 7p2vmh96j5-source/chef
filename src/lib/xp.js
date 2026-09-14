@@ -23,6 +23,26 @@ export function xpForRecipe(recipe) {
   return Math.max(10, Math.min(80, Math.round(score / 6)));
 }
 
+// Sorterar Kökets recept från lättast till svårast - samma ordning som guide-vägen.
+export function guideSteps(recipes) {
+  return Object.values(recipes)
+    .filter((r) => r.author === null)
+    .map((r) => ({ ...r, xp: xpForRecipe(r) }))
+    .sort((a, b) => a.xp - b.xp || a.time - b.time || a.id.localeCompare(b.id));
+}
+
+// Ett Köket-recept är upplåst om det redan är lagat eller om steget innan det är det.
+export function unlockedGuideIds(recipes, cookedRecipeIds) {
+  const steps = guideSteps(recipes);
+  const completed = new Set(cookedRecipeIds);
+  const unlocked = new Set();
+  steps.forEach((r, i) => {
+    const prevDone = i === 0 || completed.has(steps[i - 1].id);
+    if (completed.has(r.id) || prevDone) unlocked.add(r.id);
+  });
+  return unlocked;
+}
+
 export function levelInfo(xp) {
   const value = xp || 0;
   let index = 0;

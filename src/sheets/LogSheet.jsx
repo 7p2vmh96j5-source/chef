@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, Plus, ChevronRight, X, MinusCircle, ChevronDown } from "lucide-react";
 import { toItems, itemsFromMods, itemsToMods } from "../lib/variants.js";
+import { unlockedGuideIds } from "../lib/xp.js";
 import { photoList } from "../lib/photos.js";
 import { Tile } from "../components/ui.jsx";
 import { PhotoPicker } from "../components/PhotoPicker.jsx";
@@ -77,8 +78,9 @@ export function LogSheet({ app, initial, editCook, onClose }) {
   if (!r) {
     const ql = q.trim().toLowerCase();
     const all = Object.values(app.recipes);
-    const knownTitles = new Set(all.filter((x) => x.author == null).map((x) => x.title.trim().toLowerCase()));
-    const list = all.filter((x) => x.author == null || !knownTitles.has(x.title.trim().toLowerCase()))
+    const cookedIds = app.cooksOf("me").filter((c) => c.recipeId).map((c) => c.recipeId);
+    const unlockedIds = unlockedGuideIds(app.recipes, cookedIds);
+    const list = all.filter((x) => x.author === "me" || unlockedIds.has(x.id))
       .filter((x) => !ql || x.title.toLowerCase().includes(ql));
     return (
       <Sheet tall title="Logga matlagning" onClose={onClose} bodyKey="pick"

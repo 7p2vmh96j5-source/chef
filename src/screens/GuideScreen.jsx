@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Check, Lock, Trophy } from "lucide-react";
-import { xpForRecipe, levelInfo } from "../lib/xp.js";
+import { guideSteps, levelInfo } from "../lib/xp.js";
 
 function difficultyLabel(xp) {
   if (xp <= 20) return "Grunderna";
@@ -11,11 +11,7 @@ function difficultyLabel(xp) {
 }
 
 export function GuideScreen({ app }) {
-  const steps = useMemo(() => Object.values(app.recipes)
-    .filter((r) => r.author === null)
-    .map((r) => ({ ...r, xp: xpForRecipe(r) }))
-    .sort((a, b) => a.xp - b.xp || a.time - b.time || a.id.localeCompare(b.id)),
-  [app.recipes]);
+  const steps = useMemo(() => guideSteps(app.recipes), [app.recipes]);
 
   const completed = useMemo(() => {
     const set = new Set();
