@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUp, Check, Lock, Trophy } from "lucide-react";
-import { guideSections, levelInfo } from "../lib/xp.js";
+import { guideSections, levelInfo, unlockedGuideIds } from "../lib/xp.js";
 
 export function GuideScreen({ app }) {
   const sections = useMemo(() => guideSections(app.recipes), [app.recipes]);
@@ -20,6 +20,7 @@ export function GuideScreen({ app }) {
     app.cooksOf("me").forEach((c) => { if (c.recipeId) set.add(c.recipeId); });
     return set;
   }, [app.allCooks]);
+  const unlockedIds = useMemo(() => unlockedGuideIds(app.recipes, completed), [app.recipes, completed]);
 
   const totalSteps = sections.reduce((sum, s) => sum + s.steps.length, 0);
   const doneCount = sections.reduce((sum, s) => sum + s.steps.filter((r) => completed.has(r.id)).length, 0);
@@ -60,8 +61,7 @@ export function GuideScreen({ app }) {
             <div className="k-guide-path">
               {steps.map((r, i) => {
                 const isDone = completed.has(r.id);
-                const prevDone = i === 0 || completed.has(steps[i - 1].id);
-                const unlocked = isDone || prevDone;
+                const unlocked = unlockedIds.has(r.id);
                 const offset = i % 2 === 0 ? -56 : 56;
                 return (
                   <button

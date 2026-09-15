@@ -60,16 +60,18 @@ export function guideSteps(recipes) {
   return guideSections(recipes).flatMap((section) => section.steps);
 }
 
-// Varje avsnitt låses upp för sig: ett recept är upplåst om det redan är lagat
-// eller om steget innan det (inom samma avsnitt) är det.
+// Varje avsnitt måste klaras i ordning, steg 1 till X - det räcker inte att bara
+// det närmast föregående steget är klart. Om ett senare steg råkat lagas utan att
+// alla steg före det är klara (t.ex. via ett recept man hittat på annat håll),
+// ska det INTE låsa upp fler steg framåt förrän kedjan verkligen kommit ikapp.
 export function unlockedGuideIds(recipes, cookedRecipeIds) {
   const completed = new Set(cookedRecipeIds);
   const unlocked = new Set();
   guideSections(recipes).forEach(({ steps }) => {
-    steps.forEach((r, i) => {
-      const prevDone = i === 0 || completed.has(steps[i - 1].id);
-      if (completed.has(r.id) || prevDone) unlocked.add(r.id);
-    });
+    for (const step of steps) {
+      unlocked.add(step.id);
+      if (!completed.has(step.id)) break;
+    }
   });
   return unlocked;
 }
