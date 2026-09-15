@@ -33,6 +33,7 @@ import { MyFoldersSheet } from "./sheets/MyFoldersSheet.jsx";
 import { MyRestaurantFoldersSheet } from "./sheets/MyRestaurantFoldersSheet.jsx";
 import { SimplePostSheet } from "./sheets/SimplePostSheet.jsx";
 import { ChefTitlesSheet } from "./sheets/ChefTitlesSheet.jsx";
+import { BadgesSheet } from "./sheets/BadgesSheet.jsx";
 import { AuthScreen } from "./screens/AuthScreen.jsx";
 import { supabase } from "./lib/supabase.js";
 
@@ -1239,6 +1240,7 @@ export default function App() {
           {sheet?.type === "my-restaurant-folders" && <MyRestaurantFoldersSheet app={app} onClose={() => setSheet(null)} />}
           {sheet?.type === "simple-post" && <SimplePostSheet app={app} onClose={() => setSheet(null)} />}
           {sheet?.type === "chef-titles" && <ChefTitlesSheet onClose={() => setSheet(null)} />}
+          {sheet?.type === "badges" && <BadgesSheet app={app} uid={sheet.uid} onClose={() => setSheet(null)} />}
 
           {toast && <div key={toast.k} className="k-toast" role="status"><Check size={16} strokeWidth={3} />{toast.text}</div>}
         </div>
