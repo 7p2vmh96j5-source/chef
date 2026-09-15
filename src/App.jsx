@@ -7,7 +7,7 @@ import { defaultData } from "./data/seed.js";
 import { SEED_RECIPES } from "./data/recipes.js";
 import { first } from "./lib/format.js";
 import { photoList } from "./lib/photos.js";
-import { xpForRecipe } from "./lib/xp.js";
+import { xpForRecipe, unlockedGuideIds } from "./lib/xp.js";
 import { evDate, buildNotifs } from "./lib/social.js";
 import { PhotoCtx } from "./lib/photoContext.js";
 import { FeedScreen } from "./screens/FeedScreen.jsx";
@@ -899,9 +899,13 @@ export default function App() {
     },
     logCook: (recipeId, note, photos, mods, custom, steps, folderId) => {
       const c = { id: "me-" + Date.now(), userId: "me", recipeId, date: new Date().toISOString(), note, mums: [], mumsAt: {}, comments: [], mods: mods || null, custom: custom || null, steps: steps || null };
-      // XP ges bara för recept från Köket (author === null), inte för egna/andras recept eller enkla inlägg.
+      // XP ges bara för recept från Köket (author === null), inte för egna/andras recept eller enkla inlägg,
+      // och bara om steget faktiskt är upplåst i Guide (samma spärr som receptväljaren och receptsidan använder) -
+      // ett recept man hittat en annan väg, t.ex. via ett flödesinlägg, ska inte ge XP i förtid.
       const sourceRecipe = recipeId ? recipes[recipeId] : null;
-      const xpGain = sourceRecipe && sourceRecipe.author === null ? xpForRecipe(sourceRecipe) : 0;
+      const cookedIds = data.myCooks.filter((cook) => cook.recipeId).map((cook) => cook.recipeId);
+      const isUnlocked = !sourceRecipe || sourceRecipe.author !== null || unlockedGuideIds(recipes, cookedIds).has(recipeId);
+      const xpGain = sourceRecipe && sourceRecipe.author === null && isUnlocked ? xpForRecipe(sourceRecipe) : 0;
       const newXp = (data.xp || 0) + xpGain;
       const list = photoList(photos);
       if (list.length) setPhotos((p) => ({ ...p, [c.id]: list, ...(recipeId ? { [recipeId]: list } : {}) }));

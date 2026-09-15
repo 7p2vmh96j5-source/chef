@@ -21,9 +21,13 @@ export function GuideScreen({ app }) {
     return set;
   }, [app.allCooks]);
   const unlockedIds = useMemo(() => unlockedGuideIds(app.recipes, completed), [app.recipes, completed]);
+  // Ett steg räknas bara som klart om det faktiskt lagats i rätt ordning - ett recept
+  // som råkat lagas i förtid (utan att stegen före var klara) visas varken som klart
+  // eller upplåst förrän kedjan kommit ikapp på riktigt.
+  const isLegit = (r) => completed.has(r.id) && unlockedIds.has(r.id);
 
   const totalSteps = sections.reduce((sum, s) => sum + s.steps.length, 0);
-  const doneCount = sections.reduce((sum, s) => sum + s.steps.filter((r) => completed.has(r.id)).length, 0);
+  const doneCount = sections.reduce((sum, s) => sum + s.steps.filter(isLegit).length, 0);
   const level = levelInfo(app.data.xp);
 
   return (
@@ -54,13 +58,13 @@ export function GuideScreen({ app }) {
       </div>
 
       {sections.map(({ category, steps }) => {
-        const sectionDone = steps.filter((r) => completed.has(r.id)).length;
+        const sectionDone = steps.filter(isLegit).length;
         return (
           <div key={category} id={`guide-${category.replace(/\s+/g, "-")}`} className="k-guide-section">
             <h2 className="k-guide-sh">{category} <span>{sectionDone}/{steps.length}</span></h2>
             <div className="k-guide-path">
               {steps.map((r, i) => {
-                const isDone = completed.has(r.id);
+                const isDone = isLegit(r);
                 const unlocked = unlockedIds.has(r.id);
                 const offset = i % 2 === 0 ? -56 : 56;
                 return (
