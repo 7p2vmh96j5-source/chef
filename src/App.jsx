@@ -1152,7 +1152,7 @@ export default function App() {
     ["feed", "Start", Home],
     ["discover", "Guide", GraduationCap],
     ["plus", "Skapa", Plus],
-    ["messages", "Meddelanden", MessageCircle],
+    ["messages", "Social", MessageCircle],
     ["profile", "Profil", User],
   ];
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, MessageCircle, Send, X } from "lucide-react";
+import { ArrowLeft, MessageCircle, Search, Send, X } from "lucide-react";
 import { USERS } from "../data/users.js";
 import { first, relDate } from "../lib/format.js";
 import { Avatar, Tile } from "../components/ui.jsx";
@@ -9,7 +9,22 @@ export function MessagesScreen({ app }) {
   const [text, setText] = useState("");
   const [recipeId, setRecipeId] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [query, setQuery] = useState("");
   const selectedRecipe = recipeId ? app.recipes[recipeId] : null;
+
+  const openChatWith = (id) => {
+    setSearching(false);
+    setQuery("");
+    setSelectedId(id);
+  };
+
+  const ql = query.trim().toLowerCase();
+  const searchResults = ql
+    ? Object.keys(USERS)
+        .filter((id) => id !== "me" && id !== app.currentUserId && USERS[id].name.toLowerCase().includes(ql))
+        .sort((a, b) => USERS[a].name.localeCompare(USERS[b].name, "sv"))
+    : [];
 
   // Nollställ utkastet (öppen receptmeny, valt recept, otryckt text) när man byter chatt.
   useEffect(() => {
@@ -46,7 +61,7 @@ export function MessagesScreen({ app }) {
     return (
       <div className="k-message-view">
         <header className="k-nav">
-          <button className="k-back" onClick={() => setSelectedId(null)}><ArrowLeft size={22} />Meddelanden</button>
+          <button className="k-back" onClick={() => setSelectedId(null)}><ArrowLeft size={22} />Social</button>
           <div className="k-nav-t">{first(selected.name)}</div>
           <div className="k-nav-r">
             <button className="k-plain" onClick={() => app.open("user", selectedId)} aria-label={`Visa profilen för ${selected.name}`}>
@@ -108,8 +123,36 @@ export function MessagesScreen({ app }) {
 
   return (
     <>
-      <header className="k-lt"><h1>Meddelanden</h1></header>
-      {people.length === 0 ? (
+      <header className="k-lt">
+        <h1>Social</h1>
+        <button className="k-nav-btn" onClick={() => setSearching((s) => !s)} aria-label="Sök personer" aria-pressed={searching}>
+          <Search size={22} />
+        </button>
+      </header>
+      {searching && (
+        <label className="k-search" style={{ margin: "0 16px 12px" }}>
+          <Search size={18} />
+          <input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Sök personer" aria-label="Sök personer" />
+        </label>
+      )}
+      {searching ? (
+        ql === "" ? (
+          <p className="k-empty">Skriv ett namn för att söka efter personer.</p>
+        ) : searchResults.length === 0 ? (
+          <p className="k-empty">Inga personer matchar ”{query.trim()}”.</p>
+        ) : (
+          <div className="k-list">
+            {searchResults.map((id) => (
+              <button key={id} className="k-row" onClick={() => openChatWith(id)}>
+                <Avatar user={USERS[id]} size={48} />
+                <span className="k-row-body">
+                  <span className="k-row-t">{USERS[id].name}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        )
+      ) : people.length === 0 ? (
         <div className="k-message-empty"><MessageCircle size={32} /><p>Följ vänner för att börja skriva med dem.</p></div>
       ) : (
         <div className="k-list k-message-list">
@@ -117,7 +160,7 @@ export function MessagesScreen({ app }) {
             const chat = app.data.messages[person.id] || [];
             const latest = chat[chat.length - 1];
             return (
-              <button key={person.id} className="k-row" onClick={() => setSelectedId(person.id)}>
+              <button key={person.id} className="k-row" onClick={() => openChatWith(person.id)}>
                 <Avatar user={person} size={48} />
                 <span className="k-row-body">
                   <span className="k-row-t">{person.name}</span>
