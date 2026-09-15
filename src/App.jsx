@@ -744,7 +744,9 @@ export default function App() {
         upsertSaveWithFallback({
           recipe_id: id, user_id: userId, folder_id: folderId || null,
           ...(fromUserId ? { saved_from: fromUserId } : {}),
-        }).then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
+        }).then(({ error }) => {
+          if (error) { console.error("Kunde inte synka sparat recept:", error); showToast(`Kunde inte spara i mappen: ${error.message}`); }
+        });
       }
     },
     createFolderAndSave: (recipeId, name, fromUserId) => {
@@ -765,11 +767,15 @@ export default function App() {
       setSheet(null);
       if (supabase && userId) {
         supabase.from("recipe_folders").insert({ id: folderId, user_id: userId, name: trimmed })
-          .then(({ error }) => { if (error) console.error("Kunde inte synka mappen (finns tabellen recipe_folders?):", error); });
+          .then(({ error }) => {
+            if (error) { console.error("Kunde inte synka mappen (finns tabellen recipe_folders?):", error); showToast(`Mappen kunde inte synkas: ${error.message}`); }
+          });
         upsertSaveWithFallback({
           recipe_id: recipeId, user_id: userId, folder_id: folderId,
           ...(fromUserId ? { saved_from: fromUserId } : {}),
-        }).then(({ error }) => { if (error) console.error("Kunde inte synka sparat recept:", error); });
+        }).then(({ error }) => {
+          if (error) { console.error("Kunde inte synka sparat recept:", error); showToast(`Kunde inte spara i mappen: ${error.message}`); }
+        });
       }
     },
     createFolder: (name) => {
@@ -780,7 +786,9 @@ export default function App() {
       showToast(`Mappen "${trimmed}" skapad`);
       if (supabase && userId) {
         supabase.from("recipe_folders").insert({ id: folderId, user_id: userId, name: trimmed })
-          .then(({ error }) => { if (error) console.error("Kunde inte synka mappen (finns tabellen recipe_folders?):", error); });
+          .then(({ error }) => {
+            if (error) { console.error("Kunde inte synka mappen (finns tabellen recipe_folders?):", error); showToast(`Mappen kunde inte synkas: ${error.message}`); }
+          });
       }
     },
     renameFolder: (folderId, name) => {
@@ -792,7 +800,9 @@ export default function App() {
       }));
       if (supabase && userId) {
         supabase.from("recipe_folders").update({ name: trimmed }).eq("id", folderId).eq("user_id", userId)
-          .then(({ error }) => { if (error) console.error("Kunde inte synka mappnamnet:", error); });
+          .then(({ error }) => {
+            if (error) { console.error("Kunde inte synka mappnamnet:", error); showToast(`Namnbytet kunde inte synkas: ${error.message}`); }
+          });
       }
     },
     deleteFolder: (folderId) => {
@@ -808,7 +818,9 @@ export default function App() {
       showToast("Mappen borttagen");
       if (supabase && userId) {
         supabase.from("recipe_folders").delete().eq("id", folderId).eq("user_id", userId)
-          .then(({ error }) => { if (error) console.error("Kunde inte ta bort mappen:", error); });
+          .then(({ error }) => {
+            if (error) { console.error("Kunde inte ta bort mappen:", error); showToast(`Borttagningen kunde inte synkas: ${error.message}`); }
+          });
         supabase.from("saves").update({ folder_id: null }).eq("user_id", userId).eq("folder_id", folderId)
           .then(({ error }) => { if (error) console.error("Kunde inte rensa mappen från sparade recept:", error); });
       }
@@ -820,7 +832,9 @@ export default function App() {
       setData((d) => ({ ...d, restaurantFolders: [...(d.restaurantFolders || []), { id: folderId, name: trimmed }] }));
       if (supabase && userId) {
         supabase.from("restaurant_folders").insert({ id: folderId, user_id: userId, name: trimmed })
-          .then(({ error }) => { if (error) console.error("Kunde inte synka gruppen (finns tabellen restaurant_folders?):", error); });
+          .then(({ error }) => {
+            if (error) { console.error("Kunde inte synka gruppen (finns tabellen restaurant_folders?):", error); showToast(`Gruppen kunde inte synkas: ${error.message}`); }
+          });
       }
       return folderId;
     },
@@ -833,7 +847,9 @@ export default function App() {
       }));
       if (supabase && userId) {
         supabase.from("restaurant_folders").update({ name: trimmed }).eq("id", folderId).eq("user_id", userId)
-          .then(({ error }) => { if (error) console.error("Kunde inte synka gruppnamnet:", error); });
+          .then(({ error }) => {
+            if (error) { console.error("Kunde inte synka gruppnamnet:", error); showToast(`Namnbytet kunde inte synkas: ${error.message}`); }
+          });
       }
     },
     deleteRestaurantFolder: (folderId) => {
@@ -849,7 +865,9 @@ export default function App() {
       showToast("Gruppen borttagen");
       if (supabase && userId) {
         supabase.from("restaurant_folders").delete().eq("id", folderId).eq("user_id", userId)
-          .then(({ error }) => { if (error) console.error("Kunde inte ta bort gruppen:", error); });
+          .then(({ error }) => {
+            if (error) { console.error("Kunde inte ta bort gruppen:", error); showToast(`Borttagningen kunde inte synkas: ${error.message}`); }
+          });
         supabase.from("cooks").update({ folder_id: null }).eq("user_id", userId).eq("folder_id", folderId)
           .then(({ error }) => { if (error) console.error("Kunde inte rensa gruppen från platser:", error); });
       }

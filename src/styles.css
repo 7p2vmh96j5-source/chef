@@ -3,7 +3,7 @@
 .k-root button,.k-root input,.k-root textarea,.k-root select{font-family:inherit}
 .k-root button{font:inherit;color:inherit;cursor:pointer}
 .k-root :focus-visible{outline:2px solid #007AFF;outline-offset:2px}
-.k-phone{position:relative;width:100%;max-width:430px;height:100vh;height:100dvh;background:#fff;display:flex;flex-direction:column;overflow:hidden}
+.k-phone{position:relative;width:100%;max-width:430px;height:100vh;height:100dvh;background:#fff;display:flex;flex-direction:column;overflow:hidden;transform:translateZ(0)}
 .k-status,.k-homebar{display:none}
 @media (min-width:600px){
   .k-root{padding:24px}
@@ -281,7 +281,7 @@
 .k-recipe-menu button{border:0;background:none;border-radius:8px;padding:10px 14px;color:#000;font-size:15px;text-align:left;width:100%}
 .k-recipe-menu button.danger{color:#D70015}
 .k-recipe-menu button:active{background:#F2F2F7}
-.k-confirm-backdrop{position:absolute;inset:0;z-index:60;display:grid;place-items:center;padding:24px;background:rgba(0,0,0,.35)}
+.k-confirm-backdrop{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:24px;background:rgba(0,0,0,.35)}
 .k-confirm{position:relative;width:min(320px,100%);padding:22px 18px 16px;border-radius:18px;background:#fff;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.2)}
 .k-confirm h2{margin:0 0 6px;font-size:20px}
 .k-confirm p{margin:0 0 18px;color:#6F6F74;font-size:15px}
