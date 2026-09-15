@@ -146,12 +146,12 @@ export default function App() {
     }
     let active = true;
     (async () => {
-      let { data: profileRows, error } = await supabase.from("profiles").select("id,name,bio,location,photo_url,birth_date,xp");
+      let { data: profileRows, error } = await supabase.from("profiles").select("id,name,bio,location,photo_url,birth_date,xp,dark_mode");
       if (error) {
-        // Om birth_date/xp-kolumnerna inte finns än i databasen, försök utan dem istället för att låta hela laddningen (följningar m.m.) misslyckas.
-        console.error("Kunde inte läsa profiler (med födelsedatum/xp), försöker utan:", error);
+        // Om birth_date/xp/dark_mode-kolumnerna inte finns än i databasen, försök utan dem istället för att låta hela laddningen (följningar m.m.) misslyckas.
+        console.error("Kunde inte läsa profiler (med födelsedatum/xp/mörkt läge), försöker utan:", error);
         const fallback = await supabase.from("profiles").select("id,name,bio,location,photo_url");
-        profileRows = fallback.data ? fallback.data.map((p) => ({ ...p, birth_date: null, xp: 0 })) : null;
+        profileRows = fallback.data ? fallback.data.map((p) => ({ ...p, birth_date: null, xp: 0, dark_mode: null })) : null;
         error = fallback.error;
       }
       if (!active) return;
@@ -165,11 +165,12 @@ export default function App() {
         });
         const currentProfile = profileRows.find((profile) => profile.id === userId);
         const fallbackName = session.user.user_metadata?.full_name || session.user.email?.split("@")[0]?.replace(/[._-]+/g, " ").trim() || USERS.me.name;
-        const ownProfile = currentProfile || { id: userId, name: fallbackName, bio: "", location: "", photo_url: null, birth_date: null, xp: 0 };
+        const ownProfile = currentProfile || { id: userId, name: fallbackName, bio: "", location: "", photo_url: null, birth_date: null, xp: 0, dark_mode: null };
         USERS.me = { ...USERS.me, name: ownProfile.name || fallbackName, bio: ownProfile.bio || "", xp: ownProfile.xp || 0 };
         setData((current) => ({
           ...current,
           xp: ownProfile.xp || current.xp || 0,
+          darkMode: ownProfile.dark_mode ?? current.darkMode,
           profile: {
             ...(current.profile || {}),
             name: ownProfile.name || fallbackName,
@@ -549,7 +550,14 @@ export default function App() {
     data, recipes, allCooks, myRecipesList, setSheet, photos, notifs, unread, unreadMessages, profilesLoaded, currentUserId: userId,
     refreshShared: () => (loadSharedRef.current ? loadSharedRef.current() : Promise.resolve()),
     showToast,
-    toggleDarkMode: () => setData((d) => ({ ...d, darkMode: !d.darkMode })),
+    toggleDarkMode: () => {
+      const next = !data.darkMode;
+      setData((d) => ({ ...d, darkMode: next }));
+      if (supabase && userId) {
+        supabase.from("profiles").update({ dark_mode: next }).eq("id", userId)
+          .then(({ error }) => { if (error) console.error("Kunde inte synka mörkt läge (finns kolumnen dark_mode?):", error); });
+      }
+    },
     logout: async () => {
       const { error } = await supabase.auth.signOut();
       if (error) showToast("Det gick inte att logga ut");
