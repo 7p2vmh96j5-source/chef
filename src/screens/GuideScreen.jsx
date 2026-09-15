@@ -78,7 +78,7 @@ export function GuideScreen({ app }) {
               {steps.map((r, i) => {
                 const isDone = isLegit(r);
                 const unlocked = unlockedIds.has(r.id);
-                const offset = i % 2 === 0 ? -56 : 56;
+                const offset = i % 2 === 0 ? -72 : 72;
                 const tier = tierIndexFor(i, steps.length);
                 const showTier = tier !== lastTier;
                 const tip = showTier && lastTier !== null ? tipFor(category, tier) : null;

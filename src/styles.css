@@ -244,7 +244,7 @@
 .k-guide-tip{align-self:center;z-index:1;display:flex;align-items:flex-start;gap:8px;max-width:280px;margin:2px 0 14px;padding:10px 12px;border-radius:12px;background:#FFF4D6;color:#3D2A00;font-size:12.5px;line-height:1.4}
 .k-guide-tip svg{flex:0 0 auto;margin-top:1px;color:#8A6500}
 .k-guide-path::before{content:"";position:absolute;top:0;bottom:24px;left:50%;width:3px;background:repeating-linear-gradient(#E5E5EA,#E5E5EA 6px,transparent 6px,transparent 12px);transform:translateX(-50%);z-index:0}
-.k-guide-step{position:relative;z-index:1;border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;width:136px;margin:10px 0}
+.k-guide-step{position:relative;z-index:1;border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;width:116px;margin:10px 0}
 .k-guide-node{width:60px;height:60px;border-radius:50%;background:#000;color:#fff;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.18)}
 .k-guide-node .k-guide-emoji{font-size:26px}
 .k-guide-step.done .k-guide-node{background:#FFB800}
