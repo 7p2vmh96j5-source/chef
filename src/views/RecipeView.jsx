@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Bookmark, Share, ChefHat, Check, MoreHorizontal, X } from "lucide-react";
+import { Bookmark, Share, ChefHat, Check, Lock, MoreHorizontal, X } from "lucide-react";
 import { USERS } from "../data/users.js";
 import { photoList } from "../lib/photos.js";
+import { unlockedGuideIds } from "../lib/xp.js";
 import { Avatar, Stats, NavBar } from "../components/ui.jsx";
 
 export function RecipeView({ id, app, fromUserId }) {
@@ -22,6 +23,11 @@ export function RecipeView({ id, app, fromUserId }) {
   const savedFromUser = !ownRecipe && saved && savedFromId ? USERS[savedFromId] : null;
   const toggle = (i) => setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
   const photos = photoList(app.photos[r.id]);
+  // Köket-recept ska bara gå att logga (och räknas klart) i den ordning Guide låser upp dem,
+  // även om man hittat receptet en annan väg, t.ex. via en väns inlägg i flödet.
+  const isKoketRecipe = r.author === null;
+  const cookedIds = app.cooksOf("me").filter((c) => c.recipeId).map((c) => c.recipeId);
+  const locked = isKoketRecipe && !unlockedGuideIds(app.recipes, cookedIds).has(id);
 
   return (
     <>
@@ -94,7 +100,13 @@ export function RecipeView({ id, app, fromUserId }) {
               <span>{who.length} vänner har lagat detta</span>
             </div>
           )}
-          <button className="k-primary" onClick={() => app.setSheet({ type: "log", recipeId: id })}><ChefHat size={20} />Jag lagade detta</button>
+          <button className="k-primary" onClick={() => {
+            if (locked) { app.showToast("Lås upp genom att laga föregående steg i Guide först"); return; }
+            app.setSheet({ type: "log", recipeId: id });
+          }}>
+            {locked ? <Lock size={18} /> : <ChefHat size={20} />}
+            {locked ? "Låst i Guide" : "Jag lagade detta"}
+          </button>
 
           <div className="k-block">
             <h2 className="k-h3">Ingredienser</h2>
