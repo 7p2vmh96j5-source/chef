@@ -240,6 +240,9 @@
 .k-guide-sh{display:flex;align-items:baseline;justify-content:space-between;font-size:18px;font-weight:700;letter-spacing:-.3px;margin:22px 16px 2px}
 .k-guide-sh span{font-size:13px;font-weight:600;color:#8E8E93}
 .k-guide-path{position:relative;padding:10px 16px 32px;display:flex;flex-direction:column;align-items:center}
+.k-guide-tier{align-self:stretch;text-align:center;font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#8E8E93;background:#fff;margin:18px 0 10px;padding:0 10px;position:relative;z-index:1}
+.k-guide-tip{align-self:center;z-index:1;display:flex;align-items:flex-start;gap:8px;max-width:280px;margin:2px 0 14px;padding:10px 12px;border-radius:12px;background:#FFF4D6;color:#3D2A00;font-size:12.5px;line-height:1.4}
+.k-guide-tip svg{flex:0 0 auto;margin-top:1px;color:#8A6500}
 .k-guide-path::before{content:"";position:absolute;top:0;bottom:24px;left:50%;width:3px;background:repeating-linear-gradient(#E5E5EA,#E5E5EA 6px,transparent 6px,transparent 12px);transform:translateX(-50%);z-index:0}
 .k-guide-step{position:relative;z-index:1;border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;width:136px;margin:10px 0}
 .k-guide-node{width:60px;height:60px;border-radius:50%;background:#000;color:#fff;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.18)}
@@ -452,6 +455,7 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-root[data-theme="dark"] .k-lt-row,
 .k-root[data-theme="dark"] .k-logout,
 .k-root[data-theme="dark"] .k-recipe-menu,
+.k-root[data-theme="dark"] .k-guide-tier,
 .k-root[data-theme="dark"] .k-message-recipe-menu{background:#1C1C1E}
 .k-root[data-theme="dark"] .k-tabs{background:rgba(28,28,30,.94);border-top-color:#38383A}
 .k-root[data-theme="dark"] .k-push-glass{background:rgba(28,28,30,.72)}
@@ -576,6 +580,7 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-root[data-theme="dark"] .k-shared small,
 .k-root[data-theme="dark"] .k-guide-intro,
 .k-root[data-theme="dark"] .k-guide-sh span,
+.k-root[data-theme="dark"] .k-guide-tier,
 .k-root[data-theme="dark"] .k-level-xp,
 .k-root[data-theme="dark"] .k-ph-more,
 .k-root[data-theme="dark"] .k-ph-add,
@@ -637,7 +642,9 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-root[data-theme="dark"] .k-mod.added,
 .k-root[data-theme="dark"] .k-tag.changed,
 .k-root[data-theme="dark"] .k-message.mine .k-message-recipe,
+.k-root[data-theme="dark"] .k-guide-tip,
 .k-root[data-theme="dark"] .k-notif.new{background:#332B14;color:#F0DFA8}
+.k-root[data-theme="dark"] .k-guide-tip svg{color:#F0DFA8}
 .k-root[data-theme="dark"] .k-create small{color:#C9B685}
 
 /* Röd/varning */
