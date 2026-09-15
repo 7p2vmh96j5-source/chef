@@ -25,10 +25,19 @@ export function GuideScreen({ app }) {
         <span className="k-level-bar"><span style={{ width: `${totalSteps ? (doneCount / totalSteps) * 100 : 0}%` }} /></span>
       </div>
 
+      <div className="k-chips">
+        {sections.map(({ category }) => (
+          <button key={category} className="k-chip" onClick={() => {
+            const el = document.getElementById(`guide-${category.replace(/\s+/g, "-")}`);
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}>{category}</button>
+        ))}
+      </div>
+
       {sections.map(({ category, steps }) => {
         const sectionDone = steps.filter((r) => completed.has(r.id)).length;
         return (
-          <div key={category} className="k-guide-section">
+          <div key={category} id={`guide-${category.replace(/\s+/g, "-")}`} className="k-guide-section">
             <h2 className="k-guide-sh">{category} <span>{sectionDone}/{steps.length}</span></h2>
             <div className="k-guide-path">
               {steps.map((r, i) => {
