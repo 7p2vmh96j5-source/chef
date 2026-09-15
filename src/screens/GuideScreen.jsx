@@ -1,9 +1,19 @@
-import { useMemo } from "react";
-import { Check, Lock, Trophy } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowUp, Check, Lock, Trophy } from "lucide-react";
 import { guideSections, levelInfo } from "../lib/xp.js";
 
 export function GuideScreen({ app }) {
   const sections = useMemo(() => guideSections(app.recipes), [app.recipes]);
+  const rootRef = useRef(null);
+  const [showTop, setShowTop] = useState(false);
+
+  useEffect(() => {
+    const scroller = rootRef.current && rootRef.current.closest(".k-scroll");
+    if (!scroller) return undefined;
+    const onScroll = () => setShowTop(scroller.scrollTop > 300);
+    scroller.addEventListener("scroll", onScroll);
+    return () => scroller.removeEventListener("scroll", onScroll);
+  }, []);
 
   const completed = useMemo(() => {
     const set = new Set();
@@ -16,7 +26,15 @@ export function GuideScreen({ app }) {
   const level = levelInfo(app.data.xp);
 
   return (
-    <div className="k-guide">
+    <div className="k-guide" ref={rootRef}>
+      {showTop && (
+        <button className="k-guide-top-btn" aria-label="Till toppen" onClick={() => {
+          const scroller = rootRef.current && rootRef.current.closest(".k-scroll");
+          if (scroller) scroller.scrollTo({ top: 0, behavior: "smooth" });
+        }}>
+          <ArrowUp size={19} strokeWidth={2.4} />
+        </button>
+      )}
       <header className="k-lt"><h1>Guide</h1></header>
       <p className="k-guide-intro">Jobba dig igenom recepten steg för steg, avsnitt för avsnitt, från enkelt till avancerat. Varje steg du lagar ger XP och låser upp nästa.</p>
       <div className="k-guide-progress">
