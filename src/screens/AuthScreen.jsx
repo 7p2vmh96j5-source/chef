@@ -91,7 +91,7 @@ export function AuthScreen({ recovery = false, onRecoveryComplete }) {
   };
 
   return (
-    <div className="k-root k-auth-root">
+    <div className="k-root">
       <div className="k-phone">
         <div className="k-status" aria-hidden="true"><span>9:41</span><span className="k-batt"><i /></span></div>
         <div className="k-body">
