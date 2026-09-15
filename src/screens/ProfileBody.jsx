@@ -5,8 +5,7 @@ import { first, times, relDate } from "../lib/format.js";
 import { topRecipes, mutualText } from "../lib/social.js";
 import { photoList } from "../lib/photos.js";
 import { levelInfo } from "../lib/xp.js";
-import { latestBadge } from "../lib/badges.js";
-import { Avatar, BadgeIcon, Seg } from "../components/ui.jsx";
+import { Avatar, Seg } from "../components/ui.jsx";
 import { RecipeRow, RestaurantRow, FollowButton } from "../components/rows.jsx";
 import { Gallery } from "../components/Gallery.jsx";
 
@@ -35,7 +34,6 @@ export function ProfileBody({ uid, app }) {
   const mutual = isMe ? [] : app.mutualWith(uid);
   const followsMe = !isMe && app.followingOf(uid).includes("me");
   const level = levelInfo(isMe ? app.data.xp : USERS[uid]?.xp);
-  const badge = latestBadge(isMe ? app.data.xp : USERS[uid]?.xp);
 
   const activity = (
     <>
@@ -114,12 +112,7 @@ export function ProfileBody({ uid, app }) {
         <div className="k-prof-top">
           <Avatar user={u} size={72} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.name}</span>
-              <button className="k-badge-latest" onClick={() => app.setSheet({ type: "badges", uid })} aria-label="Visa alla badges">
-                <BadgeIcon badge={badge} size={26} />
-              </button>
-            </h2>
+            <h2>{u.name}</h2>
             {isMe && age !== "" && <div className="k-meta">{age} år</div>}
             {isMe && u.location && <div className="k-meta">{u.location}</div>}
             {followsMe && <div className="k-meta">Följer dig</div>}

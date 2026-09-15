@@ -54,17 +54,6 @@ export function Stars({ value, size = 14 }) {
   );
 }
 
-export function BadgeIcon({ badge, size = 40, locked }) {
-  return (
-    <span
-      className={"k-badge-icon" + (locked ? " locked" : "")}
-      style={{ width: size, height: size, fontSize: size * 0.55, background: locked ? "#F2F2F7" : badge.style.bg, boxShadow: locked ? "none" : `0 0 0 2px ${badge.style.ring}` }}
-    >
-      {locked ? "?" : badge.emoji}
-    </span>
-  );
-}
-
 export function Stats({ cookedCount }) {
   if (cookedCount === undefined) return null;
   return (
