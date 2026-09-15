@@ -408,7 +408,7 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-auth-root .k-batt i{background:#E8FBFF}
 .k-auth-root .k-homebar{background:#2FD9E8}
 .k-auth-scroll{display:flex;flex-direction:column;justify-content:center;padding:24px 16px;background:#05070A}
-.k-auth{width:100%;padding:30px 22px 26px;border:1px dashed #2FD9E8;border-radius:6px;background:#0B0F14;box-shadow:0 20px 60px rgba(0,0,0,.5);font-family:"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace}
+.k-auth{width:100%;padding:30px 22px 26px;border:1px dashed #2FD9E8;border-radius:6px;background:#0B0F14;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .k-auth-brand{text-align:center}
 .k-auth-brand h1{margin:14px 0 2px;font-size:22px;letter-spacing:1px;color:#EAFBFF}
 .k-auth-brand p{margin:0;color:#6FA3AE;font-size:13px;line-height:1.4}
