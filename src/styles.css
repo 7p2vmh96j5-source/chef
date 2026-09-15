@@ -273,6 +273,10 @@
 .k-seg button{flex:1;border:0;background:none;padding:6px 4px;font-size:13px!important;font-weight:500!important;border-radius:7px}
 .k-seg button.on{background:#fff;font-weight:600!important;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .k-wide{display:flex;align-items:center;justify-content:center;gap:8px;width:calc(100% - 32px);margin:14px 16px 4px;border:0;background:#F2F2F7;border-radius:12px;padding:12px;font-size:16px!important;font-weight:600!important}
+.k-switch{position:relative;width:44px;height:26px;border-radius:13px;background:#E5E5EA;flex:0 0 auto;transition:background .2s}
+.k-switch span{position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:11px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.k-switch.on{background:#000}
+.k-switch.on span{transform:translateX(18px)}
 .k-reset{display:flex;align-items:center;gap:6px;margin:28px auto 36px;border:0;background:none;color:#8E8E93!important;font-size:14px!important}
 
 .k-nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:46px;padding:0 6px;background:#fff;flex-shrink:0;border-bottom:.5px solid #E5E5EA}
@@ -415,3 +419,229 @@ textarea.k-input{resize:vertical;min-height:100px;line-height:1.4}
 .k-auth-error{color:#B33A4A}
 .k-auth-message{color:#52758E}
 .k-auth-loading{color:#718291;font-size:16px}
+
+/* Mörkt läge - AuthScreen har en egen k-root och påverkas inte */
+.k-root[data-theme="dark"]{background:#000;color:#F2F2F7}
+.k-root[data-theme="dark"] :focus-visible{outline-color:#5AC8FA}
+
+/* Ytor: kort, sheets, navigationsfält */
+.k-root[data-theme="dark"] .k-phone,
+.k-root[data-theme="dark"] .k-status,
+.k-root[data-theme="dark"] .k-panel,
+.k-root[data-theme="dark"] .k-feed-item,
+.k-root[data-theme="dark"] .k-post,
+.k-root[data-theme="dark"] .k-social,
+.k-root[data-theme="dark"] .k-actions-wrap,
+.k-root[data-theme="dark"] .k-compose,
+.k-root[data-theme="dark"] .k-nav,
+.k-root[data-theme="dark"] .k-confirm,
+.k-root[data-theme="dark"] .k-push,
+.k-root[data-theme="dark"] .k-sheet,
+.k-root[data-theme="dark"] .k-as-g,
+.k-root[data-theme="dark"] .k-as-cancel,
+.k-root[data-theme="dark"] .k-actions,
+.k-root[data-theme="dark"] .k-act,
+.k-root[data-theme="dark"] .k-message-view,
+.k-root[data-theme="dark"] .k-message-compose,
+.k-root[data-theme="dark"] .k-lt-row,
+.k-root[data-theme="dark"] .k-logout,
+.k-root[data-theme="dark"] .k-recipe-menu,
+.k-root[data-theme="dark"] .k-message-recipe-menu{background:#1C1C1E}
+.k-root[data-theme="dark"] .k-tabs{background:rgba(28,28,30,.94);border-top-color:#38383A}
+.k-root[data-theme="dark"] .k-push-glass{background:rgba(28,28,30,.72)}
+.k-root[data-theme="dark"] .k-push-glass .k-nav{background:rgba(28,28,30,.72);border-bottom-color:rgba(58,58,60,.72)}
+.k-root[data-theme="dark"] .k-push-glass .k-row{background:rgba(44,44,46,.58)}
+.k-root[data-theme="dark"] .k-scroll.grey{background:#000}
+.k-root[data-theme="dark"] .k-seg{background:#2C2C2E}
+.k-root[data-theme="dark"] .k-seg button.on{background:#3A3A3C;box-shadow:none}
+
+/* Sekundära ytor: inputs, piller, taggar, tumnaglar */
+.k-root[data-theme="dark"] .k-ph-add,
+.k-root[data-theme="dark"] .k-ph-more,
+.k-root[data-theme="dark"] .k-ph-prev,
+.k-root[data-theme="dark"] .k-date-selects select,
+.k-root[data-theme="dark"] .k-shared,
+.k-root[data-theme="dark"] .k-photo-img,
+.k-root[data-theme="dark"] .k-mod,
+.k-root[data-theme="dark"] .k-tag,
+.k-root[data-theme="dark"] .k-sel input,
+.k-root[data-theme="dark"] .k-step-dot,
+.k-root[data-theme="dark"] .k-add-i,
+.k-root[data-theme="dark"] .k-mums,
+.k-root[data-theme="dark"] .k-field,
+.k-root[data-theme="dark"] .k-search,
+.k-root[data-theme="dark"] .k-message p,
+.k-root[data-theme="dark"] .k-message-recipe,
+.k-root[data-theme="dark"] .k-message-more-btn,
+.k-root[data-theme="dark"] .k-message-recipe-chip,
+.k-root[data-theme="dark"] .k-feed-share,
+.k-root[data-theme="dark"] .k-chip,
+.k-root[data-theme="dark"] .k-lb-bar,
+.k-root[data-theme="dark"] .k-level-bar,
+.k-root[data-theme="dark"] .k-guide-step.locked .k-guide-node,
+.k-root[data-theme="dark"] .k-follow.on,
+.k-root[data-theme="dark"] .k-wide,
+.k-root[data-theme="dark"] .k-confirm-close,
+.k-root[data-theme="dark"] .k-confirm-no,
+.k-root[data-theme="dark"] .k-input,
+.k-root[data-theme="dark"] .k-emo,
+.k-root[data-theme="dark"] .k-switch{background:#2C2C2E}
+
+/* Tryckt/aktivt tillstånd samt avdelare */
+.k-root[data-theme="dark"] .k-refresh:active,
+.k-root[data-theme="dark"] .k-message-recipe-menu button:active,
+.k-root[data-theme="dark"] .k-recipe-menu button:active,
+.k-root[data-theme="dark"] .k-feed-share:active,
+.k-root[data-theme="dark"] .k-logout:active,
+.k-root[data-theme="dark"] .k-send:disabled,
+.k-root[data-theme="dark"] .k-primary:disabled{background:#3A3A3C!important}
+.k-root[data-theme="dark"] .k-stats>*+*,
+.k-root[data-theme="dark"] .k-compose,
+.k-root[data-theme="dark"] .k-nav,
+.k-root[data-theme="dark"] .k-sheet-f,
+.k-root[data-theme="dark"] .k-as-b+.k-as-b,
+.k-root[data-theme="dark"] .k-message-compose,
+.k-root[data-theme="dark"] .k-actions,
+.k-root[data-theme="dark"] .k-ed,
+.k-root[data-theme="dark"] .k-var li,
+.k-root[data-theme="dark"] .k-sel,
+.k-root[data-theme="dark"] .k-custom-steps li,
+.k-root[data-theme="dark"] .k-ing,
+.k-root[data-theme="dark"] .k-message-recipe-menu,
+.k-root[data-theme="dark"] .k-recipe-menu,
+.k-root[data-theme="dark"] .k-pick,
+.k-root[data-theme="dark"] .k-kitchen-note,
+.k-root[data-theme="dark"] .k-logout{border-color:#3A3A3C}
+.k-root[data-theme="dark"] .k-ph-add,
+.k-root[data-theme="dark"] .k-ph-more{border-color:#48484A}
+.k-root[data-theme="dark"] .k-list>.k-row:not(:last-child)::after{background:#3A3A3C}
+.k-root[data-theme="dark"] .k-guide-path::before{background:repeating-linear-gradient(#3A3A3C,#3A3A3C 6px,transparent 6px,transparent 12px)}
+.k-root[data-theme="dark"] .k-grab{background:#5A5A5C}
+.k-root[data-theme="dark"] .k-check{box-shadow:inset 0 0 0 1.5px #5A5A5C}
+.k-root[data-theme="dark"] .k-switch.on{background:#fff}
+.k-root[data-theme="dark"] .k-switch.on span{background:#000}
+
+/* Text: primär (vit) */
+.k-root[data-theme="dark"] .k-date-selects select,
+.k-root[data-theme="dark"] .k-ed input,
+.k-root[data-theme="dark"] .k-sel input,
+.k-root[data-theme="dark"] .k-add-step,
+.k-root[data-theme="dark"] .k-cmt b,
+.k-root[data-theme="dark"] .k-field,
+.k-root[data-theme="dark"] .k-search input,
+.k-root[data-theme="dark"] .k-message-recipe-menu button,
+.k-root[data-theme="dark"] .k-recipe-menu button,
+.k-root[data-theme="dark"] .k-saved-from b,
+.k-root[data-theme="dark"] .k-input,
+.k-root[data-theme="dark"] .k-act.on{color:#F2F2F7!important}
+.k-root[data-theme="dark"] .k-follow.on{color:#F2F2F7!important}
+.k-root[data-theme="dark"] .k-mod.more{color:#F2F2F7!important}
+
+/* Text: sekundär (ljusgrå, starkare) */
+.k-root[data-theme="dark"] .k-note,
+.k-root[data-theme="dark"] .k-cmt,
+.k-root[data-theme="dark"] .k-cm p,
+.k-root[data-theme="dark"] .k-mutual,
+.k-root[data-theme="dark"] .k-act,
+.k-root[data-theme="dark"] .k-recipe-credit b,
+.k-root[data-theme="dark"] .k-mod,
+.k-root[data-theme="dark"] .k-tag,
+.k-root[data-theme="dark"] .k-shared,
+.k-root[data-theme="dark"] .k-message-recipe,
+.k-root[data-theme="dark"] .k-message p,
+.k-root[data-theme="dark"] .k-bio{color:#EBEBF0!important}
+
+/* Text: dämpad/meta (grå) */
+.k-root[data-theme="dark"] .k-meta,
+.k-root[data-theme="dark"] .k-empty,
+.k-root[data-theme="dark"] .k-end,
+.k-root[data-theme="dark"] .k-recipe-credit,
+.k-root[data-theme="dark"] .k-recipe-source,
+.k-root[data-theme="dark"] .k-recipe-source-link,
+.k-root[data-theme="dark"] .k-saved-from,
+.k-root[data-theme="dark"] .k-mums-count,
+.k-root[data-theme="dark"] .k-more,
+.k-root[data-theme="dark"] .k-tab,
+.k-root[data-theme="dark"] .k-label,
+.k-root[data-theme="dark"] .k-message-time,
+.k-root[data-theme="dark"] .k-message>small,
+.k-root[data-theme="dark"] .k-message-recipe small,
+.k-root[data-theme="dark"] .k-message-empty,
+.k-root[data-theme="dark"] .k-shared small,
+.k-root[data-theme="dark"] .k-guide-intro,
+.k-root[data-theme="dark"] .k-guide-sh span,
+.k-root[data-theme="dark"] .k-level-xp,
+.k-root[data-theme="dark"] .k-ph-more,
+.k-root[data-theme="dark"] .k-ph-add,
+.k-root[data-theme="dark"] .k-stats span,
+.k-root[data-theme="dark"] .k-comment-like,
+.k-root[data-theme="dark"] .k-ed-btn,
+.k-root[data-theme="dark"] .k-save-count,
+.k-root[data-theme="dark"] .k-messages small,
+.k-root[data-theme="dark"] .k-rank,
+.k-root[data-theme="dark"] .k-gi span,
+.k-root[data-theme="dark"] .k-row-s,
+.k-root[data-theme="dark"] .k-reset,
+.k-root[data-theme="dark"] .k-search{color:#98989F!important}
+.k-root[data-theme="dark"] .k-comment-like.on{color:#FF6B85!important}
+.k-root[data-theme="dark"] .k-primary:disabled{color:#98989F!important}
+
+/* Svart/vit-knappar (send, plus, primary, m.fl.) vänds till vit bakgrund/svart text i mörkt läge */
+.k-root[data-theme="dark"] .k-settings-photo-edit,
+.k-root[data-theme="dark"] .k-send,
+.k-root[data-theme="dark"] .k-plus,
+.k-root[data-theme="dark"] .k-primary,
+.k-root[data-theme="dark"] .k-steps li::before,
+.k-root[data-theme="dark"] .k-create-i,
+.k-root[data-theme="dark"] .k-as-i,
+.k-root[data-theme="dark"] .k-tag.added,
+.k-root[data-theme="dark"] .k-act.on .k-mums,
+.k-root[data-theme="dark"] .k-level-badge,
+.k-root[data-theme="dark"] .k-guide-top-btn,
+.k-root[data-theme="dark"] .k-follow,
+.k-root[data-theme="dark"] .k-chip.on,
+.k-root[data-theme="dark"] .k-check.on,
+.k-root[data-theme="dark"] .k-message.mine p{background:#fff!important}
+.k-root[data-theme="dark"] .k-settings-photo-edit,
+.k-root[data-theme="dark"] .k-send,
+.k-root[data-theme="dark"] .k-plus,
+.k-root[data-theme="dark"] .k-primary,
+.k-root[data-theme="dark"] .k-steps li::before,
+.k-root[data-theme="dark"] .k-create-i,
+.k-root[data-theme="dark"] .k-as-i,
+.k-root[data-theme="dark"] .k-tag.added,
+.k-root[data-theme="dark"] .k-act.on .k-mums,
+.k-root[data-theme="dark"] .k-level-badge,
+.k-root[data-theme="dark"] .k-guide-top-btn,
+.k-root[data-theme="dark"] .k-follow,
+.k-root[data-theme="dark"] .k-chip.on,
+.k-root[data-theme="dark"] .k-check.on,
+.k-root[data-theme="dark"] .k-message.mine p{color:#000!important}
+.k-root[data-theme="dark"] .k-tab.on{color:#fff!important}
+/* k-guide-node: skriv om samtliga tre tillstånd explicit så "klar"/"låst" inte råkar ärva grundfärgen */
+.k-root[data-theme="dark"] .k-guide-node{background:#fff;color:#000}
+.k-root[data-theme="dark"] .k-guide-step.done .k-guide-node{background:#FFB800;color:#000}
+.k-root[data-theme="dark"] .k-guide-step.locked .k-guide-node{background:#2C2C2E;color:#6E6E72}
+.k-root[data-theme="dark"] .k-guide-step.locked .k-guide-label b,
+.k-root[data-theme="dark"] .k-guide-step.locked .k-guide-label span{color:#6E6E72}
+
+/* Ljusa "highlight"-ytor (tips, delade recept, olästa notiser) */
+.k-root[data-theme="dark"] .k-proof,
+.k-root[data-theme="dark"] .k-create,
+.k-root[data-theme="dark"] .k-mod.added,
+.k-root[data-theme="dark"] .k-tag.changed,
+.k-root[data-theme="dark"] .k-message.mine .k-message-recipe,
+.k-root[data-theme="dark"] .k-notif.new{background:#332B14;color:#F0DFA8}
+.k-root[data-theme="dark"] .k-create small{color:#C9B685}
+
+/* Röd/varning */
+.k-root[data-theme="dark"] .k-recipe-menu button.danger,
+.k-root[data-theme="dark"] .k-err,
+.k-root[data-theme="dark"] .k-logout{color:#FF6B6B}
+.k-root[data-theme="dark"] .k-confirm-yes{background:#FF453A}
+.k-root[data-theme="dark"] .k-confirm p{color:#98989F}
+
+/* Skrivbordsmockupens statusfält (endast synligt ≥600px) */
+.k-root[data-theme="dark"] .k-batt{border-color:rgba(255,255,255,.45)}
+.k-root[data-theme="dark"] .k-batt i{background:#fff}
+.k-root[data-theme="dark"] .k-homebar{background:#fff}

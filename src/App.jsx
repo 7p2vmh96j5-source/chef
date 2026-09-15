@@ -549,6 +549,7 @@ export default function App() {
     data, recipes, allCooks, myRecipesList, setSheet, photos, notifs, unread, unreadMessages, profilesLoaded, currentUserId: userId,
     refreshShared: () => (loadSharedRef.current ? loadSharedRef.current() : Promise.resolve()),
     showToast,
+    toggleDarkMode: () => setData((d) => ({ ...d, darkMode: !d.darkMode })),
     logout: async () => {
       const { error } = await supabase.auth.signOut();
       if (error) showToast("Det gick inte att logga ut");
@@ -1154,7 +1155,7 @@ export default function App() {
 
   return (
     <PhotoCtx.Provider value={photos}>
-    <div className="k-root">
+    <div className="k-root" data-theme={data.darkMode ? "dark" : "light"}>
       <div className="k-phone">
         <div className="k-status" aria-hidden="true"><span>9:41</span><span className="k-batt"><i /></span></div>
         <div className="k-body">

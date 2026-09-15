@@ -57,6 +57,7 @@ export function defaultData() {
     restaurantFolders: [],
     restaurantFolderOf: {},
     xp: 0,
+    darkMode: false,
     following: [],
     mums: {},
     comments: {},
