@@ -91,79 +91,87 @@ export function AuthScreen({ recovery = false, onRecoveryComplete }) {
   };
 
   return (
-    <div className="k-root">
-      <main className="k-auth">
-        <div className="k-auth-brand">
-          <span className="k-auth-icon"><ChefHat size={26} /></span>
-          <h1>Foodtho</h1>
-          <p>
-            {recovery ? "Välj ett nytt lösenord"
-              : mode === "forgot" ? "Återställ ditt lösenord"
-              : mode === "login" ? "Välkommen tillbaka — logga in på ditt konto"
-              : "Skapa ett nytt konto"}
-          </p>
+    <div className="k-root k-auth-root">
+      <div className="k-phone">
+        <div className="k-status" aria-hidden="true"><span>9:41</span><span className="k-batt"><i /></span></div>
+        <div className="k-body">
+          <main className="k-scroll k-auth-scroll">
+            <div className="k-auth">
+              <div className="k-auth-brand">
+                <span className="k-auth-icon"><ChefHat size={26} /></span>
+                <h1>Foodtho</h1>
+                <p>
+                  {recovery ? "Välj ett nytt lösenord"
+                    : mode === "forgot" ? "Återställ ditt lösenord"
+                    : mode === "login" ? "Välkommen tillbaka — logga in på ditt konto"
+                    : "Skapa ett nytt konto"}
+                </p>
+              </div>
+              <form className="k-auth-form" onSubmit={submit}>
+                {!recovery && (
+                  <>
+                    <label className="k-label" htmlFor="auth-email">E-post</label>
+                    <input id="auth-email" className="k-input" type="email" autoComplete="email" value={email}
+                      onChange={(event) => setEmail(event.target.value)} placeholder="namn@exempel.se" />
+                  </>
+                )}
+                {!recovery && mode !== "forgot" && <>
+                  <label className="k-label" htmlFor="auth-password">Lösenord</label>
+                  <div className="k-auth-password">
+                    <input id="auth-password" className="k-input" type={showPassword ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"}
+                      value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Minst 6 tecken" />
+                    <button type="button" className="k-auth-password-toggle" onClick={() => setShowPassword((visible) => !visible)}
+                      aria-label={showPassword ? "Dölj lösenord" : "Visa lösenord"}>
+                      {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+                    </button>
+                  </div>
+                </>}
+                {recovery && <>
+                  <label className="k-label" htmlFor="auth-password">Nytt lösenord</label>
+                  <div className="k-auth-password">
+                    <input id="auth-password" className="k-input" type={showPassword ? "text" : "password"} autoComplete="new-password"
+                      value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Minst 6 tecken" />
+                    <button type="button" className="k-auth-password-toggle" onClick={() => setShowPassword((visible) => !visible)}
+                      aria-label={showPassword ? "Dölj lösenord" : "Visa lösenord"}>
+                      {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+                    </button>
+                  </div>
+                  <label className="k-label" htmlFor="auth-confirm-password">Upprepa lösenord</label>
+                  <input id="auth-confirm-password" className="k-input" type={showPassword ? "text" : "password"} autoComplete="new-password"
+                    value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="Skriv lösenordet igen" />
+                </>}
+                {!recovery && mode === "login" && (
+                  <button type="button" className="k-auth-forgot" onClick={() => switchMode("forgot")}>Glömt lösenordet?</button>
+                )}
+                {error && <p className="k-auth-error" role="alert">{error}</p>}
+                {message && <p className="k-auth-message" role="status">{message}</p>}
+                <button className="k-auth-submit" type="submit" disabled={busy}>
+                  {busy ? "Arbetar..." : recovery ? "Byt lösenord" : mode === "forgot" ? "Skicka återställningslänk" : mode === "login" ? "Logga in" : "Skapa konto"}
+                </button>
+              </form>
+
+              {!recovery && mode !== "forgot" && (
+                <>
+                  <div className="k-auth-divider">eller</div>
+                  <div className="k-auth-oauth">
+                    <button type="button" onClick={() => oauth("apple")}>Apple — Fortsätt med</button>
+                    <button type="button" onClick={() => oauth("google")}>Google — Fortsätt med</button>
+                  </div>
+                </>
+              )}
+
+              {!recovery && (
+                <button className="k-auth-switch" type="button" onClick={() => switchMode(mode === "forgot" ? "login" : mode === "login" ? "signup" : "login")}>
+                  {mode === "forgot" ? "Tillbaka till inloggning"
+                    : mode === "login" ? "Har du inget konto? Skapa konto"
+                    : "Har du redan ett konto? Logga in"}
+                </button>
+              )}
+            </div>
+          </main>
         </div>
-        <form className="k-auth-form" onSubmit={submit}>
-          {!recovery && (
-            <>
-              <label className="k-label" htmlFor="auth-email">E-post</label>
-              <input id="auth-email" className="k-input" type="email" autoComplete="email" value={email}
-                onChange={(event) => setEmail(event.target.value)} placeholder="namn@exempel.se" />
-            </>
-          )}
-          {!recovery && mode !== "forgot" && <>
-            <label className="k-label" htmlFor="auth-password">Lösenord</label>
-            <div className="k-auth-password">
-              <input id="auth-password" className="k-input" type={showPassword ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"}
-                value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Minst 6 tecken" />
-              <button type="button" className="k-auth-password-toggle" onClick={() => setShowPassword((visible) => !visible)}
-                aria-label={showPassword ? "Dölj lösenord" : "Visa lösenord"}>
-                {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
-              </button>
-            </div>
-          </>}
-          {recovery && <>
-            <label className="k-label" htmlFor="auth-password">Nytt lösenord</label>
-            <div className="k-auth-password">
-              <input id="auth-password" className="k-input" type={showPassword ? "text" : "password"} autoComplete="new-password"
-                value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Minst 6 tecken" />
-              <button type="button" className="k-auth-password-toggle" onClick={() => setShowPassword((visible) => !visible)}
-                aria-label={showPassword ? "Dölj lösenord" : "Visa lösenord"}>
-                {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
-              </button>
-            </div>
-            <label className="k-label" htmlFor="auth-confirm-password">Upprepa lösenord</label>
-            <input id="auth-confirm-password" className="k-input" type={showPassword ? "text" : "password"} autoComplete="new-password"
-              value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="Skriv lösenordet igen" />
-          </>}
-          {!recovery && mode === "login" && (
-            <button type="button" className="k-auth-forgot" onClick={() => switchMode("forgot")}>Glömt lösenordet?</button>
-          )}
-          {error && <p className="k-auth-error" role="alert">{error}</p>}
-          {message && <p className="k-auth-message" role="status">{message}</p>}
-          <button className="k-auth-submit" type="submit" disabled={busy}>
-            {busy ? "Arbetar..." : recovery ? "Byt lösenord" : mode === "forgot" ? "Skicka återställningslänk" : mode === "login" ? "Logga in" : "Skapa konto"}
-          </button>
-        </form>
-
-        {!recovery && mode !== "forgot" && (
-          <>
-            <div className="k-auth-divider">eller</div>
-            <div className="k-auth-oauth">
-              <button type="button" onClick={() => oauth("apple")}>Apple — Fortsätt med</button>
-              <button type="button" onClick={() => oauth("google")}>Google — Fortsätt med</button>
-            </div>
-          </>
-        )}
-
-        {!recovery && (
-          <button className="k-auth-switch" type="button" onClick={() => switchMode(mode === "forgot" ? "login" : mode === "login" ? "signup" : "login")}>
-            {mode === "forgot" ? "Tillbaka till inloggning"
-              : mode === "login" ? "Har du inget konto? Skapa konto"
-              : "Har du redan ett konto? Logga in"}
-          </button>
-        )}
-      </main>
+        <div className="k-homebar" />
+      </div>
     </div>
   );
 }
