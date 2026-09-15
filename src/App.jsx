@@ -27,6 +27,7 @@ import { LogSheet } from "./sheets/LogSheet.jsx";
 import { NewRecipeSheet } from "./sheets/NewRecipeSheet.jsx";
 import { ShareSheet } from "./sheets/ShareSheet.jsx";
 import { ProfileSettingsSheet } from "./sheets/ProfileSettingsSheet.jsx";
+import { EditProfileSheet } from "./sheets/EditProfileSheet.jsx";
 import { SaveRecipeSheet } from "./sheets/SaveRecipeSheet.jsx";
 import { MyFoldersSheet } from "./sheets/MyFoldersSheet.jsx";
 import { MyRestaurantFoldersSheet } from "./sheets/MyRestaurantFoldersSheet.jsx";
@@ -1219,6 +1220,7 @@ export default function App() {
           {sheet?.type === "new" && <NewRecipeSheet app={app} onClose={() => setSheet(null)} />}
           {sheet?.type === "share" && <ShareSheet app={app} recipeId={sheet.recipeId} onClose={() => setSheet(null)} />}
           {sheet?.type === "profile-settings" && <ProfileSettingsSheet app={app} onClose={() => setSheet(null)} />}
+          {sheet?.type === "edit-profile" && <EditProfileSheet app={app} onClose={() => setSheet(null)} />}
           {sheet?.type === "saveTo" && <SaveRecipeSheet app={app} recipeId={sheet.recipeId} fromUserId={sheet.fromUserId} onClose={() => setSheet(null)} />}
           {sheet?.type === "my-folders" && <MyFoldersSheet app={app} onClose={() => setSheet(null)} />}
           {sheet?.type === "my-restaurant-folders" && <MyRestaurantFoldersSheet app={app} onClose={() => setSheet(null)} />}
